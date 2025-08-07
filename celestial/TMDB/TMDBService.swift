@@ -11,7 +11,7 @@ class TMDBService: ObservableObject {
     static let shared = TMDBService()
     
     static let tmdbBaseURL = "https://api.themoviedb.org/3"
-    static let tmdbImageBaseURL = "https://image.tmdb.org/t/p/w500"
+    static let tmdbImageBaseURL = "https://image.tmdb.org/t/p/original"
     
     private let apiKey = "738b4edd0a156cc126dc4a4b8aea4aca"
     private let baseURL = tmdbBaseURL
@@ -77,6 +77,74 @@ class TMDBService: ObservableObject {
             let (data, _) = try await URLSession.shared.data(from: url)
             let response = try JSONDecoder().decode(TMDBTVSearchResponse.self, from: data)
             return response.results
+        } catch {
+            throw TMDBError.networkError(error)
+        }
+    }
+    
+    // MARK: - Get Movie Details
+    func getMovieDetails(id: Int) async throws -> TMDBMovieDetail {
+        let urlString = "\(baseURL)/movie/\(id)?api_key=\(apiKey)&language=\(currentLanguage)"
+        
+        guard let url = URL(string: urlString) else {
+            throw TMDBError.invalidURL
+        }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let movieDetail = try JSONDecoder().decode(TMDBMovieDetail.self, from: data)
+            return movieDetail
+        } catch {
+            throw TMDBError.networkError(error)
+        }
+    }
+    
+    // MARK: - Get TV Show Details
+    func getTVShowDetails(id: Int) async throws -> TMDBTVShowDetail {
+        let urlString = "\(baseURL)/tv/\(id)?api_key=\(apiKey)&language=\(currentLanguage)"
+        
+        guard let url = URL(string: urlString) else {
+            throw TMDBError.invalidURL
+        }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let tvShowDetail = try JSONDecoder().decode(TMDBTVShowDetail.self, from: data)
+            return tvShowDetail
+        } catch {
+            throw TMDBError.networkError(error)
+        }
+    }
+    
+    // MARK: - Get TV Show with Seasons
+    func getTVShowWithSeasons(id: Int) async throws -> TMDBTVShowWithSeasons {
+        let urlString = "\(baseURL)/tv/\(id)?api_key=\(apiKey)&language=\(currentLanguage)"
+        
+        guard let url = URL(string: urlString) else {
+            throw TMDBError.invalidURL
+        }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let tvShowDetail = try JSONDecoder().decode(TMDBTVShowWithSeasons.self, from: data)
+            return tvShowDetail
+        } catch {
+            throw TMDBError.networkError(error)
+        }
+    }
+    
+    // MARK: - Get Season Details
+    func getSeasonDetails(tvShowId: Int, seasonNumber: Int) async throws -> TMDBSeasonDetail {
+        let urlString = "\(baseURL)/tv/\(tvShowId)/season/\(seasonNumber)?api_key=\(apiKey)&language=\(currentLanguage)"
+        
+        guard let url = URL(string: urlString) else {
+            throw TMDBError.invalidURL
+        }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let seasonDetail = try JSONDecoder().decode(TMDBSeasonDetail.self, from: data)
+            return seasonDetail
         } catch {
             throw TMDBError.networkError(error)
         }
