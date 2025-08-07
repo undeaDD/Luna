@@ -26,7 +26,6 @@ struct MediaDetailView: View {
     @State private var isBookmarked: Bool = false
     
     @Environment(\.presentationMode) var presentationMode
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     
     private let headerHeight: CGFloat = 550
@@ -125,7 +124,6 @@ struct MediaDetailView: View {
                 }
             }
             .padding(.horizontal)
-            .padding(.top, 8)
             
             Spacer()
         }
@@ -158,7 +156,6 @@ struct MediaDetailView: View {
             )
             
             gradientOverlay
-            
             headerSection
         }
     }
@@ -208,7 +205,6 @@ struct MediaDetailView: View {
                 .foregroundColor(.white)
                 .lineLimit(3)
                 .multilineTextAlignment(.center)
-                .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
                 .frame(maxWidth: .infinity, alignment: .center)
         }
         .frame(maxWidth: .infinity, alignment: .center)
@@ -343,25 +339,6 @@ struct MediaDetailView: View {
                     self.isLoading = false
                 }
             }
-        }
-    }
-}
-
-struct DetailRow: View {
-    let title: String
-    let value: String
-    
-    var body: some View {
-        HStack {
-            Text(title)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            Spacer()
-            
-            Text(value)
-                .font(.subheadline)
-                .fontWeight(.medium)
         }
     }
 }
