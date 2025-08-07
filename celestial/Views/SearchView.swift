@@ -8,14 +8,18 @@
 import SwiftUI
 
 struct SearchView: View {
+    @AppStorage("mediaColumnsPortrait") private var mediaColumnsPortrait: Int = 3
+    @AppStorage("mediaColumnsLandscape") private var mediaColumnsLandscape: Int = 5
+    @AppStorage("tmdbLanguage") private var selectedLanguage = "en-US"
+    
     @State private var searchText = ""
     @State private var searchResults: [TMDBSearchResult] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var searchFilter: SearchFilter = .all
-    @AppStorage("tmdbLanguage") private var selectedLanguage = "en-US"
     
     @StateObject private var tmdbService = TMDBService.shared
+    @Environment(\.verticalSizeClass) var verticalSizeClass
     
     enum SearchFilter: String, CaseIterable {
         case all = "All"
@@ -34,6 +38,26 @@ struct SearchView: View {
         }
     }
     
+    var filterIcon: String {
+        switch searchFilter {
+        case .all:
+            return "square.grid.2x2"
+        case .movies:
+            return "tv"
+        case .tvShows:
+            return "tv.fill"
+        }
+    }
+    
+    private var columnsCount: Int {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            let isLandscape = UIScreen.main.bounds.width > UIScreen.main.bounds.height
+            return isLandscape ? mediaColumnsLandscape : mediaColumnsPortrait
+        } else {
+            return verticalSizeClass == .compact ? mediaColumnsLandscape : mediaColumnsPortrait
+        }
+    }
+    
     var body: some View {
         if #available(iOS 16.0, *) {
             NavigationStack {
@@ -49,54 +73,68 @@ struct SearchView: View {
     
     private var searchContent: some View {
         VStack(spacing: 0) {
-            VStack {
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.secondary)
-                    
-                    TextField("Search movies and TV shows...", text: $searchText)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .onSubmit {
-                            performSearch()
-                        }
-                        .onChange(of: searchText) { newValue in
-                            if newValue.isEmpty {
-                                searchResults = []
-                                errorMessage = nil
+            VStack(spacing: 12) {
+                HStack(spacing: 8) {
+                    HStack(spacing: 8) {
+                        TextField("Search...", text: $searchText)
+                            .padding(7)
+                            .padding(.horizontal, 25)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(8)
+                            .overlay(
+                                HStack {
+                                    Image(systemName: "magnifyingglass")
+                                        .foregroundColor(.gray)
+                                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                                        .padding(.leading, 8)
+                                    
+                                    if !searchText.isEmpty {
+                                        Button(action: {
+                                            searchText = ""
+                                            searchResults = []
+                                            errorMessage = nil
+                                        }) {
+                                            Image(systemName: "multiply.circle.fill")
+                                                .foregroundColor(.gray)
+                                                .padding(.trailing, 8)
+                                        }
+                                    }
+                                }
+                            )
+                            .onSubmit {
+                                performSearch()
                             }
-                        }
-                    
-                    if !searchText.isEmpty {
-                        Button("Clear") {
-                            searchText = ""
-                            searchResults = []
-                            errorMessage = nil
-                        }
-                        .foregroundColor(.blue)
+                            .onChange(of: searchText) { newValue in
+                                if newValue.isEmpty {
+                                    searchResults = []
+                                    errorMessage = nil
+                                }
+                            }
                     }
-                }
-                
-                if !searchResults.isEmpty {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
+                    
+                    if !searchResults.isEmpty {
+                        Menu {
                             ForEach(SearchFilter.allCases, id: \.self) { filter in
                                 Button(action: {
                                     searchFilter = filter
                                 }) {
-                                    Text(filter.rawValue)
-                                        .font(.caption)
-                                        .padding(.horizontal, 12)
-                                        .padding(.vertical, 6)
-                                        .background(searchFilter == filter ? Color.blue : Color.gray.opacity(0.2))
-                                        .foregroundColor(searchFilter == filter ? .white : .primary)
-                                        .cornerRadius(16)
+                                    HStack {
+                                        Text(filter.rawValue)
+                                        if searchFilter == filter {
+                                            Image(systemName: "checkmark")
+                                        }
+                                    }
                                 }
                             }
+                        } label: {
+                            Image(systemName: searchFilter == .all ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
+                                .font(.system(size: 20))
+                                .foregroundColor(.primary)
                         }
-                        .padding(.horizontal)
+                        .transition(.scale.combined(with: .opacity))
                     }
-                    .padding(.top, 8)
                 }
+                .animation(.easeInOut(duration: 0.2), value: searchResults.isEmpty)
             }
             .padding()
             
@@ -194,10 +232,7 @@ struct SearchView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
-                    LazyVGrid(
-                        columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3),
-                        spacing: 16
-                    ) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: columnsCount), spacing: 16) {
                         ForEach(filteredResults) { result in
                             SearchResultCard(result: result)
                         }
