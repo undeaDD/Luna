@@ -1,0 +1,234 @@
+//
+//  ShowsDetails.swift
+//  celestial
+//
+//  Created by Francesco on 07/08/25.
+//
+
+import SwiftUI
+import Kingfisher
+
+struct TVShowSeasonsSection: View {
+    let tvShow: TMDBTVShowWithSeasons?
+    @Binding var selectedSeason: TMDBSeason?
+    @Binding var seasonDetail: TMDBSeasonDetail?
+    let tmdbService: TMDBService
+    
+    @State private var isLoadingSeason = false
+    
+    private var isGroupedBySeasons: Bool {
+        return tvShow?.seasons.filter { $0.seasonNumber > 0 }.count ?? 0 > 1
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if let tvShow = tvShow {
+                Text("Details")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .padding(.horizontal)
+                
+                VStack(spacing: 12) {
+                    if let numberOfSeasons = tvShow.numberOfSeasons, numberOfSeasons > 0 {
+                        DetailRow(title: "Seasons", value: "\(numberOfSeasons)")
+                    }
+                    
+                    if let numberOfEpisodes = tvShow.numberOfEpisodes, numberOfEpisodes > 0 {
+                        DetailRow(title: "Episodes", value: "\(numberOfEpisodes)")
+                    }
+                    
+                    if !tvShow.genres.isEmpty {
+                        DetailRow(title: "Genres", value: tvShow.genres.map { $0.name }.joined(separator: ", "))
+                    }
+                    
+                    if tvShow.voteAverage > 0 {
+                        DetailRow(title: "Rating", value: String(format: "%.1f/10", tvShow.voteAverage))
+                    }
+                    
+                    if let firstAirDate = tvShow.firstAirDate, !firstAirDate.isEmpty {
+                        DetailRow(title: "First aired", value: "\(firstAirDate)")
+                    }
+                    
+                    if let lastAirDate = tvShow.lastAirDate, !lastAirDate.isEmpty {
+                        DetailRow(title: "Last aired", value: "\(lastAirDate)")
+                    }
+                    
+                    if let status = tvShow.status {
+                        DetailRow(title: "Status", value: status)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 16)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.black.opacity(0.2))
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.ultraThinMaterial)
+                        )
+                )
+                .padding(.horizontal)
+                
+                if !tvShow.seasons.isEmpty {
+                    episodesSectionHeader
+                    
+                    if isGroupedBySeasons {
+                        seasonSelectorStyled
+                    }
+                    
+                    episodeListSection
+                }
+            }
+        }
+        .onAppear {
+            if let tvShow = tvShow, let selectedSeason = selectedSeason {
+                loadSeasonDetails(tvShowId: tvShow.id, season: selectedSeason)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var episodesSectionHeader: some View {
+        HStack {
+            Text("Episodes")
+                .font(.title2)
+                .fontWeight(.bold)
+            
+            Spacer()
+        }
+        .padding(.horizontal)
+        .padding(.top)
+    }
+    
+    @ViewBuilder
+    private var seasonSelectorStyled: some View {
+        if let tvShow = tvShow {
+            let seasons = tvShow.seasons.filter { $0.seasonNumber > 0 }
+            if seasons.count > 1 {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(seasons) { season in
+                            Button(action: {
+                                selectedSeason = season
+                                loadSeasonDetails(tvShowId: tvShow.id, season: season)
+                            }) {
+                                VStack(spacing: 8) {
+                                    KFImage(URL(string: season.fullPosterURL ?? ""))
+                                        .placeholder {
+                                            Rectangle()
+                                                .fill(Color.gray.opacity(0.3))
+                                                .frame(width: 80, height: 120)
+                                                .overlay(
+                                                    VStack {
+                                                        Image(systemName: "tv")
+                                                            .font(.title2)
+                                                            .foregroundColor(.white.opacity(0.7))
+                                                        Text("S\(season.seasonNumber)")
+                                                            .font(.caption)
+                                                            .fontWeight(.bold)
+                                                            .foregroundColor(.white.opacity(0.7))
+                                                    }
+                                                )
+                                        }
+                                        .resizable()
+                                        .aspectRatio(2/3, contentMode: .fill)
+                                        .frame(width: 80, height: 120)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .stroke(selectedSeason?.id == season.id ? Color.blue : Color.clear, lineWidth: 2)
+                                        )
+                                    
+                                    Text(season.name)
+                                        .font(.caption)
+                                        .fontWeight(.medium)
+                                        .lineLimit(2)
+                                        .multilineTextAlignment(.center)
+                                        .frame(width: 80)
+                                        .foregroundColor(selectedSeason?.id == season.id ? .blue : .primary)
+                                }
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var episodeListSection: some View {
+        Group {
+            if let seasonDetail = seasonDetail {
+                LazyVStack(spacing: 15) {
+                    ForEach(Array(seasonDetail.episodes.enumerated()), id: \.element.id) { index, episode in
+                        createEpisodeCell(episode: episode, index: index)
+                    }
+                }
+                .padding(.horizontal)
+            } else if isLoadingSeason {
+                VStack(spacing: 12) {
+                    ProgressView()
+                        .scaleEffect(1.2)
+                    Text("Loading episodes...")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 40)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func createEpisodeCell(episode: TMDBEpisode, index: Int) -> some View {
+        let episodeKey = "episode_\(episode.seasonNumber)_\(episode.episodeNumber)"
+        let lastPlayedTime = UserDefaults.standard.double(forKey: "lastPlayedTime_\(episodeKey)")
+        let totalTime = UserDefaults.standard.double(forKey: "totalTime_\(episodeKey)")
+        let progress = totalTime > 0 ? lastPlayedTime / totalTime : 0
+        
+        EpisodeCell(
+            episode: episode,
+            progress: progress,
+            onTap: { episodeTapAction(episode: episode) },
+            onMarkWatched: { markAsWatched(episode: episode) },
+            onResetProgress: { resetProgress(episode: episode) }
+        )
+    }
+    
+    private func episodeTapAction(episode: TMDBEpisode) {
+        // TODO: Implement episode tap functionality
+        print("Playing episode \(episode.episodeNumber): \(episode.name)")
+    }
+    
+    private func markAsWatched(episode: TMDBEpisode) {
+        let episodeKey = "episode_\(episode.seasonNumber)_\(episode.episodeNumber)"
+        UserDefaults.standard.set(1.0, forKey: "lastPlayedTime_\(episodeKey)")
+        UserDefaults.standard.set(1.0, forKey: "totalTime_\(episodeKey)")
+    }
+    
+    private func resetProgress(episode: TMDBEpisode) {
+        let episodeKey = "episode_\(episode.seasonNumber)_\(episode.episodeNumber)"
+        UserDefaults.standard.set(0.0, forKey: "lastPlayedTime_\(episodeKey)")
+        UserDefaults.standard.set(0.0, forKey: "totalTime_\(episodeKey)")
+    }
+    
+    private func loadSeasonDetails(tvShowId: Int, season: TMDBSeason) {
+        isLoadingSeason = true
+        
+        Task {
+            do {
+                let detail = try await tmdbService.getSeasonDetails(tvShowId: tvShowId, seasonNumber: season.seasonNumber)
+                await MainActor.run {
+                    self.seasonDetail = detail
+                    self.isLoadingSeason = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.isLoadingSeason = false
+                }
+            }
+        }
+    }
+}
