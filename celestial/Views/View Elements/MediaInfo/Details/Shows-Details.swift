@@ -20,6 +20,10 @@ struct TVShowSeasonsSection: View {
         return tvShow?.seasons.filter { $0.seasonNumber > 0 }.count ?? 0 > 1
     }
     
+    private var useSeasonMenu: Bool {
+        return UserDefaults.standard.bool(forKey: "seasonMenu")
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             if let tvShow = tvShow {
@@ -70,10 +74,28 @@ struct TVShowSeasonsSection: View {
                 .padding(.horizontal)
                 
                 if !tvShow.seasons.isEmpty {
-                    episodesSectionHeader
-                    
-                    if isGroupedBySeasons {
+                    if isGroupedBySeasons && !useSeasonMenu {
+                        HStack {
+                            Text("Seasons")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            Spacer()
+                        }
+                        .padding(.horizontal)
+                        .padding(.top)
+                        
                         seasonSelectorStyled
+                        
+                        HStack {
+                            Text("Episodes")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            Spacer()
+                        }
+                        .padding(.horizontal)
+                        .padding(.top)
+                    } else {
+                        episodesSectionHeader
                     }
                     
                     episodeListSection
@@ -95,9 +117,46 @@ struct TVShowSeasonsSection: View {
                 .fontWeight(.bold)
             
             Spacer()
+            
+            if let tvShow = tvShow, isGroupedBySeasons && useSeasonMenu {
+                seasonMenu(for: tvShow)
+            }
         }
         .padding(.horizontal)
         .padding(.top)
+    }
+    
+    @ViewBuilder
+    private func seasonMenu(for tvShow: TMDBTVShowWithSeasons) -> some View {
+        let seasons = tvShow.seasons.filter { $0.seasonNumber > 0 }
+        
+        if seasons.count > 1 {
+            Menu {
+                ForEach(seasons) { season in
+                    Button(action: {
+                        selectedSeason = season
+                        loadSeasonDetails(tvShowId: tvShow.id, season: season)
+                    }) {
+                        HStack {
+                            Text(season.name)
+                            if selectedSeason?.id == season.id {
+                                Spacer()
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Text(selectedSeason?.name ?? "Season 1")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                    Image(systemName: "chevron.down")
+                        .font(.caption)
+                }
+                .foregroundColor(.primary)
+            }
+        }
     }
     
     @ViewBuilder

@@ -26,8 +26,8 @@
 		1398F22F2E44ED340023604F /* resized.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F22E2E44ED340023604F /* resized.swift */; };
 		1398F2312E4500F30023604F /* StretchyHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F2302E4500F30023604F /* StretchyHeader.swift */; };
 		1398F2352E4501C20023604F /* EpisodeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F2342E4501C20023604F /* EpisodeCell.swift */; };
-		1398F2382E45021D0023604F /* MovieDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F2372E45021D0023604F /* MovieDetails.swift */; };
-		1398F23A2E4502380023604F /* ShowsDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F2392E4502380023604F /* ShowsDetails.swift */; };
+		1398F2382E45021D0023604F /* Movie-Details.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F2372E45021D0023604F /* Movie-Details.swift */; };
+		1398F23A2E4502380023604F /* Shows-Details.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F2392E4502380023604F /* Shows-Details.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,8 +51,8 @@
 		1398F22E2E44ED340023604F /* resized.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = resized.swift; sourceTree = "<group>"; };
 		1398F2302E4500F30023604F /* StretchyHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StretchyHeader.swift; sourceTree = "<group>"; };
 		1398F2342E4501C20023604F /* EpisodeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeCell.swift; sourceTree = "<group>"; };
-		1398F2372E45021D0023604F /* MovieDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieDetails.swift; sourceTree = "<group>"; };
-		1398F2392E4502380023604F /* ShowsDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowsDetails.swift; sourceTree = "<group>"; };
+		1398F2372E45021D0023604F /* Movie-Details.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Movie-Details.swift"; sourceTree = "<group>"; };
+		1398F2392E4502380023604F /* Shows-Details.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Shows-Details.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -193,8 +193,8 @@
 		1398F2362E4502110023604F /* Details */ = {
 			isa = PBXGroup;
 			children = (
-				1398F2372E45021D0023604F /* MovieDetails.swift */,
-				1398F2392E4502380023604F /* ShowsDetails.swift */,
+				1398F2372E45021D0023604F /* Movie-Details.swift */,
+				1398F2392E4502380023604F /* Shows-Details.swift */,
 			);
 			path = Details;
 			sourceTree = "<group>";
@@ -276,7 +276,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1398F2192E44B0D80023604F /* FallbackImageView.swift in Sources */,
-				1398F2382E45021D0023604F /* MovieDetails.swift in Sources */,
+				1398F2382E45021D0023604F /* Movie-Details.swift in Sources */,
 				1398F2202E44B28E0023604F /* SearchResultCard.swift in Sources */,
 				1398F22F2E44ED340023604F /* resized.swift in Sources */,
 				1398F20B2E44ADFF0023604F /* TMDBModels.swift in Sources */,
@@ -288,7 +288,7 @@
 				1398F21C2E44B0DC0023604F /* SettingsView.swift in Sources */,
 				1398F2262E44D7E90023604F /* MediaDetailView.swift in Sources */,
 				1398F2052E44AD6F0023604F /* LibraryView.swift in Sources */,
-				1398F23A2E4502380023604F /* ShowsDetails.swift in Sources */,
+				1398F23A2E4502380023604F /* Shows-Details.swift in Sources */,
 				1398F2072E44AD6F0023604F /* ContentView.swift in Sources */,
 				1398F20E2E44AE030023604F /* TMDBService.swift in Sources */,
 				1398F1F22E44AC530023604F /* celestialApp.swift in Sources */,
