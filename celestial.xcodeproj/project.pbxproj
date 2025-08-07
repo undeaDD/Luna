@@ -8,18 +8,35 @@
 
 /* Begin PBXBuildFile section */
 		1398F1F22E44AC530023604F /* celestialApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F1F12E44AC530023604F /* celestialApp.swift */; };
-		1398F1F42E44AC530023604F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F1F32E44AC530023604F /* ContentView.swift */; };
 		1398F1F62E44AC560023604F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1398F1F52E44AC560023604F /* Assets.xcassets */; };
 		1398F1FA2E44AC560023604F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1398F1F92E44AC560023604F /* Preview Assets.xcassets */; };
+		1398F2052E44AD6F0023604F /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F2012E44AD6F0023604F /* LibraryView.swift */; };
+		1398F2062E44AD6F0023604F /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F2022E44AD6F0023604F /* HomeView.swift */; };
+		1398F2072E44AD6F0023604F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F2032E44AD6F0023604F /* ContentView.swift */; };
+		1398F2082E44AD6F0023604F /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F2042E44AD6F0023604F /* SearchView.swift */; };
+		1398F20B2E44ADFF0023604F /* TMDBModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F20A2E44ADFF0023604F /* TMDBModels.swift */; };
+		1398F20E2E44AE030023604F /* TMDBService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F20D2E44AE030023604F /* TMDBService.swift */; };
+		1398F2162E44B0BF0023604F /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1398F2152E44B0BF0023604F /* Kingfisher */; };
+		1398F2192E44B0D80023604F /* FallbackImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F2172E44B0D80023604F /* FallbackImageView.swift */; };
+		1398F21C2E44B0DC0023604F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F21B2E44B0DC0023604F /* SettingsView.swift */; };
+		1398F2202E44B28E0023604F /* SearchResultCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F21F2E44B28E0023604F /* SearchResultCard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1398F1EE2E44AC530023604F /* celestial.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = celestial.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1398F1F12E44AC530023604F /* celestialApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = celestialApp.swift; sourceTree = "<group>"; };
-		1398F1F32E44AC530023604F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1398F1F52E44AC560023604F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1398F1F72E44AC560023604F /* celestial.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = celestial.entitlements; sourceTree = "<group>"; };
 		1398F1F92E44AC560023604F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		1398F2012E44AD6F0023604F /* LibraryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		1398F2022E44AD6F0023604F /* HomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		1398F2032E44AD6F0023604F /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		1398F2042E44AD6F0023604F /* SearchView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		1398F20A2E44ADFF0023604F /* TMDBModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TMDBModels.swift; sourceTree = "<group>"; };
+		1398F20D2E44AE030023604F /* TMDBService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TMDBService.swift; sourceTree = "<group>"; };
+		1398F2172E44B0D80023604F /* FallbackImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FallbackImageView.swift; sourceTree = "<group>"; };
+		1398F21B2E44B0DC0023604F /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		1398F21F2E44B28E0023604F /* SearchResultCard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultCard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -27,6 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1398F2162E44B0BF0023604F /* Kingfisher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -52,8 +70,10 @@
 		1398F1F02E44AC530023604F /* celestial */ = {
 			isa = PBXGroup;
 			children = (
+				1398F20C2E44AE030023604F /* Services */,
+				1398F2092E44ADFF0023604F /* Models */,
+				1398F2002E44AD570023604F /* Views */,
 				1398F1F12E44AC530023604F /* celestialApp.swift */,
-				1398F1F32E44AC530023604F /* ContentView.swift */,
 				1398F1F52E44AC560023604F /* Assets.xcassets */,
 				1398F1F72E44AC560023604F /* celestial.entitlements */,
 				1398F1F82E44AC560023604F /* Preview Content */,
@@ -67,6 +87,44 @@
 				1398F1F92E44AC560023604F /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		1398F2002E44AD570023604F /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1398F2112E44AED30023604F /* Elements */,
+				1398F2032E44AD6F0023604F /* ContentView.swift */,
+				1398F2022E44AD6F0023604F /* HomeView.swift */,
+				1398F2012E44AD6F0023604F /* LibraryView.swift */,
+				1398F2042E44AD6F0023604F /* SearchView.swift */,
+				1398F21B2E44B0DC0023604F /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		1398F2092E44ADFF0023604F /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				1398F20A2E44ADFF0023604F /* TMDBModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		1398F20C2E44AE030023604F /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				1398F20D2E44AE030023604F /* TMDBService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		1398F2112E44AED30023604F /* Elements */ = {
+			isa = PBXGroup;
+			children = (
+				1398F21F2E44B28E0023604F /* SearchResultCard.swift */,
+				1398F2172E44B0D80023604F /* FallbackImageView.swift */,
+			);
+			path = Elements;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -85,6 +143,9 @@
 			dependencies = (
 			);
 			name = celestial;
+			packageProductDependencies = (
+				1398F2152E44B0BF0023604F /* Kingfisher */,
+			);
 			productName = celestial;
 			productReference = 1398F1EE2E44AC530023604F /* celestial.app */;
 			productType = "com.apple.product-type.application";
@@ -113,6 +174,9 @@
 				Base,
 			);
 			mainGroup = 1398F1E52E44AC530023604F;
+			packageReferences = (
+				1398F2142E44B0BF0023604F /* XCRemoteSwiftPackageReference "Kingfisher" */,
+			);
 			productRefGroup = 1398F1EF2E44AC530023604F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -139,7 +203,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1398F1F42E44AC530023604F /* ContentView.swift in Sources */,
+				1398F2192E44B0D80023604F /* FallbackImageView.swift in Sources */,
+				1398F2202E44B28E0023604F /* SearchResultCard.swift in Sources */,
+				1398F20B2E44ADFF0023604F /* TMDBModels.swift in Sources */,
+				1398F2082E44AD6F0023604F /* SearchView.swift in Sources */,
+				1398F2062E44AD6F0023604F /* HomeView.swift in Sources */,
+				1398F21C2E44B0DC0023604F /* SettingsView.swift in Sources */,
+				1398F2052E44AD6F0023604F /* LibraryView.swift in Sources */,
+				1398F2072E44AD6F0023604F /* ContentView.swift in Sources */,
+				1398F20E2E44AE030023604F /* TMDBService.swift in Sources */,
 				1398F1F22E44AC530023604F /* celestialApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -282,20 +354,21 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 13.6;
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = me.cranci.celestial;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 			};
 			name = Debug;
 		};
@@ -320,20 +393,21 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 13.6;
-				MARKETING_VERSION = 1.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = me.cranci.celestial;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 			};
 			name = Release;
 		};
@@ -359,6 +433,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1398F2142E44B0BF0023604F /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = exactVersion;
+				version = 7.9.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1398F2152E44B0BF0023604F /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1398F2142E44B0BF0023604F /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1398F1E62E44AC530023604F /* Project object */;
 }
