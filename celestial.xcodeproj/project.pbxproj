@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1376DA642E47377B00AC0C95 /* JSController-Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1376DA5A2E47377B00AC0C95 /* JSController-Search.swift */; };
+		1376DA652E47377B00AC0C95 /* JSController-Details.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1376DA5B2E47377B00AC0C95 /* JSController-Details.swift */; };
+		1376DA662E47377B00AC0C95 /* JSController-Streams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1376DA5C2E47377B00AC0C95 /* JSController-Streams.swift */; };
+		1376DA6C2E47377B00AC0C95 /* JSController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1376DA632E47377B00AC0C95 /* JSController.swift */; };
+		1376DA6E2E47378C00AC0C95 /* Services.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1376DA6D2E47378C00AC0C95 /* Services.swift */; };
+		1376DA702E4737AE00AC0C95 /* JavaScriptCore+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1376DA6F2E4737AE00AC0C95 /* JavaScriptCore+Extensions.swift */; };
+		1376DA732E47381500AC0C95 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1376DA722E47381500AC0C95 /* Logger.swift */; };
+		1376DA752E47387A00AC0C95 /* URLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1376DA742E47387A00AC0C95 /* URLSession.swift */; };
 		1398F1F22E44AC530023604F /* celestialApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F1F12E44AC530023604F /* celestialApp.swift */; };
 		1398F1F62E44AC560023604F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1398F1F52E44AC560023604F /* Assets.xcassets */; };
 		1398F1FA2E44AC560023604F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1398F1F92E44AC560023604F /* Preview Assets.xcassets */; };
@@ -32,6 +40,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1376DA5A2E47377B00AC0C95 /* JSController-Search.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSController-Search.swift"; sourceTree = "<group>"; };
+		1376DA5B2E47377B00AC0C95 /* JSController-Details.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSController-Details.swift"; sourceTree = "<group>"; };
+		1376DA5C2E47377B00AC0C95 /* JSController-Streams.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSController-Streams.swift"; sourceTree = "<group>"; };
+		1376DA632E47377B00AC0C95 /* JSController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSController.swift; sourceTree = "<group>"; };
+		1376DA6D2E47378C00AC0C95 /* Services.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Services.swift; sourceTree = "<group>"; };
+		1376DA6F2E4737AE00AC0C95 /* JavaScriptCore+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JavaScriptCore+Extensions.swift"; sourceTree = "<group>"; };
+		1376DA722E47381500AC0C95 /* Logger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		1376DA742E47387A00AC0C95 /* URLSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSession.swift; sourceTree = "<group>"; };
 		1398F1EE2E44AC530023604F /* celestial.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = celestial.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1398F1F12E44AC530023604F /* celestialApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = celestialApp.swift; sourceTree = "<group>"; };
 		1398F1F52E44AC560023604F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -69,6 +85,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1376DA552E47369300AC0C95 /* URLSession */ = {
+			isa = PBXGroup;
+			children = (
+				1376DA742E47387A00AC0C95 /* URLSession.swift */,
+			);
+			path = URLSession;
+			sourceTree = "<group>";
+		};
+		1376DA592E47377B00AC0C95 /* JSLoader */ = {
+			isa = PBXGroup;
+			children = (
+				1376DA6D2E47378C00AC0C95 /* Services.swift */,
+				1376DA6F2E4737AE00AC0C95 /* JavaScriptCore+Extensions.swift */,
+				1376DA5A2E47377B00AC0C95 /* JSController-Search.swift */,
+				1376DA5B2E47377B00AC0C95 /* JSController-Details.swift */,
+				1376DA5C2E47377B00AC0C95 /* JSController-Streams.swift */,
+				1376DA632E47377B00AC0C95 /* JSController.swift */,
+			);
+			path = JSLoader;
+			sourceTree = "<group>";
+		};
+		1376DA712E47381500AC0C95 /* Logger */ = {
+			isa = PBXGroup;
+			children = (
+				1376DA722E47381500AC0C95 /* Logger.swift */,
+			);
+			path = Logger;
+			sourceTree = "<group>";
+		};
 		1398F1E52E44AC530023604F = {
 			isa = PBXGroup;
 			children = (
@@ -88,6 +133,8 @@
 		1398F1F02E44AC530023604F /* celestial */ = {
 			isa = PBXGroup;
 			children = (
+				1376DA712E47381500AC0C95 /* Logger */,
+				1376DA592E47377B00AC0C95 /* JSLoader */,
 				1398F2292E44ECF80023604F /* Extensions */,
 				1398F2212E44D5B20023604F /* TMDB */,
 				1398F2002E44AD570023604F /* Views */,
@@ -159,6 +206,7 @@
 		1398F2292E44ECF80023604F /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				1376DA552E47369300AC0C95 /* URLSession */,
 				1398F22D2E44ED230023604F /* UIImage */,
 				1398F22A2E44ECFE0023604F /* Color */,
 			);
@@ -278,16 +326,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1376DA652E47377B00AC0C95 /* JSController-Details.swift in Sources */,
+				1376DA6E2E47378C00AC0C95 /* Services.swift in Sources */,
 				1398F2192E44B0D80023604F /* FallbackImageView.swift in Sources */,
 				1398F2382E45021D0023604F /* Movie-Details.swift in Sources */,
 				1398F2202E44B28E0023604F /* SearchResultCard.swift in Sources */,
 				1398F22F2E44ED340023604F /* resized.swift in Sources */,
+				1376DA702E4737AE00AC0C95 /* JavaScriptCore+Extensions.swift in Sources */,
 				1398F20B2E44ADFF0023604F /* TMDBModels.swift in Sources */,
 				1398F22C2E44ED070023604F /* ambientColor.swift in Sources */,
+				1376DA732E47381500AC0C95 /* Logger.swift in Sources */,
 				1398F2352E4501C20023604F /* EpisodeCell.swift in Sources */,
 				1398F2312E4500F30023604F /* StretchyHeader.swift in Sources */,
+				1376DA642E47377B00AC0C95 /* JSController-Search.swift in Sources */,
 				1398F2082E44AD6F0023604F /* SearchView.swift in Sources */,
 				1398F2062E44AD6F0023604F /* HomeView.swift in Sources */,
+				1376DA662E47377B00AC0C95 /* JSController-Streams.swift in Sources */,
 				1398F21C2E44B0DC0023604F /* SettingsView.swift in Sources */,
 				1398F2262E44D7E90023604F /* MediaDetailView.swift in Sources */,
 				1398F2052E44AD6F0023604F /* LibraryView.swift in Sources */,
@@ -295,7 +349,9 @@
 				1398F2072E44AD6F0023604F /* ContentView.swift in Sources */,
 				1398F20E2E44AE030023604F /* TMDBService.swift in Sources */,
 				1398F1F22E44AC530023604F /* celestialApp.swift in Sources */,
+				1376DA752E47387A00AC0C95 /* URLSession.swift in Sources */,
 				1398F2282E44DA550023604F /* CircularProgressBar.swift in Sources */,
+				1376DA6C2E47377B00AC0C95 /* JSController.swift in Sources */,
 				1398F23C2E4507230023604F /* DetailRow.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
