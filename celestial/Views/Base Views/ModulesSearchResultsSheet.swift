@@ -9,7 +9,7 @@ import SwiftUI
 import Kingfisher
 
 struct ModulesSearchResultsSheet: View {
-    let moduleResults: [(service: Services, results: [SearchItem])]
+    @Binding var moduleResults: [(service: Services, results: [SearchItem])]
     let mediaTitle: String
     let isMovie: Bool
     let selectedEpisode: TMDBEpisode?

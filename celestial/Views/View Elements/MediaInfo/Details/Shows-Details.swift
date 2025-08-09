@@ -115,7 +115,7 @@ struct TVShowSeasonsSection: View {
         }
         .sheet(isPresented: $showingSearchResults) {
             ModulesSearchResultsSheet(
-                moduleResults: searchResults,
+                moduleResults: $searchResults,
                 mediaTitle: tvShow?.name ?? "Unknown Show",
                 isMovie: false,
                 selectedEpisode: selectedEpisodeForSearch

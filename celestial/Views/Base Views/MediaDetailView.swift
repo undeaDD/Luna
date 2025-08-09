@@ -61,7 +61,7 @@ struct MediaDetailView: View {
         }
         .sheet(isPresented: $showingSearchResults) {
             ModulesSearchResultsSheet(
-                moduleResults: searchResults,
+                moduleResults: $searchResults,
                 mediaTitle: searchResult.displayTitle,
                 isMovie: searchResult.isMovie,
                 selectedEpisode: nil
@@ -356,9 +356,7 @@ struct MediaDetailView: View {
             let results = await serviceManager.searchInActiveServices(query: searchResult.displayTitle)
             await MainActor.run {
                 self.searchResults = results
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    self.showingSearchResults = true
-                }
+                self.showingSearchResults = true
             }
         }
     }
