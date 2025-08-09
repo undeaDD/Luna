@@ -16,7 +16,6 @@ struct TVShowSeasonsSection: View {
     
     @State private var isLoadingSeason = false
     @State private var showingSearchResults = false
-    @State private var searchResults: [(service: Services, results: [SearchItem])] = []
     @State private var selectedEpisodeForSearch: TMDBEpisode?
     @State private var showingNoServicesAlert = false
     
@@ -115,7 +114,6 @@ struct TVShowSeasonsSection: View {
         }
         .sheet(isPresented: $showingSearchResults) {
             ModulesSearchResultsSheet(
-                moduleResults: $searchResults,
                 mediaTitle: tvShow?.name ?? "Unknown Show",
                 isMovie: false,
                 selectedEpisode: selectedEpisodeForSearch
@@ -287,17 +285,8 @@ struct TVShowSeasonsSection: View {
             showingNoServicesAlert = true
             return
         }
-        searchResults = []
         
-        Task {
-            let results = await serviceManager.searchInActiveServices(query: showName)
-            await MainActor.run {
-                self.searchResults = results
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    self.showingSearchResults = true
-                }
-            }
-        }
+        showingSearchResults = true
     }
     
     private func markAsWatched(episode: TMDBEpisode) {

@@ -9,15 +9,20 @@ import SwiftUI
 import Kingfisher
 
 struct ModulesSearchResultsSheet: View {
-    @Binding var moduleResults: [(service: Services, results: [SearchItem])]
     let mediaTitle: String
     let isMovie: Bool
     let selectedEpisode: TMDBEpisode?
     
     @Environment(\.presentationMode) var presentationMode
+    @State private var moduleResults: [(service: Services, results: [SearchItem])] = []
     @State private var selectedResult: SearchItem?
     @State private var showingPlayAlert = false
     @State private var expandedServices: Set<UUID> = []
+    @State private var isSearching = true
+    @State private var searchedServices: Set<UUID> = []
+    @State private var totalServicesCount = 0
+    
+    @StateObject private var serviceManager = ServiceManager.shared
     
     private var servicesWithResults: [(service: Services, results: [SearchItem])] {
         moduleResults.filter { !$0.results.isEmpty }
@@ -43,9 +48,15 @@ struct ModulesSearchResultsSheet: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
-                        Text(mediaTitle)
-                            .font(.headline)
-                            .fontWeight(.semibold)
+                        if let episode = selectedEpisode {
+                            Text("\(mediaTitle) S\(episode.seasonNumber)E\(episode.episodeNumber)")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                        } else {
+                            Text(mediaTitle)
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                        }
                         
                         if let episode = selectedEpisode {
                             HStack {
@@ -75,80 +86,143 @@ struct ModulesSearchResultsSheet: View {
                                 .cornerRadius(8)
                             
                             Spacer()
+                            
+                            if isSearching {
+                                HStack(spacing: 8) {
+                                    ProgressView()
+                                        .scaleEffect(0.8)
+                                    Text("Searching... (\(searchedServices.count)/\(totalServicesCount))")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            } else {
+                                Text("Search complete")
+                                    .font(.caption)
+                                    .foregroundColor(.green)
+                            }
                         }
                     }
                     .padding(.vertical, 8)
                 }
                 
-                ForEach(moduleResults, id: \.service.id) { moduleResult in
-                    let filteredResults = filterResults(for: moduleResult.results)
-                    
-                    Section(header: serviceHeader(for: moduleResult.service, highQualityCount: filteredResults.highQuality.count, lowQualityCount: filteredResults.lowQuality.count)) {
-                        if moduleResult.results.isEmpty {
-                            HStack {
-                                Image(systemName: "exclamationmark.triangle")
-                                    .foregroundColor(.orange)
-                                Text("No results found")
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                            }
-                            .padding(.vertical, 8)
-                        } else {
-                            ForEach(filteredResults.highQuality, id: \.id) { result in
-                                EnhancedMediaResultRow(
-                                    result: result,
-                                    originalTitle: mediaTitle,
-                                    episode: selectedEpisode,
-                                    onTap: {
-                                        selectedResult = result
-                                        showingPlayAlert = true
-                                    }
-                                )
-                            }
+                if serviceManager.activeServices.isEmpty {
+                    Section {
+                        VStack(spacing: 12) {
+                            Image(systemName: "exclamationmark.triangle")
+                                .font(.system(size: 40))
+                                .foregroundColor(.orange)
                             
-                            if !filteredResults.lowQuality.isEmpty {
-                                let isExpanded = expandedServices.contains(moduleResult.service.id)
-                                
-                                Button(action: {
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        if isExpanded {
-                                            expandedServices.remove(moduleResult.service.id)
-                                        } else {
-                                            expandedServices.insert(moduleResult.service.id)
-                                        }
-                                    }
-                                }) {
+                            Text("No Active Services")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                            
+                            Text("You don't have any active services. Please go to the Services tab to download and activate services.")
+                                .font(.body)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                    }
+                } else {
+                    ForEach(serviceManager.activeServices, id: \.id) { service in
+                        let moduleResult = moduleResults.first { $0.service.id == service.id }
+                        let hasSearched = searchedServices.contains(service.id)
+                        let isCurrentlySearching = isSearching && !hasSearched
+                        
+                        if let result = moduleResult {
+                            let filteredResults = filterResults(for: result.results)
+                            
+                            Section(header: serviceHeader(for: service, highQualityCount: filteredResults.highQuality.count, lowQualityCount: filteredResults.lowQuality.count, isSearching: false)) {
+                                if result.results.isEmpty {
                                     HStack {
-                                        Image(systemName: "questionmark.circle")
+                                        Image(systemName: "exclamationmark.triangle")
                                             .foregroundColor(.orange)
-                                        
-                                        Text("\(filteredResults.lowQuality.count) lower match result\(filteredResults.lowQuality.count == 1 ? "" : "s")")
-                                            .font(.subheadline)
+                                        Text("No results found")
                                             .foregroundColor(.secondary)
-                                        
                                         Spacer()
-                                        
-                                        Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
                                     }
                                     .padding(.vertical, 8)
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                                
-                                if isExpanded {
-                                    ForEach(filteredResults.lowQuality, id: \.id) { result in
-                                        CompactMediaResultRow(
-                                            result: result,
+                                } else {
+                                    ForEach(filteredResults.highQuality, id: \.id) { searchResult in
+                                        EnhancedMediaResultRow(
+                                            result: searchResult,
                                             originalTitle: mediaTitle,
                                             episode: selectedEpisode,
                                             onTap: {
-                                                selectedResult = result
+                                                selectedResult = searchResult
                                                 showingPlayAlert = true
                                             }
                                         )
                                     }
+                                    
+                                    if !filteredResults.lowQuality.isEmpty {
+                                        let isExpanded = expandedServices.contains(service.id)
+                                        
+                                        Button(action: {
+                                            withAnimation(.easeInOut(duration: 0.3)) {
+                                                if isExpanded {
+                                                    expandedServices.remove(service.id)
+                                                } else {
+                                                    expandedServices.insert(service.id)
+                                                }
+                                            }
+                                        }) {
+                                            HStack {
+                                                Image(systemName: "questionmark.circle")
+                                                    .foregroundColor(.orange)
+                                                
+                                                Text("\(filteredResults.lowQuality.count) lower match result\(filteredResults.lowQuality.count == 1 ? "" : "s")")
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.secondary)
+                                                
+                                                Spacer()
+                                                
+                                                Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            .padding(.vertical, 8)
+                                        }
+                                        .buttonStyle(PlainButtonStyle())
+                                        
+                                        if isExpanded {
+                                            ForEach(filteredResults.lowQuality, id: \.id) { searchResult in
+                                                CompactMediaResultRow(
+                                                    result: searchResult,
+                                                    originalTitle: mediaTitle,
+                                                    episode: selectedEpisode,
+                                                    onTap: {
+                                                        selectedResult = searchResult
+                                                        showingPlayAlert = true
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    }
                                 }
+                            }
+                        } else if isCurrentlySearching {
+                            Section(header: serviceHeader(for: service, highQualityCount: 0, lowQualityCount: 0, isSearching: true)) {
+                                HStack {
+                                    ProgressView()
+                                        .scaleEffect(0.8)
+                                    Text("Searching...")
+                                        .foregroundColor(.secondary)
+                                    Spacer()
+                                }
+                                .padding(.vertical, 8)
+                            }
+                        } else if !isSearching && !hasSearched {
+                            Section(header: serviceHeader(for: service, highQualityCount: 0, lowQualityCount: 0, isSearching: false)) {
+                                HStack {
+                                    Image(systemName: "minus.circle")
+                                        .foregroundColor(.gray)
+                                    Text("Not searched")
+                                        .foregroundColor(.secondary)
+                                    Spacer()
+                                }
+                                .padding(.vertical, 8)
                             }
                         }
                     }
@@ -179,18 +253,51 @@ struct ModulesSearchResultsSheet: View {
             }
         }
         .onAppear {
-            let totalResults = moduleResults.reduce(0) { $0 + $1.results.count }
-            let highQualityResults = moduleResults.reduce(0) { acc, moduleResult in
-                acc + filterResults(for: moduleResult.results).highQuality.count
-            }
-            let lowQualityResults = moduleResults.reduce(0) { acc, moduleResult in
-                acc + filterResults(for: moduleResult.results).lowQuality.count
-            }
+            startProgressiveSearch()
+        }
+    }
+    
+    private func startProgressiveSearch() {
+        let activeServices = serviceManager.activeServices
+        totalServicesCount = activeServices.count
+        
+        guard !activeServices.isEmpty else {
+            isSearching = false
+            return
+        }
+        
+        let searchQuery: String
+        if let episode = selectedEpisode {
+            searchQuery = "\(mediaTitle) S\(episode.seasonNumber)E\(episode.episodeNumber)"
+        } else {
+            searchQuery = mediaTitle
+        }
+        
+        Task {
+            await serviceManager.searchInActiveServicesProgressively(
+                query: searchQuery,
+                onResult: { service, results in
+                    Task { @MainActor in
+                        if let existingIndex = moduleResults.firstIndex(where: { $0.service.id == service.id }) {
+                            moduleResults[existingIndex] = (service: service, results: results)
+                        } else {
+                            moduleResults.append((service: service, results: results))
+                        }
+                        
+                        searchedServices.insert(service.id)
+                    }
+                },
+                onComplete: {
+                    Task { @MainActor in
+                        isSearching = false
+                    }
+                }
+            )
         }
     }
     
     @ViewBuilder
-    private func serviceHeader(for service: Services, highQualityCount: Int, lowQualityCount: Int) -> some View {
+    private func serviceHeader(for service: Services, highQualityCount: Int, lowQualityCount: Int, isSearching: Bool = false) -> some View {
         HStack {
             KFImage(URL(string: service.metadata.iconUrl))
                 .placeholder {
@@ -208,26 +315,32 @@ struct ModulesSearchResultsSheet: View {
             Spacer()
             
             HStack(spacing: 4) {
-                if highQualityCount > 0 {
-                    Text("\(highQualityCount)")
-                        .font(.caption2)
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 2)
-                        .background(Color.green.opacity(0.2))
-                        .foregroundColor(.green)
-                        .cornerRadius(4)
-                }
-                
-                if lowQualityCount > 0 {
-                    Text("\(lowQualityCount)")
-                        .font(.caption2)
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 2)
-                        .background(Color.orange.opacity(0.2))
-                        .foregroundColor(.orange)
-                        .cornerRadius(4)
+                if isSearching {
+                    ProgressView()
+                        .scaleEffect(0.6)
+                        .frame(width: 12, height: 12)
+                } else {
+                    if highQualityCount > 0 {
+                        Text("\(highQualityCount)")
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 2)
+                            .background(Color.green.opacity(0.2))
+                            .foregroundColor(.green)
+                            .cornerRadius(4)
+                    }
+                    
+                    if lowQualityCount > 0 {
+                        Text("\(lowQualityCount)")
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 2)
+                            .background(Color.orange.opacity(0.2))
+                            .foregroundColor(.orange)
+                            .cornerRadius(4)
+                    }
                 }
             }
         }

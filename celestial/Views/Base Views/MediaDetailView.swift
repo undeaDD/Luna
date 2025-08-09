@@ -25,7 +25,6 @@ struct MediaDetailView: View {
     @State private var synopsis: String = ""
     @State private var isBookmarked: Bool = false
     @State private var showingSearchResults = false
-    @State private var searchResults: [(service: Services, results: [SearchItem])] = []
     @State private var showingNoServicesAlert = false
     
     @StateObject private var serviceManager = ServiceManager.shared
@@ -61,7 +60,6 @@ struct MediaDetailView: View {
         }
         .sheet(isPresented: $showingSearchResults) {
             ModulesSearchResultsSheet(
-                moduleResults: $searchResults,
                 mediaTitle: searchResult.displayTitle,
                 isMovie: searchResult.isMovie,
                 selectedEpisode: nil
@@ -276,34 +274,25 @@ struct MediaDetailView: View {
                 searchInServices()
             }) {
                 HStack {
-                    if serviceManager.isDownloading {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            .scaleEffect(0.9)
-                    } else {
-                        Image(systemName: "play.fill")
-                    }
+                    Image(systemName: "play.fill")
                     
-                    Text(serviceManager.isDownloading ? "Searching..." : "Play")
+                    Text("Play")
                         .fontWeight(.semibold)
-                        .animation(.easeInOut(duration: 0.2), value: serviceManager.isDownloading)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
                 .padding(.horizontal, 25)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(serviceManager.isDownloading ? Color.blue.opacity(0.8) : Color.black.opacity(0.2))
+                        .fill(Color.black.opacity(0.2))
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(.ultraThinMaterial)
                         )
                 )
-                .foregroundColor(serviceManager.isDownloading ? .white : .primary)
+                .foregroundColor(.primary)
                 .cornerRadius(8)
-                .animation(.easeInOut(duration: 0.3), value: serviceManager.isDownloading)
             }
-            .disabled(serviceManager.isDownloading)
             
             Button(action: {
                 toggleBookmark()
@@ -350,15 +339,8 @@ struct MediaDetailView: View {
             showingNoServicesAlert = true
             return
         }
-        searchResults = []
         
-        Task {
-            let results = await serviceManager.searchInActiveServices(query: searchResult.displayTitle)
-            await MainActor.run {
-                self.searchResults = results
-                self.showingSearchResults = true
-            }
-        }
+        showingSearchResults = true
     }
     
     private func loadMediaDetails() {

@@ -149,6 +149,39 @@ class ServiceManager: ObservableObject {
         return allResults
     }
     
+    func searchInActiveServicesProgressively(query: String, onResult: @escaping @MainActor (Services, [SearchItem]) -> Void, onComplete: @escaping @MainActor () -> Void) async {
+        let activeServicesList = activeServices
+        
+        Logger.shared.log("Starting progressive search for '\(query)' across \(activeServicesList.count) active services", type: "ServiceManager")
+        
+        guard !activeServicesList.isEmpty else {
+            Logger.shared.log("No active services found for search", type: "ServiceManager")
+            await MainActor.run {
+                onComplete()
+            }
+            return
+        }
+        
+        for service in activeServicesList {
+            Logger.shared.log("Searching in service: \(service.metadata.sourceName)", type: "ServiceManager")
+            
+            let results = await searchInService(service: service, query: query)
+            
+            await MainActor.run {
+                onResult(service, results)
+            }
+            
+            Logger.shared.log("Found \(results.count) results in \(service.metadata.sourceName)", type: "ServiceManager")
+        }
+        
+        await MainActor.run {
+            onComplete()
+        }
+        
+        let totalServices = activeServicesList.count
+        Logger.shared.log("Progressive search completed for \(totalServices) services", type: "ServiceManager")
+    }
+    
     private func searchInService(service: Services, query: String) async -> [SearchItem] {
         let jsController = JSController()
         
