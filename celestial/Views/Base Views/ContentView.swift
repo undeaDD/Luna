@@ -27,6 +27,12 @@ struct ContentView: View {
                     Image(systemName: "magnifyingglass")
                     Text("Search")
                 }
+            
+            ServicesView()
+                .tabItem {
+                    Image(systemName: "square.stack.3d.up.fill")
+                    Text("Services")
+                }
         }
     }
 }

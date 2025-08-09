@@ -24,6 +24,11 @@ struct MediaDetailView: View {
     @State private var selectedSeasonIndex: Int = 0
     @State private var synopsis: String = ""
     @State private var isBookmarked: Bool = false
+    @State private var showingSearchResults = false
+    @State private var searchResults: [(service: Services, results: [SearchItem])] = []
+    @State private var showingNoServicesAlert = false
+    
+    @StateObject private var serviceManager = ServiceManager.shared
     
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -53,6 +58,22 @@ struct MediaDetailView: View {
         .navigationBarHidden(true)
         .onAppear {
             loadMediaDetails()
+        }
+        .sheet(isPresented: $showingSearchResults) {
+            ModulesSearchResultsSheet(
+                moduleResults: searchResults,
+                mediaTitle: searchResult.displayTitle,
+                isMovie: searchResult.isMovie,
+                selectedEpisode: nil
+            )
+        }
+        .alert("No Active Services", isPresented: $showingNoServicesAlert) {
+            Button("OK") { }
+            Button("Go to Services") {
+                // TODO: Navigate to services tab
+            }
+        } message: {
+            Text("You don't have any active services. Please go to the Services tab to download and activate services.")
         }
     }
     
@@ -217,7 +238,7 @@ struct MediaDetailView: View {
         .padding(.bottom, 40)
         .padding(.horizontal)
     }
-
+    
     @ViewBuilder
     private var synopsisSection: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -252,28 +273,37 @@ struct MediaDetailView: View {
     private var playAndBookmarkSection: some View {
         HStack(spacing: 12) {
             Button(action: {
-                // TODO: Implement play functionality
-                print("Play button tapped")
+                searchInServices()
             }) {
                 HStack {
-                    Image(systemName: "play.fill")
-                    Text("Play")
+                    if serviceManager.isDownloading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .scaleEffect(0.9)
+                    } else {
+                        Image(systemName: "play.fill")
+                    }
+                    
+                    Text(serviceManager.isDownloading ? "Searching..." : "Play")
                         .fontWeight(.semibold)
+                        .animation(.easeInOut(duration: 0.2), value: serviceManager.isDownloading)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
                 .padding(.horizontal, 25)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.black.opacity(0.2))
+                        .fill(serviceManager.isDownloading ? Color.blue.opacity(0.8) : Color.black.opacity(0.2))
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(.ultraThinMaterial)
                         )
                 )
-                .foregroundColor(.primary)
+                .foregroundColor(serviceManager.isDownloading ? .white : .primary)
                 .cornerRadius(8)
+                .animation(.easeInOut(duration: 0.3), value: serviceManager.isDownloading)
             }
+            .disabled(serviceManager.isDownloading)
             
             Button(action: {
                 toggleBookmark()
@@ -313,6 +343,24 @@ struct MediaDetailView: View {
             isBookmarked.toggle()
         }
         // TODO: Implement actual bookmark functionality
+    }
+    
+    private func searchInServices() {
+        if serviceManager.activeServices.isEmpty {
+            showingNoServicesAlert = true
+            return
+        }
+        searchResults = []
+        
+        Task {
+            let results = await serviceManager.searchInActiveServices(query: searchResult.displayTitle)
+            await MainActor.run {
+                self.searchResults = results
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    self.showingSearchResults = true
+                }
+            }
+        }
     }
     
     private func loadMediaDetails() {

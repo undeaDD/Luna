@@ -17,8 +17,11 @@ struct SearchView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var searchFilter: SearchFilter = .all
+    @State private var showServiceDownloadAlert = false
+    @State private var serviceDownloadError: String?
     
     @StateObject private var tmdbService = TMDBService.shared
+    @StateObject private var serviceManager = ServiceManager.shared
     @Environment(\.verticalSizeClass) var verticalSizeClass
     
     enum SearchFilter: String, CaseIterable {
@@ -102,7 +105,7 @@ struct SearchView: View {
                                 }
                             )
                             .onSubmit {
-                                performSearch()
+                                performSearchOrDownloadService()
                             }
                             .onChange(of: searchText) { newValue in
                                 if newValue.isEmpty {
@@ -138,14 +141,27 @@ struct SearchView: View {
             }
             .padding()
             
-            if isLoading {
+            if isLoading || serviceManager.isDownloading {
                 VStack {
                     ProgressView()
                         .scaleEffect(1.2)
-                    Text("Searching...")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    
+                    if serviceManager.isDownloading {
+                        VStack(spacing: 8) {
+                            Text(serviceManager.downloadMessage)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            
+                            ProgressView(value: serviceManager.downloadProgress)
+                                .frame(width: 200)
+                        }
                         .padding(.top, 8)
+                    } else {
+                        Text("Searching...")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.top, 8)
+                    }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let errorMessage = errorMessage {
@@ -167,7 +183,7 @@ struct SearchView: View {
                         .padding(.horizontal)
                     
                     Button("Try Again") {
-                        performSearch()
+                        performSearchOrDownloadService()
                     }
                     .padding(.top)
                     .foregroundColor(.blue)
@@ -243,9 +259,59 @@ struct SearchView: View {
             }
         }
         .navigationTitle("Search")
+        .alert("Service Downloaded", isPresented: $showServiceDownloadAlert) {
+            Button("OK") { }
+        } message: {
+            Text("The service has been successfully downloaded and saved to your documents folder.")
+        }
+        .alert("Download Error", isPresented: .constant(serviceDownloadError != nil)) {
+            Button("OK") { 
+                serviceDownloadError = nil
+            }
+        } message: {
+            Text(serviceDownloadError ?? "")
+        }
         .onChange(of: selectedLanguage) { _ in
             if !searchText.isEmpty && !searchResults.isEmpty {
                 performSearch()
+            }
+        }
+    }
+    
+    
+    private func performSearchOrDownloadService() {
+        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return
+        }
+        
+        // Check if the input is a JSON URL for service download
+        if isJSONURL(searchText) {
+            downloadServiceFromURL()
+        } else {
+            performSearch()
+        }
+    }
+    
+    private func isJSONURL(_ text: String) -> Bool {
+        guard let url = URL(string: text.trimmingCharacters(in: .whitespacesAndNewlines)) else {
+            return false
+        }
+        
+        return url.scheme != nil && 
+        (url.pathExtension.lowercased() == "json" || 
+         text.lowercased().contains(".json"))
+    }
+    
+    private func downloadServiceFromURL() {
+        Task {
+            do {
+                let wasHandled = await serviceManager.handlePotentialServiceURL(searchText)
+                if wasHandled {
+                    await MainActor.run {
+                        searchText = ""
+                        showServiceDownloadAlert = true
+                    }
+                }
             }
         }
     }

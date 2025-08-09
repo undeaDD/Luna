@@ -15,6 +15,12 @@ struct TVShowSeasonsSection: View {
     let tmdbService: TMDBService
     
     @State private var isLoadingSeason = false
+    @State private var showingSearchResults = false
+    @State private var searchResults: [(service: Services, results: [SearchItem])] = []
+    @State private var selectedEpisodeForSearch: TMDBEpisode?
+    @State private var showingNoServicesAlert = false
+    
+    @StateObject private var serviceManager = ServiceManager.shared
     
     private var isGroupedBySeasons: Bool {
         return tvShow?.seasons.filter { $0.seasonNumber > 0 }.count ?? 0 > 1
@@ -106,6 +112,19 @@ struct TVShowSeasonsSection: View {
             if let tvShow = tvShow, let selectedSeason = selectedSeason {
                 loadSeasonDetails(tvShowId: tvShow.id, season: selectedSeason)
             }
+        }
+        .sheet(isPresented: $showingSearchResults) {
+            ModulesSearchResultsSheet(
+                moduleResults: searchResults,
+                mediaTitle: tvShow?.name ?? "Unknown Show",
+                isMovie: false,
+                selectedEpisode: selectedEpisodeForSearch
+            )
+        }
+        .alert("No Active Services", isPresented: $showingNoServicesAlert) {
+            Button("OK") { }
+        } message: {
+            Text("You don't have any active services. Please go to the Services tab to download and activate services.")
         }
     }
     
@@ -257,8 +276,28 @@ struct TVShowSeasonsSection: View {
     }
     
     private func episodeTapAction(episode: TMDBEpisode) {
-        // TODO: Implement episode tap functionality
-        print("Playing episode \(episode.episodeNumber): \(episode.name)")
+        selectedEpisodeForSearch = episode
+        searchInServicesForEpisode(episode: episode)
+    }
+    
+    private func searchInServicesForEpisode(episode: TMDBEpisode) {
+        guard let showName = tvShow?.name else { return }
+        
+        if serviceManager.activeServices.isEmpty {
+            showingNoServicesAlert = true
+            return
+        }
+        searchResults = []
+        
+        Task {
+            let results = await serviceManager.searchInActiveServices(query: showName)
+            await MainActor.run {
+                self.searchResults = results
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    self.showingSearchResults = true
+                }
+            }
+        }
     }
     
     private func markAsWatched(episode: TMDBEpisode) {
