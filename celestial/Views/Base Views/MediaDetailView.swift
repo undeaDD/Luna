@@ -144,7 +144,13 @@ struct MediaDetailView: View {
     private var heroImageSection: some View {
         ZStack(alignment: .bottom) {
             StretchyHeaderView(
-                backdropURL: searchResult.isMovie ? movieDetail?.fullBackdropURL : tvShowDetail?.fullBackdropURL,
+                backdropURL: {
+                    if searchResult.isMovie {
+                        return movieDetail?.fullBackdropURL ?? movieDetail?.fullPosterURL
+                    } else {
+                        return tvShowDetail?.fullBackdropURL ?? tvShowDetail?.fullPosterURL
+                    }
+                }(),
                 isMovie: searchResult.isMovie,
                 headerHeight: headerHeight,
                 minHeaderHeight: minHeaderHeight,
