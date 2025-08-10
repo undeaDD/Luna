@@ -37,9 +37,11 @@
 		1398F2382E45021D0023604F /* Movie-Details.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F2372E45021D0023604F /* Movie-Details.swift */; };
 		1398F23A2E4502380023604F /* Shows-Details.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F2392E4502380023604F /* Shows-Details.swift */; };
 		1398F23C2E4507230023604F /* DetailRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F23B2E4507230023604F /* DetailRow.swift */; };
+		13E77A1B2E48FB98001CDABA /* LoggerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13E77A1A2E48FB98001CDABA /* LoggerView.swift */; };
+		13E77A1D2E49003D001CDABA /* NormalPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13E77A1C2E49003D001CDABA /* NormalPlayer.swift */; };
 		13FF75CD2E4799B6006D405B /* ServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13FF75CC2E4799B6006D405B /* ServiceManager.swift */; };
 		13FF75CF2E4799DD006D405B /* ServicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13FF75CE2E4799DD006D405B /* ServicesView.swift */; };
-		13FF75D12E479B3F006D405B /* ModulesSearchResultsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13FF75D02E479B3F006D405B /* ModulesSearchResultsSheet.swift */; };
+		13FF75D12E479B3F006D405B /* ServicesResultsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13FF75D02E479B3F006D405B /* ServicesResultsSheet.swift */; };
 		13FF75D42E47A765006D405B /* levenshteinDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13FF75D32E47A765006D405B /* levenshteinDistance.swift */; };
 /* End PBXBuildFile section */
 
@@ -75,9 +77,11 @@
 		1398F2372E45021D0023604F /* Movie-Details.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Movie-Details.swift"; sourceTree = "<group>"; };
 		1398F2392E4502380023604F /* Shows-Details.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Shows-Details.swift"; sourceTree = "<group>"; };
 		1398F23B2E4507230023604F /* DetailRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailRow.swift; sourceTree = "<group>"; };
+		13E77A1A2E48FB98001CDABA /* LoggerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoggerView.swift; sourceTree = "<group>"; };
+		13E77A1C2E49003D001CDABA /* NormalPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NormalPlayer.swift; sourceTree = "<group>"; };
 		13FF75CC2E4799B6006D405B /* ServiceManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceManager.swift; sourceTree = "<group>"; };
 		13FF75CE2E4799DD006D405B /* ServicesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServicesView.swift; sourceTree = "<group>"; };
-		13FF75D02E479B3F006D405B /* ModulesSearchResultsSheet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModulesSearchResultsSheet.swift; sourceTree = "<group>"; };
+		13FF75D02E479B3F006D405B /* ServicesResultsSheet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServicesResultsSheet.swift; sourceTree = "<group>"; };
 		13FF75D32E47A765006D405B /* levenshteinDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = levenshteinDistance.swift; sourceTree = "<group>"; };
 		13FF75D52E47AAFA006D405B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -186,7 +190,9 @@
 		1398F2112E44AED30023604F /* View Elements */ = {
 			isa = PBXGroup;
 			children = (
+				13E77A1C2E49003D001CDABA /* NormalPlayer.swift */,
 				1398F2322E4500FB0023604F /* MediaInfo */,
+				13FF75D02E479B3F006D405B /* ServicesResultsSheet.swift */,
 				1398F21F2E44B28E0023604F /* SearchResultCard.swift */,
 				1398F2172E44B0D80023604F /* FallbackImageView.swift */,
 			);
@@ -205,7 +211,7 @@
 		1398F2222E44D5C30023604F /* Base Views */ = {
 			isa = PBXGroup;
 			children = (
-				13FF75D02E479B3F006D405B /* ModulesSearchResultsSheet.swift */,
+				13E77A1A2E48FB98001CDABA /* LoggerView.swift */,
 				13FF75CE2E4799DD006D405B /* ServicesView.swift */,
 				1398F2032E44AD6F0023604F /* ContentView.swift */,
 				1398F2022E44AD6F0023604F /* HomeView.swift */,
@@ -354,14 +360,16 @@
 				1398F2382E45021D0023604F /* Movie-Details.swift in Sources */,
 				1398F2202E44B28E0023604F /* SearchResultCard.swift in Sources */,
 				1398F22F2E44ED340023604F /* resized.swift in Sources */,
+				13E77A1B2E48FB98001CDABA /* LoggerView.swift in Sources */,
 				1376DA702E4737AE00AC0C95 /* JavaScriptCore+Extensions.swift in Sources */,
 				1398F20B2E44ADFF0023604F /* TMDBModels.swift in Sources */,
 				1398F22C2E44ED070023604F /* ambientColor.swift in Sources */,
 				1376DA732E47381500AC0C95 /* Logger.swift in Sources */,
 				1398F2352E4501C20023604F /* EpisodeCell.swift in Sources */,
 				1398F2312E4500F30023604F /* StretchyHeader.swift in Sources */,
-				13FF75D12E479B3F006D405B /* ModulesSearchResultsSheet.swift in Sources */,
+				13FF75D12E479B3F006D405B /* ServicesResultsSheet.swift in Sources */,
 				1376DA642E47377B00AC0C95 /* JSController-Search.swift in Sources */,
+				13E77A1D2E49003D001CDABA /* NormalPlayer.swift in Sources */,
 				13FF75CD2E4799B6006D405B /* ServiceManager.swift in Sources */,
 				1398F2082E44AD6F0023604F /* SearchView.swift in Sources */,
 				1398F2062E44AD6F0023604F /* HomeView.swift in Sources */,

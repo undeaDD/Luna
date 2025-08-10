@@ -1,0 +1,373 @@
+//
+//  LoggerView.swift
+//  celestial
+//
+//  Created by Francesco on 10/08/25.
+//
+
+import SwiftUI
+
+struct LogEntry: Identifiable {
+    let id = UUID()
+    let timestamp: Date
+    let message: String
+    let type: String
+    
+    var typeColor: Color {
+        switch type.lowercased() {
+        case "error":
+            return .red
+        case "warning":
+            return .orange
+        case "stream":
+            return .blue
+        case "servicemanager":
+            return .purple
+        case "debug":
+            return .gray
+        default:
+            return .primary
+        }
+    }
+    
+    var typeIcon: String {
+        switch type.lowercased() {
+        case "error":
+            return "exclamationmark.triangle.fill"
+        case "warning":
+            return "exclamationmark.triangle"
+        case "stream":
+            return "play.circle"
+        case "servicemanager":
+            return "gear.circle"
+        case "debug":
+            return "ladybug"
+        default:
+            return "info.circle"
+        }
+    }
+}
+
+struct LoggerView: View {
+    @StateObject private var loggerManager = LoggerManager.shared
+    @State private var selectedLogTypes: Set<String> = []
+    @State private var searchText = ""
+    @State private var isAutoScrollEnabled = true
+    @State private var showingFilterSheet = false
+    
+    private var filteredLogs: [LogEntry] {
+        var logs = loggerManager.logs
+        
+        // Filter by selected types
+        if !selectedLogTypes.isEmpty {
+            logs = logs.filter { selectedLogTypes.contains($0.type) }
+        }
+        
+        // Filter by search text
+        if !searchText.isEmpty {
+            logs = logs.filter { 
+                $0.message.localizedCaseInsensitiveContains(searchText) ||
+                $0.type.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+        
+        return logs.sorted { $0.timestamp > $1.timestamp }
+    }
+    
+    private var availableLogTypes: [String] {
+        Array(Set(loggerManager.logs.map { $0.type })).sorted()
+    }
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                // Search bar
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.secondary)
+                    
+                    TextField("Search logs...", text: $searchText)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    
+                    Button(action: {
+                        showingFilterSheet = true
+                    }) {
+                        Image(systemName: selectedLogTypes.isEmpty ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
+                            .foregroundColor(selectedLogTypes.isEmpty ? .secondary : .blue)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top, 8)
+                
+                // Logs list
+                if filteredLogs.isEmpty {
+                    Spacer()
+                    VStack(spacing: 16) {
+                        Image(systemName: "doc.text")
+                            .font(.system(size: 50))
+                            .foregroundColor(.secondary)
+                        
+                        Text("No logs found")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                        
+                        if !searchText.isEmpty || !selectedLogTypes.isEmpty {
+                            Text("Try adjusting your search or filters")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    Spacer()
+                } else {
+                    ScrollViewReader { proxy in
+                        List {
+                            ForEach(filteredLogs) { log in
+                                LogEntryRow(log: log)
+                                    .id(log.id)
+                            }
+                        }
+                        .listStyle(PlainListStyle())
+                        .onChange(of: filteredLogs.count) { _ in
+                            if isAutoScrollEnabled && !filteredLogs.isEmpty {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    proxy.scrollTo(filteredLogs.first?.id, anchor: .top)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Logs")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        isAutoScrollEnabled.toggle()
+                    }) {
+                        Image(systemName: isAutoScrollEnabled ? "arrow.down.circle.fill" : "arrow.down.circle")
+                            .foregroundColor(isAutoScrollEnabled ? .blue : .secondary)
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        Button(action: {
+                            loggerManager.clearLogs()
+                        }) {
+                            Label("Clear All Logs", systemImage: "trash")
+                        }
+                        
+                        Button(action: {
+                            exportLogs()
+                        }) {
+                            Label("Export Logs", systemImage: "square.and.arrow.up")
+                        }
+                        
+                        Divider()
+                        
+                        Button(action: {
+                            // Test log entry
+                            Logger.shared.log("Test log entry from LoggerView", type: "Debug")
+                        }) {
+                            Label("Add Test Log", systemImage: "plus.circle")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showingFilterSheet) {
+            LogFilterSheet(
+                availableTypes: availableLogTypes,
+                selectedTypes: $selectedLogTypes
+            )
+        }
+    }
+    
+    private func exportLogs() {
+        let logsText = filteredLogs.map { log in
+            "[\(DateFormatter.logFormatter.string(from: log.timestamp))] [\(log.type)] \(log.message)"
+        }.joined(separator: "\n")
+        
+        let activityVC = UIActivityViewController(
+            activityItems: [logsText],
+            applicationActivities: nil
+        )
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.rootViewController?.present(activityVC, animated: true)
+        }
+    }
+}
+
+struct LogEntryRow: View {
+    let log: LogEntry
+    @State private var isExpanded = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: log.typeIcon)
+                    .foregroundColor(log.typeColor)
+                    .frame(width: 20)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(log.type)
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(log.typeColor.opacity(0.2))
+                            .foregroundColor(log.typeColor)
+                            .cornerRadius(4)
+                        
+                        Spacer()
+                        
+                        Text(DateFormatter.logTimeFormatter.string(from: log.timestamp))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Text(log.message)
+                        .font(.body)
+                        .lineLimit(isExpanded ? nil : 3)
+                        .animation(.easeInOut(duration: 0.2), value: isExpanded)
+                    
+                    if log.message.count > 100 {
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isExpanded.toggle()
+                            }
+                        }) {
+                            Text(isExpanded ? "Show Less" : "Show More")
+                                .font(.caption)
+                                .foregroundColor(.blue)
+                        }
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 4)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if log.message.count > 100 {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isExpanded.toggle()
+                }
+            }
+        }
+    }
+}
+
+struct LogFilterSheet: View {
+    let availableTypes: [String]
+    @Binding var selectedTypes: Set<String>
+    @Environment(\.presentationMode) var presentationMode
+    
+    var body: some View {
+        NavigationView {
+            List {
+                Section(header: Text("Log Types")) {
+                    ForEach(availableTypes, id: \.self) { type in
+                        HStack {
+                            Image(systemName: selectedTypes.contains(type) ? "checkmark.circle.fill" : "circle")
+                                .foregroundColor(selectedTypes.contains(type) ? .blue : .secondary)
+                            
+                            Text(type)
+                            
+                            Spacer()
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            if selectedTypes.contains(type) {
+                                selectedTypes.remove(type)
+                            } else {
+                                selectedTypes.insert(type)
+                            }
+                        }
+                    }
+                }
+                
+                Section {
+                    Button("Clear All Filters") {
+                        selectedTypes.removeAll()
+                    }
+                    .foregroundColor(.red)
+                    
+                    Button("Select All") {
+                        selectedTypes = Set(availableTypes)
+                    }
+                }
+            }
+            .navigationTitle("Filter Logs")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Logger Manager
+class LoggerManager: ObservableObject {
+    static let shared = LoggerManager()
+    
+    @Published var logs: [LogEntry] = []
+    private let maxLogs = 1000
+    
+    private init() {
+        // Listen for log notifications from the existing Logger
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleLogNotification),
+            name: NSNotification.Name("LoggerNotification"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleLogNotification(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let message = userInfo["message"] as? String,
+              let type = userInfo["type"] as? String else { return }
+        
+        DispatchQueue.main.async {
+            self.addLog(message: message, type: type)
+        }
+    }
+    
+    func addLog(message: String, type: String) {
+        let log = LogEntry(timestamp: Date(), message: message, type: type)
+        logs.insert(log, at: 0)
+        
+        // Limit the number of logs
+        if logs.count > maxLogs {
+            logs = Array(logs.prefix(maxLogs))
+        }
+    }
+    
+    func clearLogs() {
+        logs.removeAll()
+    }
+}
+
+// MARK: - Date Formatters
+extension DateFormatter {
+    static let logFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
+        return formatter
+    }()
+    
+    static let logTimeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss"
+        return formatter
+    }()
+}

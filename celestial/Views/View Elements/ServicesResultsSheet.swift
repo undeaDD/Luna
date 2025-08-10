@@ -5,6 +5,8 @@
 //  Created by Francesco on 09/08/25.
 //
 
+import AVKit
+import UIKit
 import SwiftUI
 import Kingfisher
 
@@ -21,6 +23,8 @@ struct ModulesSearchResultsSheet: View {
     @State private var isSearching = true
     @State private var searchedServices: Set<UUID> = []
     @State private var totalServicesCount = 0
+    @State private var player: AVPlayer?
+    @State private var playerViewController: NormalPlayer?
     
     @StateObject private var serviceManager = ServiceManager.shared
     
@@ -242,11 +246,16 @@ struct ModulesSearchResultsSheet: View {
         }
         .alert("Play Content", isPresented: $showingPlayAlert) {
             Button("Play") {
+                showingPlayAlert = false
                 if let result = selectedResult {
-                    playContent(result)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        playContent(result)
+                    }
                 }
             }
-            Button("Cancel", role: .cancel) { }
+            Button("Cancel", role: .cancel) {
+                selectedResult = nil
+            }
         } message: {
             if let result = selectedResult, let episode = selectedEpisode {
                 Text("Play Episode \(episode.episodeNumber) of '\(result.title)'?")
@@ -357,13 +366,163 @@ struct ModulesSearchResultsSheet: View {
     }
     
     private func playContent(_ result: SearchItem) {
-        // TODO: Implement actual content play functionality
-        if let episode = selectedEpisode {
-            print("Playing: Episode \(episode.episodeNumber) of \(result.title) from \(result.href)")
-        } else {
-            print("Playing: \(result.title) from \(result.href)")
+        Logger.shared.log("Starting playback for: \(result.title)", type: "Stream")
+        
+        guard let service = serviceManager.activeServices.first(where: { service in
+            moduleResults.contains { $0.service.id == service.id && $0.results.contains { $0.id == result.id } }
+        }) else {
+            Logger.shared.log("Could not find service for result: \(result.title)", type: "Error")
+            return
         }
-        presentationMode.wrappedValue.dismiss()
+        
+        Logger.shared.log("Using service: \(service.metadata.sourceName)", type: "Stream")
+        
+        let jsController = JSController()
+        let servicePath = serviceManager.servicesDirectory.appendingPathComponent(service.localPath)
+        let jsPath = servicePath.appendingPathComponent("script.js")
+        
+        Logger.shared.log("JavaScript path: \(jsPath.path)", type: "Stream")
+        
+        guard FileManager.default.fileExists(atPath: jsPath.path) else {
+            Logger.shared.log("JavaScript file not found for service: \(service.metadata.sourceName)", type: "Error")
+            return
+        }
+        
+        do {
+            let jsContent = try String(contentsOf: jsPath, encoding: .utf8)
+            jsController.loadScript(jsContent)
+            Logger.shared.log("JavaScript loaded successfully", type: "Stream")
+        } catch {
+            Logger.shared.log("Failed to load JavaScript for service \(service.metadata.sourceName): \(error.localizedDescription)", type: "Error")
+            return
+        }
+        
+        jsController.fetchEpisodesJS(url: result.href) { episodes in
+            DispatchQueue.main.async {
+                Logger.shared.log("Fetched \(episodes.count) episodes for: \(result.title)", type: "Stream")
+                
+                if episodes.isEmpty {
+                    Logger.shared.log("No episodes found for: \(result.title)", type: "Error")
+                    return
+                }
+                
+                let targetHref: String
+                
+                if self.isMovie {
+                    targetHref = episodes.first?.href ?? result.href
+                    Logger.shared.log("Movie - Using href: \(targetHref)", type: "Stream")
+                } else {
+                    guard let selectedEpisode = self.selectedEpisode else {
+                        Logger.shared.log("No episode selected for TV show", type: "Error")
+                        return
+                    }
+                    
+                    var seasons: [[EpisodeLink]] = []
+                    var currentSeason: [EpisodeLink] = []
+                    var lastEpisodeNumber = 0
+                    
+                    for episode in episodes {
+                        if episode.number == 1 || episode.number <= lastEpisodeNumber {
+                            if !currentSeason.isEmpty {
+                                seasons.append(currentSeason)
+                                currentSeason = []
+                            }
+                        }
+                        currentSeason.append(episode)
+                        lastEpisodeNumber = episode.number
+                    }
+                    
+                    if !currentSeason.isEmpty {
+                        seasons.append(currentSeason)
+                    }
+                    
+                    let targetSeasonIndex = selectedEpisode.seasonNumber - 1
+                    let targetEpisodeNumber = selectedEpisode.episodeNumber
+                    
+                    guard targetSeasonIndex >= 0 && targetSeasonIndex < seasons.count else {
+                        Logger.shared.log("Season \(selectedEpisode.seasonNumber) not found. Available seasons: \(seasons.count)", type: "Error")
+                        return
+                    }
+                    
+                    let season = seasons[targetSeasonIndex]
+                    guard let targetEpisode = season.first(where: { $0.number == targetEpisodeNumber }) else {
+                        Logger.shared.log("Episode \(targetEpisodeNumber) not found in season \(selectedEpisode.seasonNumber). Available episodes: \(season.map { $0.number })", type: "Error")
+                        return
+                    }
+                    
+                    targetHref = targetEpisode.href
+                    Logger.shared.log("TV Show - S\(selectedEpisode.seasonNumber)E\(selectedEpisode.episodeNumber) - Using href: \(targetHref)", type: "Stream")
+                }
+                
+                jsController.fetchStreamUrlJS(episodeUrl: targetHref, module: service) { streamResult in
+                    DispatchQueue.main.async {
+                        let (streams, subtitles, sources) = streamResult
+                        
+                        Logger.shared.log("Stream fetch result - Streams: \(streams?.count ?? 0), Sources: \(sources?.count ?? 0)", type: "Stream")
+                        
+                        var streamURL: URL?
+                        
+                        if let streams = streams, !streams.isEmpty {
+                            Logger.shared.log("Found \(streams.count) stream(s) for \(result.title)", type: "Stream")
+                            Logger.shared.log("First stream URL: \(streams.first!)", type: "Stream")
+                            streamURL = URL(string: streams.first!)
+                        } else if let sources = sources, !sources.isEmpty {
+                            Logger.shared.log("Found \(sources.count) source(s) with headers for \(result.title)", type: "Stream")
+                            if let firstSource = sources.first,
+                               let urlString = firstSource["url"] as? String {
+                                Logger.shared.log("First source URL: \(urlString)", type: "Stream")
+                                streamURL = URL(string: urlString)
+                            }
+                        } else {
+                            Logger.shared.log("No streams or sources found in result", type: "Error")
+                        }
+                        
+                        if let url = streamURL {
+                            Logger.shared.log("Attempting to play URL: \(url.absoluteString)", type: "Stream")
+                            
+                            let headers = [
+                                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:135.0) Gecko/20100101 Firefox/135.0"
+                            ]
+                            let asset = AVURLAsset(url: url, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
+                            
+                            let playerItem = AVPlayerItem(asset: asset)
+                            
+                            let newPlayer = AVPlayer(playerItem: playerItem)
+                            self.player = newPlayer
+                            
+                            let playerVC = NormalPlayer()
+                            playerVC.player = newPlayer
+                            self.playerViewController = playerVC
+                            
+                            DispatchQueue.main.async {
+                                guard let windowScene = UIApplication.shared.connectedScenes
+                                    .compactMap({ $0 as? UIWindowScene })
+                                    .first(where: { $0.activationState == .foregroundActive }),
+                                      let window = windowScene.windows.first(where: { $0.isKeyWindow }),
+                                      let rootVC = window.rootViewController else {
+                                    Logger.shared.log("Could not find root view controller", type: "Error")
+                                    return
+                                }
+                                
+                                var topVC = rootVC
+                                while let presented = topVC.presentedViewController {
+                                    topVC = presented
+                                }
+                                
+                                Logger.shared.log("Presenting player from: \(type(of: topVC))", type: "Stream")
+                                
+                                topVC.present(playerVC, animated: true) {
+                                    Logger.shared.log("Player presented successfully", type: "Stream")
+                                    newPlayer.play()
+                                }
+                            }
+                        } else {
+                            Logger.shared.log("Failed to create URL from stream string", type: "Error")
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

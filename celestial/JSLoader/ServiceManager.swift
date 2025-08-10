@@ -15,8 +15,8 @@ class ServiceManager: ObservableObject {
     @Published var downloadProgress: Double = 0.0
     @Published var downloadMessage: String = ""
     
-    private let documentsDirectory: URL
-    private let servicesDirectory: URL
+    let documentsDirectory: URL
+    let servicesDirectory: URL
     
     private init() {
         documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!

@@ -40,6 +40,16 @@ class Logger {
             
             self.saveLogToFile(entry)
             self.debugLog(entry)
+            
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: NSNotification.Name("LoggerNotification"), object: nil,
+                    userInfo: [
+                        "message": message,
+                        "type": type,
+                        "timestamp": entry.timestamp
+                    ]
+                )
+            }
         }
     }
     

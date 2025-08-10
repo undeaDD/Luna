@@ -26,6 +26,7 @@ struct MediaDetailView: View {
     @State private var isBookmarked: Bool = false
     @State private var showingSearchResults = false
     @State private var showingNoServicesAlert = false
+    @State private var selectedEpisodeForSearch: TMDBEpisode?
     
     @StateObject private var serviceManager = ServiceManager.shared
     
@@ -62,7 +63,7 @@ struct MediaDetailView: View {
             ModulesSearchResultsSheet(
                 mediaTitle: searchResult.displayTitle,
                 isMovie: searchResult.isMovie,
-                selectedEpisode: nil
+                selectedEpisode: selectedEpisodeForSearch
             )
         }
         .alert("No Active Services", isPresented: $showingNoServicesAlert) {
@@ -338,6 +339,16 @@ struct MediaDetailView: View {
         if serviceManager.activeServices.isEmpty {
             showingNoServicesAlert = true
             return
+        }
+        
+        if !searchResult.isMovie {
+            if let seasonDetail = seasonDetail, !seasonDetail.episodes.isEmpty {
+                selectedEpisodeForSearch = seasonDetail.episodes.first
+            } else {
+                selectedEpisodeForSearch = nil
+            }
+        } else {
+            selectedEpisodeForSearch = nil
         }
         
         showingSearchResults = true

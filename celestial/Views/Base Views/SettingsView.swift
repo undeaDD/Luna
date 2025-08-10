@@ -76,6 +76,11 @@ struct SettingsView: View {
             }
             
             Section {
+                NavigationLink(destination: LoggerView()) {
+                }
+            }
+            
+            Section {
                 HStack {
                     Image(systemName: "info.circle")
                         .foregroundColor(.gray)
