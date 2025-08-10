@@ -94,7 +94,9 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Settings")
+#if os(iOS)
         .navigationBarTitleDisplayMode(.large)
+#endif
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Done") {
@@ -129,7 +131,9 @@ struct LanguageSelectionView: View {
             }
         }
         .navigationTitle("Language")
+#if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+#endif
     }
 }
 
@@ -185,7 +189,9 @@ struct AboutView: View {
             }
         }
         .navigationTitle("About")
+#if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+#endif
     }
 }
 

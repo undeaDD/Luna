@@ -82,7 +82,13 @@ struct SearchView: View {
                         TextField("Search...", text: $searchText)
                             .padding(7)
                             .padding(.horizontal, 25)
+#if os(iOS)
                             .background(Color(.systemGray6))
+#endif
+                        
+#if os(tvOS)
+                            .background(Color(.gray))
+#endif
                             .cornerRadius(8)
                             .overlay(
                                 HStack {
@@ -265,7 +271,7 @@ struct SearchView: View {
             Text("The service has been successfully downloaded and saved to your documents folder.")
         }
         .alert("Download Error", isPresented: .constant(serviceDownloadError != nil)) {
-            Button("OK") { 
+            Button("OK") {
                 serviceDownloadError = nil
             }
         } message: {
@@ -297,8 +303,8 @@ struct SearchView: View {
             return false
         }
         
-        return url.scheme != nil && 
-        (url.pathExtension.lowercased() == "json" || 
+        return url.scheme != nil &&
+        (url.pathExtension.lowercased() == "json" ||
          text.lowercased().contains(".json"))
     }
     

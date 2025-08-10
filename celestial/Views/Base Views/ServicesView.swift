@@ -23,7 +23,9 @@ struct ServicesView: View {
                 }
             }
             .navigationTitle("Services")
+#if os(iOS)
             .navigationBarTitleDisplayMode(.large)
+#endif
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
@@ -84,7 +86,7 @@ struct ServicesView: View {
             .onDelete(perform: deleteServices)
         }
     }
-
+    
     private func deleteServices(offsets: IndexSet) {
         for index in offsets {
             let service = serviceManager.services[index]
@@ -191,7 +193,9 @@ struct ServiceRow: View {
                     serviceManager.toggleServiceState(service)
                 }
             ))
+#if os(iOS)
             .toggleStyle(SwitchToggleStyle(tint: .green))
+#endif
         }
         .padding(.vertical, 8)
     }

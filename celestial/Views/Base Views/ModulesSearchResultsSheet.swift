@@ -229,7 +229,9 @@ struct ModulesSearchResultsSheet: View {
                 }
             }
             .navigationTitle("Search Results")
+#if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+#endif
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
