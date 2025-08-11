@@ -20,7 +20,7 @@ struct MediaDetailView: View {
     @State private var errorMessage: String?
     @State private var ambientColor: Color = Color.black
     @State private var showFullSynopsis: Bool = false
-    @State private var selectedEpisodeNumber: Int = 0
+    @State private var selectedEpisodeNumber: Int = 1
     @State private var selectedSeasonIndex: Int = 0
     @State private var synopsis: String = ""
     @State private var isBookmarked: Bool = false
@@ -38,6 +38,16 @@ struct MediaDetailView: View {
     
     private var isCompactLayout: Bool {
         return verticalSizeClass == .compact
+    }
+    
+    private var playButtonText: String {
+        if searchResult.isMovie {
+            return "Play"
+        } else if let selectedEpisode = selectedEpisodeForSearch {
+            return "Play S\(selectedEpisode.seasonNumber)E\(selectedEpisode.episodeNumber)"
+        } else {
+            return "Play"
+        }
     }
     
     var body: some View {
@@ -277,7 +287,7 @@ struct MediaDetailView: View {
                 HStack {
                     Image(systemName: "play.fill")
                     
-                    Text("Play")
+                    Text(playButtonText)
                         .fontWeight(.semibold)
                 }
                 .frame(maxWidth: .infinity)
@@ -323,6 +333,7 @@ struct MediaDetailView: View {
                 tvShow: tvShowDetail,
                 selectedSeason: $selectedSeason,
                 seasonDetail: $seasonDetail,
+                selectedEpisodeForSearch: $selectedEpisodeForSearch,
                 tmdbService: tmdbService
             )
         }
@@ -342,7 +353,9 @@ struct MediaDetailView: View {
         }
         
         if !searchResult.isMovie {
-            if let seasonDetail = seasonDetail, !seasonDetail.episodes.isEmpty {
+            if selectedEpisodeForSearch != nil {
+                // episode is alredy selected with TVShowSeasonsSection
+            } else if let seasonDetail = seasonDetail, !seasonDetail.episodes.isEmpty {
                 selectedEpisodeForSearch = seasonDetail.episodes.first
             } else {
                 selectedEpisodeForSearch = nil
@@ -375,6 +388,7 @@ struct MediaDetailView: View {
                         if let firstSeason = detail.seasons.first(where: { $0.seasonNumber > 0 }) {
                             self.selectedSeason = firstSeason
                         }
+                        self.selectedEpisodeForSearch = nil
                         self.isLoading = false
                     }
                 }

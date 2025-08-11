@@ -11,6 +11,7 @@ import Kingfisher
 struct EpisodeCell: View {
     let episode: TMDBEpisode
     let progress: Double
+    let isSelected: Bool
     let onTap: () -> Void
     let onMarkWatched: () -> Void
     let onResetProgress: () -> Void
@@ -152,7 +153,7 @@ struct EpisodeCell: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                    .stroke(isSelected ? Color.accentColor : Color.white.opacity(0.1), lineWidth: isSelected ? 2 : 1)
             )
         }
         .buttonStyle(PlainButtonStyle())

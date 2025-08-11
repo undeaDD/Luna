@@ -12,11 +12,11 @@ struct TVShowSeasonsSection: View {
     let tvShow: TMDBTVShowWithSeasons?
     @Binding var selectedSeason: TMDBSeason?
     @Binding var seasonDetail: TMDBSeasonDetail?
+    @Binding var selectedEpisodeForSearch: TMDBEpisode?
     let tmdbService: TMDBService
     
     @State private var isLoadingSeason = false
     @State private var showingSearchResults = false
-    @State private var selectedEpisodeForSearch: TMDBEpisode?
     @State private var showingNoServicesAlert = false
     
     @StateObject private var serviceManager = ServiceManager.shared
@@ -263,10 +263,12 @@ struct TVShowSeasonsSection: View {
         let lastPlayedTime = UserDefaults.standard.double(forKey: "lastPlayedTime_\(episodeKey)")
         let totalTime = UserDefaults.standard.double(forKey: "totalTime_\(episodeKey)")
         let progress = totalTime > 0 ? lastPlayedTime / totalTime : 0
+        let isSelected = selectedEpisodeForSearch?.id == episode.id
         
         EpisodeCell(
             episode: episode,
             progress: progress,
+            isSelected: isSelected,
             onTap: { episodeTapAction(episode: episode) },
             onMarkWatched: { markAsWatched(episode: episode) },
             onResetProgress: { resetProgress(episode: episode) }
@@ -279,7 +281,7 @@ struct TVShowSeasonsSection: View {
     }
     
     private func searchInServicesForEpisode(episode: TMDBEpisode) {
-        guard let showName = tvShow?.name else { return }
+        guard (tvShow?.name) != nil else { return }
         
         if serviceManager.activeServices.isEmpty {
             showingNoServicesAlert = true
