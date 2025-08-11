@@ -278,11 +278,7 @@ struct ModulesSearchResultsSheet: View {
         }
         
         let searchQuery: String
-        if let episode = selectedEpisode {
-            searchQuery = "\(mediaTitle) S\(episode.seasonNumber)E\(episode.episodeNumber)"
-        } else {
-            searchQuery = mediaTitle
-        }
+        searchQuery = mediaTitle
         
         Task {
             await serviceManager.searchInActiveServicesProgressively(

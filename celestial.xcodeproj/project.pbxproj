@@ -39,6 +39,7 @@
 		1398F23C2E4507230023604F /* DetailRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1398F23B2E4507230023604F /* DetailRow.swift */; };
 		13E77A1B2E48FB98001CDABA /* LoggerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13E77A1A2E48FB98001CDABA /* LoggerView.swift */; };
 		13E77A1D2E49003D001CDABA /* NormalPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13E77A1C2E49003D001CDABA /* NormalPlayer.swift */; };
+		13E77A202E49C3B2001CDABA /* SoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = 13E77A1F2E49C3B2001CDABA /* SoraCore */; };
 		13FF75CD2E4799B6006D405B /* ServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13FF75CC2E4799B6006D405B /* ServiceManager.swift */; };
 		13FF75CF2E4799DD006D405B /* ServicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13FF75CE2E4799DD006D405B /* ServicesView.swift */; };
 		13FF75D12E479B3F006D405B /* ServicesResultsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13FF75D02E479B3F006D405B /* ServicesResultsSheet.swift */; };
@@ -91,6 +92,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				13E77A202E49C3B2001CDABA /* SoraCore in Frameworks */,
 				1398F2162E44B0BF0023604F /* Kingfisher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -190,8 +192,8 @@
 		1398F2112E44AED30023604F /* View Elements */ = {
 			isa = PBXGroup;
 			children = (
-				13E77A1C2E49003D001CDABA /* NormalPlayer.swift */,
 				1398F2322E4500FB0023604F /* MediaInfo */,
+				13E77A1C2E49003D001CDABA /* NormalPlayer.swift */,
 				13FF75D02E479B3F006D405B /* ServicesResultsSheet.swift */,
 				1398F21F2E44B28E0023604F /* SearchResultCard.swift */,
 				1398F2172E44B0D80023604F /* FallbackImageView.swift */,
@@ -296,6 +298,7 @@
 			name = celestial;
 			packageProductDependencies = (
 				1398F2152E44B0BF0023604F /* Kingfisher */,
+				13E77A1F2E49C3B2001CDABA /* SoraCore */,
 			);
 			productName = celestial;
 			productReference = 1398F1EE2E44AC530023604F /* celestial.app */;
@@ -327,6 +330,7 @@
 			mainGroup = 1398F1E52E44AC530023604F;
 			packageReferences = (
 				1398F2142E44B0BF0023604F /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				13E77A1E2E49C3B2001CDABA /* XCRemoteSwiftPackageReference "SoraCore" */,
 			);
 			productRefGroup = 1398F1EF2E44AC530023604F /* Products */;
 			projectDirPath = "";
@@ -621,6 +625,14 @@
 				version = 7.9.1;
 			};
 		};
+		13E77A1E2E49C3B2001CDABA /* XCRemoteSwiftPackageReference "SoraCore" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cranci1/SoraCore";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -628,6 +640,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1398F2142E44B0BF0023604F /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		13E77A1F2E49C3B2001CDABA /* SoraCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 13E77A1E2E49C3B2001CDABA /* XCRemoteSwiftPackageReference "SoraCore" */;
+			productName = SoraCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
