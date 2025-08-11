@@ -1,0 +1,656 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1359F0212E4A785000632AA3 /* SoraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0202E4A785000632AA3 /* SoraApp.swift */; };
+		1359F0252E4A785300632AA3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1359F0242E4A785300632AA3 /* Assets.xcassets */; };
+		1359F0292E4A785300632AA3 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1359F0282E4A785300632AA3 /* Preview Assets.xcassets */; };
+		1359F05E2E4A793F00632AA3 /* levenshteinDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0302E4A793B00632AA3 /* levenshteinDistance.swift */; };
+		1359F05F2E4A793F00632AA3 /* Services.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0322E4A793B00632AA3 /* Services.swift */; };
+		1359F0602E4A793F00632AA3 /* JavaScriptCore+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0332E4A793B00632AA3 /* JavaScriptCore+Extensions.swift */; };
+		1359F0612E4A793F00632AA3 /* JSController-Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0342E4A793B00632AA3 /* JSController-Search.swift */; };
+		1359F0622E4A793F00632AA3 /* JSController-Details.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0352E4A793B00632AA3 /* JSController-Details.swift */; };
+		1359F0632E4A793F00632AA3 /* ServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0362E4A793B00632AA3 /* ServiceManager.swift */; };
+		1359F0642E4A793F00632AA3 /* JSController-Streams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0372E4A793B00632AA3 /* JSController-Streams.swift */; };
+		1359F0652E4A793F00632AA3 /* JSController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0382E4A793B00632AA3 /* JSController.swift */; };
+		1359F0662E4A793F00632AA3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F03B2E4A793C00632AA3 /* SettingsView.swift */; };
+		1359F0672E4A793F00632AA3 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F03C2E4A793C00632AA3 /* SearchView.swift */; };
+		1359F0682E4A793F00632AA3 /* ServicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F03D2E4A793C00632AA3 /* ServicesView.swift */; };
+		1359F0692E4A793F00632AA3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F03E2E4A793C00632AA3 /* HomeView.swift */; };
+		1359F06A2E4A793F00632AA3 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0402E4A793C00632AA3 /* LibraryView.swift */; };
+		1359F06B2E4A793F00632AA3 /* MediaDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0412E4A793C00632AA3 /* MediaDetailView.swift */; };
+		1359F06C2E4A793F00632AA3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0422E4A793C00632AA3 /* ContentView.swift */; };
+		1359F06D2E4A793F00632AA3 /* LoggerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0432E4A793C00632AA3 /* LoggerView.swift */; };
+		1359F06E2E4A793F00632AA3 /* CircularProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0462E4A793C00632AA3 /* CircularProgressBar.swift */; };
+		1359F06F2E4A793F00632AA3 /* Movie-Details.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0482E4A793C00632AA3 /* Movie-Details.swift */; };
+		1359F0702E4A793F00632AA3 /* Shows-Details.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0492E4A793C00632AA3 /* Shows-Details.swift */; };
+		1359F0712E4A793F00632AA3 /* DetailRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F04A2E4A793C00632AA3 /* DetailRow.swift */; };
+		1359F0722E4A793F00632AA3 /* EpisodeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F04B2E4A793C00632AA3 /* EpisodeCell.swift */; };
+		1359F0732E4A793F00632AA3 /* StretchyHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F04C2E4A793C00632AA3 /* StretchyHeader.swift */; };
+		1359F0742E4A793F00632AA3 /* SearchResultCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F04D2E4A793C00632AA3 /* SearchResultCard.swift */; };
+		1359F0752E4A793F00632AA3 /* NormalPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F04E2E4A793C00632AA3 /* NormalPlayer.swift */; };
+		1359F0762E4A793F00632AA3 /* FallbackImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F04F2E4A793C00632AA3 /* FallbackImageView.swift */; };
+		1359F0772E4A793F00632AA3 /* ServicesResultsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0502E4A793C00632AA3 /* ServicesResultsSheet.swift */; };
+		1359F0782E4A793F00632AA3 /* resized.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0532E4A793D00632AA3 /* resized.swift */; };
+		1359F0792E4A793F00632AA3 /* URLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0552E4A793D00632AA3 /* URLSession.swift */; };
+		1359F07A2E4A793F00632AA3 /* ambientColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F0572E4A793D00632AA3 /* ambientColor.swift */; };
+		1359F07B2E4A793F00632AA3 /* TMDBModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F05A2E4A793E00632AA3 /* TMDBModels.swift */; };
+		1359F07C2E4A793F00632AA3 /* TMDBService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F05B2E4A793E00632AA3 /* TMDBService.swift */; };
+		1359F07D2E4A793F00632AA3 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1359F05D2E4A793F00632AA3 /* Logger.swift */; };
+		1359F0812E4A79B700632AA3 /* SoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1359F0802E4A79B700632AA3 /* SoraCore */; };
+		1359F0842E4A79CE00632AA3 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1359F0832E4A79CE00632AA3 /* Kingfisher */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1359F01D2E4A785000632AA3 /* Sora · Media Hub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sora · Media Hub.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1359F0202E4A785000632AA3 /* SoraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraApp.swift; sourceTree = "<group>"; };
+		1359F0242E4A785300632AA3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1359F0262E4A785300632AA3 /* Sora___Media_Hub.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Sora___Media_Hub.entitlements"; sourceTree = "<group>"; };
+		1359F0282E4A785300632AA3 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		1359F0302E4A793B00632AA3 /* levenshteinDistance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = levenshteinDistance.swift; sourceTree = "<group>"; };
+		1359F0322E4A793B00632AA3 /* Services.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Services.swift; sourceTree = "<group>"; };
+		1359F0332E4A793B00632AA3 /* JavaScriptCore+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JavaScriptCore+Extensions.swift"; sourceTree = "<group>"; };
+		1359F0342E4A793B00632AA3 /* JSController-Search.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSController-Search.swift"; sourceTree = "<group>"; };
+		1359F0352E4A793B00632AA3 /* JSController-Details.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSController-Details.swift"; sourceTree = "<group>"; };
+		1359F0362E4A793B00632AA3 /* ServiceManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceManager.swift; sourceTree = "<group>"; };
+		1359F0372E4A793B00632AA3 /* JSController-Streams.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSController-Streams.swift"; sourceTree = "<group>"; };
+		1359F0382E4A793B00632AA3 /* JSController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSController.swift; sourceTree = "<group>"; };
+		1359F03B2E4A793C00632AA3 /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		1359F03C2E4A793C00632AA3 /* SearchView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		1359F03D2E4A793C00632AA3 /* ServicesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServicesView.swift; sourceTree = "<group>"; };
+		1359F03E2E4A793C00632AA3 /* HomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		1359F0402E4A793C00632AA3 /* LibraryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		1359F0412E4A793C00632AA3 /* MediaDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaDetailView.swift; sourceTree = "<group>"; };
+		1359F0422E4A793C00632AA3 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		1359F0432E4A793C00632AA3 /* LoggerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoggerView.swift; sourceTree = "<group>"; };
+		1359F0462E4A793C00632AA3 /* CircularProgressBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularProgressBar.swift; sourceTree = "<group>"; };
+		1359F0482E4A793C00632AA3 /* Movie-Details.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Movie-Details.swift"; sourceTree = "<group>"; };
+		1359F0492E4A793C00632AA3 /* Shows-Details.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Shows-Details.swift"; sourceTree = "<group>"; };
+		1359F04A2E4A793C00632AA3 /* DetailRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailRow.swift; sourceTree = "<group>"; };
+		1359F04B2E4A793C00632AA3 /* EpisodeCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EpisodeCell.swift; sourceTree = "<group>"; };
+		1359F04C2E4A793C00632AA3 /* StretchyHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StretchyHeader.swift; sourceTree = "<group>"; };
+		1359F04D2E4A793C00632AA3 /* SearchResultCard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultCard.swift; sourceTree = "<group>"; };
+		1359F04E2E4A793C00632AA3 /* NormalPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NormalPlayer.swift; sourceTree = "<group>"; };
+		1359F04F2E4A793C00632AA3 /* FallbackImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FallbackImageView.swift; sourceTree = "<group>"; };
+		1359F0502E4A793C00632AA3 /* ServicesResultsSheet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServicesResultsSheet.swift; sourceTree = "<group>"; };
+		1359F0532E4A793D00632AA3 /* resized.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = resized.swift; sourceTree = "<group>"; };
+		1359F0552E4A793D00632AA3 /* URLSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSession.swift; sourceTree = "<group>"; };
+		1359F0572E4A793D00632AA3 /* ambientColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ambientColor.swift; sourceTree = "<group>"; };
+		1359F05A2E4A793E00632AA3 /* TMDBModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TMDBModels.swift; sourceTree = "<group>"; };
+		1359F05B2E4A793E00632AA3 /* TMDBService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TMDBService.swift; sourceTree = "<group>"; };
+		1359F05D2E4A793F00632AA3 /* Logger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1359F01A2E4A785000632AA3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1359F0842E4A79CE00632AA3 /* Kingfisher in Frameworks */,
+				1359F0812E4A79B700632AA3 /* SoraCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1359F0142E4A785000632AA3 = {
+			isa = PBXGroup;
+			children = (
+				1359F01F2E4A785000632AA3 /* Sora · Media Hub */,
+				1359F01E2E4A785000632AA3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		1359F01E2E4A785000632AA3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1359F01D2E4A785000632AA3 /* Sora · Media Hub.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1359F01F2E4A785000632AA3 /* Sora · Media Hub */ = {
+			isa = PBXGroup;
+			children = (
+				1359F02F2E4A793B00632AA3 /* Algorithm */,
+				1359F0512E4A793D00632AA3 /* Extensions */,
+				1359F0312E4A793B00632AA3 /* JSLoader */,
+				1359F05C2E4A793F00632AA3 /* Logger */,
+				1359F0582E4A793E00632AA3 /* TMDB */,
+				1359F0392E4A793C00632AA3 /* Views */,
+				1359F0202E4A785000632AA3 /* SoraApp.swift */,
+				1359F0242E4A785300632AA3 /* Assets.xcassets */,
+				1359F0262E4A785300632AA3 /* Sora___Media_Hub.entitlements */,
+				1359F0272E4A785300632AA3 /* Preview Content */,
+			);
+			path = "Sora · Media Hub";
+			sourceTree = "<group>";
+		};
+		1359F0272E4A785300632AA3 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				1359F0282E4A785300632AA3 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		1359F02F2E4A793B00632AA3 /* Algorithm */ = {
+			isa = PBXGroup;
+			children = (
+				1359F0302E4A793B00632AA3 /* levenshteinDistance.swift */,
+			);
+			path = Algorithm;
+			sourceTree = "<group>";
+		};
+		1359F0312E4A793B00632AA3 /* JSLoader */ = {
+			isa = PBXGroup;
+			children = (
+				1359F0322E4A793B00632AA3 /* Services.swift */,
+				1359F0332E4A793B00632AA3 /* JavaScriptCore+Extensions.swift */,
+				1359F0342E4A793B00632AA3 /* JSController-Search.swift */,
+				1359F0352E4A793B00632AA3 /* JSController-Details.swift */,
+				1359F0362E4A793B00632AA3 /* ServiceManager.swift */,
+				1359F0372E4A793B00632AA3 /* JSController-Streams.swift */,
+				1359F0382E4A793B00632AA3 /* JSController.swift */,
+			);
+			path = JSLoader;
+			sourceTree = "<group>";
+		};
+		1359F0392E4A793C00632AA3 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1359F03A2E4A793C00632AA3 /* Base Views */,
+				1359F0442E4A793C00632AA3 /* View Elements */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		1359F03A2E4A793C00632AA3 /* Base Views */ = {
+			isa = PBXGroup;
+			children = (
+				1359F03B2E4A793C00632AA3 /* SettingsView.swift */,
+				1359F03C2E4A793C00632AA3 /* SearchView.swift */,
+				1359F03D2E4A793C00632AA3 /* ServicesView.swift */,
+				1359F03E2E4A793C00632AA3 /* HomeView.swift */,
+				1359F03F2E4A793C00632AA3 /* Search */,
+				1359F0402E4A793C00632AA3 /* LibraryView.swift */,
+				1359F0412E4A793C00632AA3 /* MediaDetailView.swift */,
+				1359F0422E4A793C00632AA3 /* ContentView.swift */,
+				1359F0432E4A793C00632AA3 /* LoggerView.swift */,
+			);
+			path = "Base Views";
+			sourceTree = "<group>";
+		};
+		1359F03F2E4A793C00632AA3 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Search;
+			sourceTree = "<group>";
+		};
+		1359F0442E4A793C00632AA3 /* View Elements */ = {
+			isa = PBXGroup;
+			children = (
+				1359F0452E4A793C00632AA3 /* MediaInfo */,
+				1359F04D2E4A793C00632AA3 /* SearchResultCard.swift */,
+				1359F04E2E4A793C00632AA3 /* NormalPlayer.swift */,
+				1359F04F2E4A793C00632AA3 /* FallbackImageView.swift */,
+				1359F0502E4A793C00632AA3 /* ServicesResultsSheet.swift */,
+			);
+			path = "View Elements";
+			sourceTree = "<group>";
+		};
+		1359F0452E4A793C00632AA3 /* MediaInfo */ = {
+			isa = PBXGroup;
+			children = (
+				1359F0462E4A793C00632AA3 /* CircularProgressBar.swift */,
+				1359F0472E4A793C00632AA3 /* Details */,
+				1359F04B2E4A793C00632AA3 /* EpisodeCell.swift */,
+				1359F04C2E4A793C00632AA3 /* StretchyHeader.swift */,
+			);
+			path = MediaInfo;
+			sourceTree = "<group>";
+		};
+		1359F0472E4A793C00632AA3 /* Details */ = {
+			isa = PBXGroup;
+			children = (
+				1359F0482E4A793C00632AA3 /* Movie-Details.swift */,
+				1359F0492E4A793C00632AA3 /* Shows-Details.swift */,
+				1359F04A2E4A793C00632AA3 /* DetailRow.swift */,
+			);
+			path = Details;
+			sourceTree = "<group>";
+		};
+		1359F0512E4A793D00632AA3 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				1359F0522E4A793D00632AA3 /* UIImage */,
+				1359F0542E4A793D00632AA3 /* URLSession */,
+				1359F0562E4A793D00632AA3 /* Color */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		1359F0522E4A793D00632AA3 /* UIImage */ = {
+			isa = PBXGroup;
+			children = (
+				1359F0532E4A793D00632AA3 /* resized.swift */,
+			);
+			path = UIImage;
+			sourceTree = "<group>";
+		};
+		1359F0542E4A793D00632AA3 /* URLSession */ = {
+			isa = PBXGroup;
+			children = (
+				1359F0552E4A793D00632AA3 /* URLSession.swift */,
+			);
+			path = URLSession;
+			sourceTree = "<group>";
+		};
+		1359F0562E4A793D00632AA3 /* Color */ = {
+			isa = PBXGroup;
+			children = (
+				1359F0572E4A793D00632AA3 /* ambientColor.swift */,
+			);
+			path = Color;
+			sourceTree = "<group>";
+		};
+		1359F0582E4A793E00632AA3 /* TMDB */ = {
+			isa = PBXGroup;
+			children = (
+				1359F0592E4A793E00632AA3 /* Models */,
+				1359F05B2E4A793E00632AA3 /* TMDBService.swift */,
+			);
+			path = TMDB;
+			sourceTree = "<group>";
+		};
+		1359F0592E4A793E00632AA3 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				1359F05A2E4A793E00632AA3 /* TMDBModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		1359F05C2E4A793F00632AA3 /* Logger */ = {
+			isa = PBXGroup;
+			children = (
+				1359F05D2E4A793F00632AA3 /* Logger.swift */,
+			);
+			path = Logger;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1359F01C2E4A785000632AA3 /* Sora · Media Hub */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1359F02C2E4A785300632AA3 /* Build configuration list for PBXNativeTarget "Sora · Media Hub" */;
+			buildPhases = (
+				1359F0192E4A785000632AA3 /* Sources */,
+				1359F01A2E4A785000632AA3 /* Frameworks */,
+				1359F01B2E4A785000632AA3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Sora · Media Hub";
+			packageProductDependencies = (
+				1359F0802E4A79B700632AA3 /* SoraCore */,
+				1359F0832E4A79CE00632AA3 /* Kingfisher */,
+			);
+			productName = "Sora · Media Hub";
+			productReference = 1359F01D2E4A785000632AA3 /* Sora · Media Hub.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1359F0152E4A785000632AA3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1520;
+				LastUpgradeCheck = 1520;
+				TargetAttributes = {
+					1359F01C2E4A785000632AA3 = {
+						CreatedOnToolsVersion = 15.2;
+					};
+				};
+			};
+			buildConfigurationList = 1359F0182E4A785000632AA3 /* Build configuration list for PBXProject "Sora · Media Hub" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 1359F0142E4A785000632AA3;
+			packageReferences = (
+				1359F07F2E4A79B700632AA3 /* XCRemoteSwiftPackageReference "SoraCore" */,
+				1359F0822E4A79CE00632AA3 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+			);
+			productRefGroup = 1359F01E2E4A785000632AA3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1359F01C2E4A785000632AA3 /* Sora · Media Hub */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1359F01B2E4A785000632AA3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1359F0292E4A785300632AA3 /* Preview Assets.xcassets in Resources */,
+				1359F0252E4A785300632AA3 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1359F0192E4A785000632AA3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1359F0622E4A793F00632AA3 /* JSController-Details.swift in Sources */,
+				1359F0692E4A793F00632AA3 /* HomeView.swift in Sources */,
+				1359F0792E4A793F00632AA3 /* URLSession.swift in Sources */,
+				1359F0762E4A793F00632AA3 /* FallbackImageView.swift in Sources */,
+				1359F0712E4A793F00632AA3 /* DetailRow.swift in Sources */,
+				1359F06E2E4A793F00632AA3 /* CircularProgressBar.swift in Sources */,
+				1359F0642E4A793F00632AA3 /* JSController-Streams.swift in Sources */,
+				1359F0602E4A793F00632AA3 /* JavaScriptCore+Extensions.swift in Sources */,
+				1359F07C2E4A793F00632AA3 /* TMDBService.swift in Sources */,
+				1359F0672E4A793F00632AA3 /* SearchView.swift in Sources */,
+				1359F0632E4A793F00632AA3 /* ServiceManager.swift in Sources */,
+				1359F06C2E4A793F00632AA3 /* ContentView.swift in Sources */,
+				1359F0702E4A793F00632AA3 /* Shows-Details.swift in Sources */,
+				1359F05F2E4A793F00632AA3 /* Services.swift in Sources */,
+				1359F0652E4A793F00632AA3 /* JSController.swift in Sources */,
+				1359F0212E4A785000632AA3 /* SoraApp.swift in Sources */,
+				1359F0732E4A793F00632AA3 /* StretchyHeader.swift in Sources */,
+				1359F0752E4A793F00632AA3 /* NormalPlayer.swift in Sources */,
+				1359F0682E4A793F00632AA3 /* ServicesView.swift in Sources */,
+				1359F07A2E4A793F00632AA3 /* ambientColor.swift in Sources */,
+				1359F06F2E4A793F00632AA3 /* Movie-Details.swift in Sources */,
+				1359F0612E4A793F00632AA3 /* JSController-Search.swift in Sources */,
+				1359F07B2E4A793F00632AA3 /* TMDBModels.swift in Sources */,
+				1359F05E2E4A793F00632AA3 /* levenshteinDistance.swift in Sources */,
+				1359F07D2E4A793F00632AA3 /* Logger.swift in Sources */,
+				1359F06D2E4A793F00632AA3 /* LoggerView.swift in Sources */,
+				1359F0782E4A793F00632AA3 /* resized.swift in Sources */,
+				1359F06A2E4A793F00632AA3 /* LibraryView.swift in Sources */,
+				1359F06B2E4A793F00632AA3 /* MediaDetailView.swift in Sources */,
+				1359F0772E4A793F00632AA3 /* ServicesResultsSheet.swift in Sources */,
+				1359F0742E4A793F00632AA3 /* SearchResultCard.swift in Sources */,
+				1359F0722E4A793F00632AA3 /* EpisodeCell.swift in Sources */,
+				1359F0662E4A793F00632AA3 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1359F02A2E4A785300632AA3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		1359F02B2E4A785300632AA3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		1359F02D2E4A785300632AA3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Sora · Media Hub/Sora___Media_Hub.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Sora · Media Hub/Preview Content\"";
+				DEVELOPMENT_TEAM = 399LMK6Q2Y;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Sora---Media-Hub-Info.plist";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 13.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.cranci.Solar;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1359F02E2E4A785300632AA3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Sora · Media Hub/Sora___Media_Hub.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Sora · Media Hub/Preview Content\"";
+				DEVELOPMENT_TEAM = 399LMK6Q2Y;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Sora---Media-Hub-Info.plist";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 13.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.cranci.Solar;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1359F0182E4A785000632AA3 /* Build configuration list for PBXProject "Sora · Media Hub" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1359F02A2E4A785300632AA3 /* Debug */,
+				1359F02B2E4A785300632AA3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1359F02C2E4A785300632AA3 /* Build configuration list for PBXNativeTarget "Sora · Media Hub" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1359F02D2E4A785300632AA3 /* Debug */,
+				1359F02E2E4A785300632AA3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1359F07F2E4A79B700632AA3 /* XCRemoteSwiftPackageReference "SoraCore" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cranci1/SoraCore";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		1359F0822E4A79CE00632AA3 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.5.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1359F0802E4A79B700632AA3 /* SoraCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1359F07F2E4A79B700632AA3 /* XCRemoteSwiftPackageReference "SoraCore" */;
+			productName = SoraCore;
+		};
+		1359F0832E4A79CE00632AA3 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1359F0822E4A79CE00632AA3 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 1359F0152E4A785000632AA3 /* Project object */;
+}

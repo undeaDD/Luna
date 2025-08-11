@@ -1,0 +1,61 @@
+name: Build and Release
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+      
+jobs:
+  build-ios:
+    name: Build IPA
+    runs-on: macOS-latest
+    steps:
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Run ipabuild.sh
+        run: |
+          chmod +x ipabuild.sh
+          ./ipabuild.sh
+          
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sora-Media-Hub-IPA
+          path: "build/Sora · Media Hub.ipa"
+          compression-level: 0
+
+  build-mac:
+    name: Build Mac Catalyst
+    runs-on: macOS-latest
+    steps:
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Run macbuild.sh
+        run: |
+          chmod +x macbuild.sh
+          ./macbuild.sh
+          
+      - name: Create DMG
+        run: |
+          hdiutil create -volname "Sora · Media Hub" -srcfolder "build/Sora · Media Hub.app" -ov -format UDZO "build/Sora · Media Hub.dmg"
+          
+      - name: Upload Mac artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sora-Media-Hub-Mac
+          path: "build/Sora · Media Hub.dmg"
+          compression-level: 0
