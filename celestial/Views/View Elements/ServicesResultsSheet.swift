@@ -475,8 +475,11 @@ struct ModulesSearchResultsSheet: View {
                         
                         if let url = streamURL {
                             Logger.shared.log("Attempting to play URL: \(url.absoluteString)", type: "Stream")
+                            let serviceURL = service.metadata.baseUrl
                             
                             let headers = [
+                                "Origin": serviceURL,
+                                "Referer": serviceURL,
                                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:135.0) Gecko/20100101 Firefox/135.0"
                             ]
                             let asset = AVURLAsset(url: url, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
