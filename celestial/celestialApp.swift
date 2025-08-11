@@ -1,9 +1,14 @@
-//___FILEHEADER___
+//
+//  celestialApp.swift
+//  celestial
+//
+//  Created by Francesco on 07/08/25.
+//
 
 import SwiftUI
 
 @main
-struct SoraApp: App {
+struct celestialApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
