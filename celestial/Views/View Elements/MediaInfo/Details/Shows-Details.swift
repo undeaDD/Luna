@@ -18,6 +18,7 @@ struct TVShowSeasonsSection: View {
     @State private var isLoadingSeason = false
     @State private var showingSearchResults = false
     @State private var showingNoServicesAlert = false
+    @State private var romajiTitle: String?
     
     @StateObject private var serviceManager = ServiceManager.shared
     
@@ -110,11 +111,18 @@ struct TVShowSeasonsSection: View {
         .onAppear {
             if let tvShow = tvShow, let selectedSeason = selectedSeason {
                 loadSeasonDetails(tvShowId: tvShow.id, season: selectedSeason)
+                Task {
+                    let romaji = await tmdbService.getRomajiTitle(for: "tv", id: tvShow.id)
+                    await MainActor.run {
+                        self.romajiTitle = romaji
+                    }
+                }
             }
         }
         .sheet(isPresented: $showingSearchResults) {
             ModulesSearchResultsSheet(
                 mediaTitle: tvShow?.name ?? "Unknown Show",
+                originalTitle: romajiTitle,
                 isMovie: false,
                 selectedEpisode: selectedEpisodeForSearch
             )

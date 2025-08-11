@@ -27,6 +27,7 @@ struct MediaDetailView: View {
     @State private var showingSearchResults = false
     @State private var showingNoServicesAlert = false
     @State private var selectedEpisodeForSearch: TMDBEpisode?
+    @State private var romajiTitle: String?
     
     @StateObject private var serviceManager = ServiceManager.shared
     
@@ -72,6 +73,7 @@ struct MediaDetailView: View {
         .sheet(isPresented: $showingSearchResults) {
             ModulesSearchResultsSheet(
                 mediaTitle: searchResult.displayTitle,
+                originalTitle: romajiTitle,
                 isMovie: searchResult.isMovie,
                 selectedEpisode: selectedEpisodeForSearch
             )
@@ -375,16 +377,20 @@ struct MediaDetailView: View {
             do {
                 if searchResult.isMovie {
                     let detail = try await tmdbService.getMovieDetails(id: searchResult.id)
+                    let romaji = await tmdbService.getRomajiTitle(for: "movie", id: searchResult.id)
                     await MainActor.run {
                         self.movieDetail = detail
                         self.synopsis = detail.overview ?? ""
+                        self.romajiTitle = romaji
                         self.isLoading = false
                     }
                 } else {
                     let detail = try await tmdbService.getTVShowWithSeasons(id: searchResult.id)
+                    let romaji = await tmdbService.getRomajiTitle(for: "tv", id: searchResult.id)
                     await MainActor.run {
                         self.tvShowDetail = detail
                         self.synopsis = detail.overview ?? ""
+                        self.romajiTitle = romaji
                         if let firstSeason = detail.seasons.first(where: { $0.seasonNumber > 0 }) {
                             self.selectedSeason = firstSeason
                         }

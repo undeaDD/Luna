@@ -12,6 +12,7 @@ import Kingfisher
 
 struct ModulesSearchResultsSheet: View {
     let mediaTitle: String
+    let originalTitle: String?
     let isMovie: Bool
     let selectedEpisode: TMDBEpisode?
     
@@ -34,7 +35,11 @@ struct ModulesSearchResultsSheet: View {
     
     private func filterResults(for results: [SearchItem]) -> (highQuality: [SearchItem], lowQuality: [SearchItem]) {
         let sortedResults = results.map { result in
-            (result: result, similarity: calculateSimilarity(original: mediaTitle, result: result.title))
+            let primarySimilarity = calculateSimilarity(original: mediaTitle, result: result.title)
+            let originalSimilarity = originalTitle.map { calculateSimilarity(original: $0, result: result.title) } ?? 0.0
+            let bestSimilarity = max(primarySimilarity, originalSimilarity)
+            
+            return (result: result, similarity: bestSimilarity)
         }.sorted { $0.similarity > $1.similarity }
         
         let highQuality = sortedResults.filter { $0.similarity >= 0.75 }.map { $0.result }
@@ -56,10 +61,24 @@ struct ModulesSearchResultsSheet: View {
                             Text("\(mediaTitle) S\(episode.seasonNumber)E\(episode.episodeNumber)")
                                 .font(.headline)
                                 .fontWeight(.semibold)
+                            
+                            if let originalTitle = originalTitle, !originalTitle.isEmpty, originalTitle.lowercased() != mediaTitle.lowercased() {
+                                Text("Also searching: \(originalTitle)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .italic()
+                            }
                         } else {
                             Text(mediaTitle)
                                 .font(.headline)
                                 .fontWeight(.semibold)
+                            
+                            if let originalTitle = originalTitle, !originalTitle.isEmpty, originalTitle.lowercased() != mediaTitle.lowercased() {
+                                Text("Also searching: \(originalTitle)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .italic()
+                            }
                         }
                         
                         if let episode = selectedEpisode {
@@ -152,6 +171,7 @@ struct ModulesSearchResultsSheet: View {
                                         EnhancedMediaResultRow(
                                             result: searchResult,
                                             originalTitle: mediaTitle,
+                                            alternativeTitle: originalTitle,
                                             episode: selectedEpisode,
                                             onTap: {
                                                 selectedResult = searchResult
@@ -195,6 +215,7 @@ struct ModulesSearchResultsSheet: View {
                                                 CompactMediaResultRow(
                                                     result: searchResult,
                                                     originalTitle: mediaTitle,
+                                                    alternativeTitle: originalTitle,
                                                     episode: selectedEpisode,
                                                     onTap: {
                                                         selectedResult = searchResult
@@ -276,9 +297,7 @@ struct ModulesSearchResultsSheet: View {
             isSearching = false
             return
         }
-        
-        let searchQuery: String
-        searchQuery = mediaTitle
+        let searchQuery = mediaTitle
         
         Task {
             await serviceManager.searchInActiveServicesProgressively(
@@ -295,8 +314,37 @@ struct ModulesSearchResultsSheet: View {
                     }
                 },
                 onComplete: {
-                    Task { @MainActor in
-                        isSearching = false
+                    if let originalTitle = self.originalTitle,
+                       !originalTitle.isEmpty,
+                       originalTitle.lowercased() != self.mediaTitle.lowercased() {
+                        
+                        Task {
+                            await self.serviceManager.searchInActiveServicesProgressively(
+                                query: originalTitle,
+                                onResult: { service, additionalResults in
+                                    Task { @MainActor in
+                                        if let existingIndex = self.moduleResults.firstIndex(where: { $0.service.id == service.id }) {
+                                            let existingResults = self.moduleResults[existingIndex].results
+                                            let existingHrefs = Set(existingResults.map { $0.href })
+                                            let newResults = additionalResults.filter { !existingHrefs.contains($0.href) }
+                                            let mergedResults = existingResults + newResults
+                                            self.moduleResults[existingIndex] = (service: service, results: mergedResults)
+                                        } else {
+                                            self.moduleResults.append((service: service, results: additionalResults))
+                                        }
+                                    }
+                                },
+                                onComplete: {
+                                    Task { @MainActor in
+                                        self.isSearching = false
+                                    }
+                                }
+                            )
+                        }
+                    } else {
+                        Task { @MainActor in
+                            self.isSearching = false
+                        }
                     }
                 }
             )
@@ -529,11 +577,14 @@ struct ModulesSearchResultsSheet: View {
 struct CompactMediaResultRow: View {
     let result: SearchItem
     let originalTitle: String
+    let alternativeTitle: String?
     let episode: TMDBEpisode?
     let onTap: () -> Void
     
     private var similarityScore: Double {
-        calculateSimilarity(original: originalTitle, result: result.title)
+        let primarySimilarity = calculateSimilarity(original: originalTitle, result: result.title)
+        let alternativeSimilarity = alternativeTitle.map { calculateSimilarity(original: $0, result: result.title) } ?? 0.0
+        return max(primarySimilarity, alternativeSimilarity)
     }
     
     private var scoreColor: Color {
@@ -596,11 +647,14 @@ struct CompactMediaResultRow: View {
 struct EnhancedMediaResultRow: View {
     let result: SearchItem
     let originalTitle: String
+    let alternativeTitle: String?
     let episode: TMDBEpisode?
     let onTap: () -> Void
     
     private var similarityScore: Double {
-        calculateSimilarity(original: originalTitle, result: result.title)
+        let primarySimilarity = calculateSimilarity(original: originalTitle, result: result.title)
+        let alternativeSimilarity = alternativeTitle.map { calculateSimilarity(original: $0, result: result.title) } ?? 0.0
+        return max(primarySimilarity, alternativeSimilarity)
     }
     
     private var scoreColor: Color {

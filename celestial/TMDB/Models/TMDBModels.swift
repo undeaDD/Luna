@@ -433,3 +433,37 @@ struct TMDBTVShowWithSeasons: Codable, Identifiable {
         return "\(runtime)m"
     }
 }
+
+// MARK: - Alternative Titles
+struct TMDBAlternativeTitles: Codable {
+    let id: Int
+    let titles: [TMDBAlternativeTitle]
+}
+
+struct TMDBAlternativeTitle: Codable {
+    let iso31661: String
+    let title: String
+    let type: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case title, type
+        case iso31661 = "iso_3166_1"
+    }
+}
+
+// MARK: - TV Alternative Titles
+struct TMDBTVAlternativeTitles: Codable {
+    let id: Int
+    let results: [TMDBTVAlternativeTitle]
+}
+
+struct TMDBTVAlternativeTitle: Codable {
+    let iso31661: String
+    let title: String
+    let type: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case title, type
+        case iso31661 = "iso_3166_1"
+    }
+}
