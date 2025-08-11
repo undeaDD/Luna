@@ -528,7 +528,7 @@ struct ModulesSearchResultsSheet: View {
                             let headers = [
                                 "Origin": serviceURL,
                                 "Referer": serviceURL,
-                                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:135.0) Gecko/20100101 Firefox/135.0"
+                                "User-Agent": URLSession.randomUserAgent
                             ]
                             let asset = AVURLAsset(url: url, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
                             
