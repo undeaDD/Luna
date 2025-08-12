@@ -80,9 +80,6 @@ struct MediaDetailView: View {
         }
         .alert("No Active Services", isPresented: $showingNoServicesAlert) {
             Button("OK") { }
-            Button("Go to Services") {
-                // TODO: Navigate to services tab
-            }
         } message: {
             Text("You don't have any active services. Please go to the Services tab to download and activate services.")
         }

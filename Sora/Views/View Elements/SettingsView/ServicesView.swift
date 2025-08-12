@@ -10,8 +10,6 @@ import Kingfisher
 
 struct ServicesView: View {
     @StateObject private var serviceManager = ServiceManager.shared
-    @State private var showingDownloadAlert = false
-    @State private var downloadURL = ""
     
     var body: some View {
         NavigationView {
@@ -26,29 +24,6 @@ struct ServicesView: View {
 #if os(iOS)
             .navigationBarTitleDisplayMode(.large)
 #endif
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        showingDownloadAlert = true
-                    }) {
-                        Image(systemName: "plus")
-                    }
-                }
-            }
-            .alert("Add Service", isPresented: $showingDownloadAlert) {
-                TextField("Service URL", text: $downloadURL)
-                    .textInputAutocapitalization(.never)
-                    .keyboardType(.URL)
-                Button("Cancel", role: .cancel) {
-                    downloadURL = ""
-                }
-                Button("Download") {
-                    downloadService()
-                }
-                .disabled(downloadURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            } message: {
-                Text("Enter the URL of a JSON service file to download and install.")
-            }
         }
     }
     
@@ -62,17 +37,6 @@ struct ServicesView: View {
             Text("No Services")
                 .font(.title2)
                 .fontWeight(.semibold)
-            
-            Text("Download services to expand your content library. Paste a JSON service URL in the search bar or use the + button above.")
-                .font(.body)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-            
-            Button("Add Service") {
-                showingDownloadAlert = true
-            }
-            .buttonStyle(.borderedProminent)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -91,15 +55,6 @@ struct ServicesView: View {
         for index in offsets {
             let service = serviceManager.services[index]
             serviceManager.removeService(service)
-        }
-    }
-    
-    private func downloadService() {
-        Task {
-            await serviceManager.downloadService(from: downloadURL)
-            await MainActor.run {
-                downloadURL = ""
-            }
         }
     }
 }

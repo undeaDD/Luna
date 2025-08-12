@@ -10,7 +10,7 @@ on:
 jobs:
   build-ios:
     name: Build IPA
-    runs-on: macOS-latest
+    runs-on: macos-15
     steps:
       - name: Use Node.js 20
         uses: actions/setup-node@v4
@@ -23,7 +23,7 @@ jobs:
       - name: Run ipabuild.sh
         run: |
           chmod +x ipabuild.sh
-          ./ipabuild.sh
+          ./ipabuild.sh ios
           
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
@@ -32,9 +32,9 @@ jobs:
           path: build/Sora.ipa
           compression-level: 0
 
-  build-mac:
-    name: Build Mac Catalyst
-    runs-on: macOS-latest
+  build-tvos:
+    name: Build tvOS
+    runs-on: macos-15
     steps:
       - name: Use Node.js 20
         uses: actions/setup-node@v4
@@ -44,18 +44,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: Run macbuild.sh
+      - name: Run ipabuild.sh for tvOS
         run: |
-          chmod +x macbuild.sh
-          ./macbuild.sh
+          chmod +x ipabuild.sh
+          ./ipabuild.sh tvos
           
-      - name: Create DMG
-        run: |
-          hdiutil create -volname "Sora" -srcfolder build/Sora.app -ov -format UDZO build/Sora.dmg
-          
-      - name: Upload Mac artifact
+      - name: Upload tvOS artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Sora-Mac
-          path: build/Sora.dmg
+          name: Sora-tvOS
+          path: build/Sora-tvOS.ipa
           compression-level: 0
