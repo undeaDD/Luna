@@ -364,13 +364,9 @@ struct SearchView: View {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedQuery.isEmpty else { return }
         
-        // Remove if already exists
         searchHistory.removeAll { $0.lowercased() == trimmedQuery.lowercased() }
-        
-        // Add to beginning
         searchHistory.insert(trimmedQuery, at: 0)
         
-        // Keep only last 10 searches
         if searchHistory.count > 10 {
             searchHistory = Array(searchHistory.prefix(10))
         }
@@ -441,7 +437,6 @@ struct SearchView: View {
                 await MainActor.run {
                     self.searchResults = results
                     self.isLoading = false
-                    // Add to search history only if we got results
                     if !results.isEmpty {
                         self.addToSearchHistory(self.searchText)
                     }
