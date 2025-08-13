@@ -26,6 +26,34 @@ class ServiceManager: ObservableObject {
         loadExistingServices()
     }
     
+    // MARK: - UserDefaults Persistence
+    
+    private func generateServiceUUID(from metadata: ServicesMetadata, folderName: String) -> UUID {
+        let identifier = "\(metadata.sourceName)_\(metadata.author.name)_\(metadata.version)_\(folderName)"
+        let data = identifier.data(using: .utf8) ?? Data()
+        let hash = data.withUnsafeBytes { bytes in
+            var hasher = Hasher()
+            hasher.combine(bytes: UnsafeRawBufferPointer(bytes))
+            return hasher.finalize()
+        }
+        
+        let uuidString = String(format: "%08X-%04X-%04X-%04X-%012X", hash & 0xFFFFFFFF, (hash >> 32) & 0xFFFF, (hash >> 48) & 0xFFFF, (hash >> 64) & 0xFFFF, (hash >> 80) & 0xFFFFFFFFFFFF)
+        return UUID(uuidString: uuidString) ?? UUID()
+    }
+    
+    private func saveServiceStates() {
+        let serviceStates = Dictionary(uniqueKeysWithValues: services.map { ($0.id.uuidString, $0.isActive) })
+        UserDefaults.standard.set(serviceStates, forKey: "ServiceActiveStates")
+        Logger.shared.log("Saved service states to UserDefaults", type: "ServiceManager")
+    }
+    
+    private func loadServiceState(for serviceId: UUID) -> Bool {
+        guard let serviceStates = UserDefaults.standard.object(forKey: "ServiceActiveStates") as? [String: Bool] else {
+            return false
+        }
+        return serviceStates[serviceId.uuidString] ?? false
+    }
+    
     // MARK: - Public Methods
     
     func handlePotentialServiceURL(_ text: String) async -> Bool {
@@ -54,6 +82,7 @@ class ServiceManager: ObservableObject {
             
             await MainActor.run {
                 self.services.append(service)
+                self.saveServiceStates()
                 self.downloadProgress = 1.0
                 self.downloadMessage = "Service downloaded successfully!"
             }
@@ -85,20 +114,28 @@ class ServiceManager: ObservableObject {
             }
             
             services.removeAll { $0.id == service.id }
+            
+            if var serviceStates = UserDefaults.standard.object(forKey: "ServiceActiveStates") as? [String: Bool] {
+                serviceStates.removeValue(forKey: service.id.uuidString)
+                UserDefaults.standard.set(serviceStates, forKey: "ServiceActiveStates")
+            }
+            
             Logger.shared.log("Removed service: \(service.metadata.sourceName)", type: "ServiceManager")
         } catch {
             Logger.shared.log("Failed to remove service \(service.metadata.sourceName): \(error.localizedDescription)", type: "ServiceManager")
         }
     }
     
-    func toggleServiceState(_ service: Services) {
+    func setServiceState(_ service: Services, isActive: Bool) {
         if let index = services.firstIndex(where: { $0.id == service.id }) {
-            services[index].isActive.toggle()
-            Logger.shared.log("Toggled service \(service.metadata.sourceName) to \(services[index].isActive ? "active" : "inactive")", type: "ServiceManager")
-            
-            let updatedServices = services
-            services = updatedServices
+            services[index].isActive = isActive
+            saveServiceStates()
+            Logger.shared.log("Set service \(service.metadata.sourceName) to \(isActive ? "active" : "inactive")", type: "ServiceManager")
         }
+    }
+    
+    func toggleServiceState(_ service: Services) {
+        setServiceState(service, isActive: !service.isActive)
     }
     
     var activeServices: [Services] {
@@ -260,16 +297,19 @@ class ServiceManager: ObservableObject {
     }
     
     private func saveService(metadata: ServicesMetadata, jsContent: String, metadataUrl: String) async throws -> Services {
-        let serviceId = UUID()
-        let serviceFolderName = "\(metadata.sourceName.replacingOccurrences(of: " ", with: "_"))_\(serviceId.uuidString.prefix(8))"
+        let tempServiceId = UUID()
+        let serviceFolderName = "\(metadata.sourceName.replacingOccurrences(of: " ", with: "_"))_\(tempServiceId.uuidString.prefix(8))"
         let servicePath = servicesDirectory.appendingPathComponent(serviceFolderName)
         try FileManager.default.createDirectory(at: servicePath, withIntermediateDirectories: true)
         
         let jsonData = try JSONEncoder().encode(metadata)
         let jsonPath = servicePath.appendingPathComponent("metadata.json")
         try jsonData.write(to: jsonPath)
+        
         let jsPath = servicePath.appendingPathComponent("script.js")
         try jsContent.write(to: jsPath, atomically: true, encoding: .utf8)
+        
+        let serviceId = generateServiceUUID(from: metadata, folderName: serviceFolderName)
         
         let service = Services(
             id: serviceId,
@@ -320,11 +360,20 @@ class ServiceManager: ObservableObject {
             let data = try Data(contentsOf: metadataPath)
             let metadata = try JSONDecoder().decode(ServicesMetadata.self, from: data)
             
+            let serviceIdPath = folderURL.appendingPathComponent("service_id.json")
+            if FileManager.default.fileExists(atPath: serviceIdPath.path) {
+                try? FileManager.default.removeItem(at: serviceIdPath)
+            }
+            
+            let serviceId = generateServiceUUID(from: metadata, folderName: folderURL.lastPathComponent)
+            let savedState = loadServiceState(for: serviceId)
+            
             return Services(
+                id: serviceId,
                 metadata: metadata,
                 localPath: folderURL.lastPathComponent,
                 metadataUrl: "",
-                isActive: false
+                isActive: savedState
             )
         } catch {
             Logger.shared.log("Failed to load service from \(folderURL.lastPathComponent): \(error.localizedDescription)", type: "ServiceManager")
