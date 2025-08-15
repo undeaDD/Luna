@@ -6,52 +6,35 @@ on:
   pull_request:
     branches:
       - main
-      
+
 jobs:
   build-ios:
-    name: Build IPA
+    name: Build iOS App
     runs-on: macos-latest
+
     steps:
-      - name: Use Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
-        
-      - name: Run ipabuild.sh
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Make build script executable
+        run: chmod +x ./ipabuild.sh
+
+      - name: Build iOS app
+        run: ./ipabuild.sh ios
+
+      - name: Compress IPA
         run: |
-          chmod +x ipabuild.sh
-          ./ipabuild.sh ios
-          
+          cd build
+          zip -r Sora.ipa.zip Sora.ipa
+
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Sora-IPA
-          path: build/Sora.ipa
-          compression-level: 0
-
-  build-tvos:
-    name: Build tvOS
-    runs-on: macos-latest
-    steps:
-      - name: Use Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Run ipabuild.sh for tvOS
-        run: |
-          chmod +x ipabuild.sh
-          ./ipabuild.sh tvos
-          
-      - name: Upload tvOS artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Sora-tvOS
-          path: build/Sora-tvOS.ipa
-          compression-level: 0
+          name: Sora-iOS-Build
+          path: build/Sora.ipa.zip
+          retention-days: 30
