@@ -24,6 +24,9 @@ struct ServicesView: View {
 #if os(iOS)
             .navigationBarTitleDisplayMode(.large)
 #endif
+            .refreshable {
+                await serviceManager.refreshDefaultServices()
+            }
         }
     }
     
@@ -62,9 +65,14 @@ struct ServicesView: View {
 struct ServiceRow: View {
     let service: Services
     @ObservedObject var serviceManager: ServiceManager
+    @State private var showingSettings = false
     
     private var isServiceActive: Bool {
         serviceManager.services.first(where: { $0.id == service.id })?.isActive ?? false
+    }
+    
+    private var hasSettings: Bool {
+        service.metadata.settings == true
     }
     
     var body: some View {
@@ -110,10 +118,23 @@ struct ServiceRow: View {
             
             Spacer()
             
-            if isServiceActive {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 20, height: 20)
+            HStack(spacing: 12) {
+                if hasSettings {
+                    Button(action: {
+                        showingSettings = true
+                    }) {
+                        Image(systemName: "pencil")
+                            .foregroundStyle(Color.secondary)
+                            .frame(width: 20, height: 20)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+                
+                if isServiceActive {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Color.accentColor)
+                        .frame(width: 20, height: 20)
+                }
             }
         }
         .contentShape(Rectangle())
@@ -121,6 +142,9 @@ struct ServiceRow: View {
             withAnimation(.easeInOut(duration: 0.2)) {
                 serviceManager.setServiceState(service, isActive: !isServiceActive)
             }
+        }
+        .sheet(isPresented: $showingSettings) {
+            ServiceSettingsView(service: service, serviceManager: serviceManager)
         }
     }
 }

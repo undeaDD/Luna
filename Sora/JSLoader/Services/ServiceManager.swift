@@ -7,6 +7,20 @@
 
 import Foundation
 
+struct ServiceSetting {
+    let key: String
+    let value: String
+    let type: SettingType
+    let comment: String?
+    
+    enum SettingType {
+        case string
+        case bool
+        case int
+        case float
+    }
+}
+
 class ServiceManager: ObservableObject {
     static let shared = ServiceManager()
     
@@ -24,6 +38,7 @@ class ServiceManager: ObservableObject {
         
         createServicesDirectoryIfNeeded()
         loadExistingServices()
+        loadDefaultServicesIfNeeded()
     }
     
     // MARK: - UserDefaults Persistence
@@ -140,6 +155,11 @@ class ServiceManager: ObservableObject {
     
     var activeServices: [Services] {
         return services.filter { $0.isActive }
+    }
+    
+    func refreshDefaultServices() async {
+        UserDefaults.standard.set(false, forKey: "DefaultServicesLoaded")
+        await loadDefaultServices()
     }
     
     // MARK: Search Methods
@@ -386,6 +406,222 @@ class ServiceManager: ObservableObject {
             self.downloadProgress = progress
             self.downloadMessage = message
         }
+    }
+    
+    // MARK: - Default Services
+    
+    private func loadDefaultServicesIfNeeded() {
+        if UserDefaults.standard.bool(forKey: "DefaultServicesLoaded") {
+            return
+        }
+        
+        Task {
+            await loadDefaultServices()
+        }
+    }
+    
+    private func loadDefaultServices() async {
+        let defaultServiceURLs = [
+            "https://raw.githubusercontent.com/cranci1/Sora-Modules/refs/heads/main/Emby/Emby.json",
+            "https://raw.githubusercontent.com/cranci1/Sora-Modules/refs/heads/main/JellyFin/jellyfin.json"
+        ]
+        
+        Logger.shared.log("Loading default services...", type: "ServiceManager")
+        
+        for serviceURL in defaultServiceURLs {
+            do {
+                Logger.shared.log("Loading default service from: \(serviceURL)", type: "ServiceManager")
+                
+                let metadata = try await downloadAndParseMetadata(from: serviceURL)
+                
+                let existingService = services.first { service in
+                    service.metadata.sourceName == metadata.sourceName &&
+                    service.metadata.author.name == metadata.author.name &&
+                    service.metadata.version == metadata.version
+                }
+                
+                if existingService != nil {
+                    Logger.shared.log("Default service \(metadata.sourceName) already exists, skipping", type: "ServiceManager")
+                    continue
+                }
+                
+                let jsContent = try await downloadJavaScript(from: metadata.scriptUrl)
+                let service = try await saveService(metadata: metadata, jsContent: jsContent, metadataUrl: serviceURL)
+                
+                await MainActor.run {
+                    self.services.append(service)
+                }
+                
+                Logger.shared.log("Successfully loaded default service: \(metadata.sourceName)", type: "ServiceManager")
+                
+            } catch {
+                Logger.shared.log("Failed to load default service from \(serviceURL): \(error.localizedDescription)", type: "ServiceManager")
+            }
+        }
+        
+        await MainActor.run {
+            self.saveServiceStates()
+        }
+        
+        UserDefaults.standard.set(true, forKey: "DefaultServicesLoaded")
+        Logger.shared.log("Finished loading default services", type: "ServiceManager")
+    }
+    
+    // MARK: - Service Settings
+    
+    func getServiceSettings(_ service: Services) -> [ServiceSetting] {
+        let servicePath = servicesDirectory.appendingPathComponent(service.localPath)
+        let jsPath = servicePath.appendingPathComponent("script.js")
+        
+        guard FileManager.default.fileExists(atPath: jsPath.path) else {
+            Logger.shared.log("JavaScript file not found for service: \(service.metadata.sourceName)", type: "ServiceManager")
+            return []
+        }
+        
+        do {
+            let jsContent = try String(contentsOf: jsPath, encoding: .utf8)
+            return parseSettingsFromJS(jsContent)
+        } catch {
+            Logger.shared.log("Failed to read JavaScript file for service \(service.metadata.sourceName): \(error.localizedDescription)", type: "ServiceManager")
+            return []
+        }
+    }
+    
+    func updateServiceSettings(_ service: Services, settings: [ServiceSetting]) -> Bool {
+        let servicePath = servicesDirectory.appendingPathComponent(service.localPath)
+        let jsPath = servicePath.appendingPathComponent("script.js")
+        
+        guard FileManager.default.fileExists(atPath: jsPath.path) else {
+            Logger.shared.log("JavaScript file not found for service: \(service.metadata.sourceName)", type: "ServiceManager")
+            return false
+        }
+        
+        do {
+            let jsContent = try String(contentsOf: jsPath, encoding: .utf8)
+            let updatedJS = updateSettingsInJS(jsContent, with: settings)
+            try updatedJS.write(to: jsPath, atomically: true, encoding: .utf8)
+            Logger.shared.log("Successfully updated settings for service: \(service.metadata.sourceName)", type: "ServiceManager")
+            return true
+        } catch {
+            Logger.shared.log("Failed to update settings for service \(service.metadata.sourceName): \(error.localizedDescription)", type: "ServiceManager")
+            return false
+        }
+    }
+    
+    private func parseSettingsFromJS(_ jsContent: String) -> [ServiceSetting] {
+        var settings: [ServiceSetting] = []
+        let lines = jsContent.components(separatedBy: .newlines)
+        
+        var inSettingsSection = false
+        
+        for line in lines {
+            let trimmedLine = line.trimmingCharacters(in: .whitespaces)
+            
+            if trimmedLine.contains("// Settings start") {
+                inSettingsSection = true
+                continue
+            }
+            
+            if trimmedLine.contains("// Settings end") {
+                break
+            }
+            
+            if inSettingsSection && trimmedLine.hasPrefix("const ") {
+                if let setting = parseSettingLine(trimmedLine) {
+                    settings.append(setting)
+                }
+            }
+        }
+        
+        return settings
+    }
+    
+    private func parseSettingLine(_ line: String) -> ServiceSetting? {
+        let pattern = #"const\s+(\w+)\s*=\s*([^;]+);"#
+        let regex = try? NSRegularExpression(pattern: pattern)
+        let range = NSRange(location: 0, length: line.utf16.count)
+        
+        guard let match = regex?.firstMatch(in: line, range: range),
+              let keyRange = Range(match.range(at: 1), in: line),
+              let valueRange = Range(match.range(at: 2), in: line) else {
+            return nil
+        }
+        
+        let key = String(line[keyRange])
+        let valueString = String(line[valueRange]).trimmingCharacters(in: .whitespaces)
+        
+        let commentPattern = #"//\s*(.+)$"#
+        let commentRegex = try? NSRegularExpression(pattern: commentPattern)
+        let comment = commentRegex?.firstMatch(in: line, range: range).flatMap { match in
+            Range(match.range(at: 1), in: line).map { String(line[$0]) }
+        }
+        
+        let type: ServiceSetting.SettingType
+        let cleanValue: String
+        
+        if valueString.hasPrefix("\"") && valueString.hasSuffix("\"") {
+            type = .string
+            cleanValue = String(valueString.dropFirst().dropLast())
+        } else if valueString.lowercased() == "true" || valueString.lowercased() == "false" {
+            type = .bool
+            cleanValue = valueString.lowercased()
+        } else if valueString.contains(".") {
+            type = .float
+            cleanValue = valueString
+        } else if Int(valueString) != nil {
+            type = .int
+            cleanValue = valueString
+        } else {
+            type = .string
+            cleanValue = valueString
+        }
+        
+        return ServiceSetting(key: key, value: cleanValue, type: type, comment: comment)
+    }
+    
+    private func updateSettingsInJS(_ jsContent: String, with settings: [ServiceSetting]) -> String {
+        var lines = jsContent.components(separatedBy: .newlines)
+        var inSettingsSection = false
+        
+        for (index, line) in lines.enumerated() {
+            let trimmedLine = line.trimmingCharacters(in: .whitespaces)
+            
+            if trimmedLine.contains("// Settings start") {
+                inSettingsSection = true
+                continue
+            }
+            
+            if trimmedLine.contains("// Settings end") {
+                break
+            }
+            
+            if inSettingsSection && trimmedLine.hasPrefix("const ") {
+                let pattern = #"const\s+(\w+)\s*=\s*([^;]+);"#
+                let regex = try? NSRegularExpression(pattern: pattern)
+                let range = NSRange(location: 0, length: trimmedLine.utf16.count)
+                
+                if let match = regex?.firstMatch(in: trimmedLine, range: range),
+                   let keyRange = Range(match.range(at: 1), in: trimmedLine) {
+                    let key = String(trimmedLine[keyRange])
+                    
+                    if let setting = settings.first(where: { $0.key == key }) {
+                        let formattedValue: String
+                        switch setting.type {
+                        case .string:
+                            formattedValue = "\"\(setting.value)\""
+                        case .bool, .int, .float:
+                            formattedValue = setting.value
+                        }
+                        
+                        let commentPart = setting.comment.map { " // \($0)" } ?? ""
+                        let leadingWhitespace = String(line.prefix(while: { $0.isWhitespace }))
+                        lines[index] = "\(leadingWhitespace)const \(setting.key) = \(formattedValue);\(commentPart)"
+                    }
+                }
+            }
+        }
+        
+        return lines.joined(separator: "\n")
     }
 }
 
