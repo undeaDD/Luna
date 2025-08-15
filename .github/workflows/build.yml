@@ -10,7 +10,7 @@ on:
 jobs:
   build-ios:
     name: Build IPA
-    runs-on: macos-15
+    runs-on: macos-latest
     steps:
       - name: Use Node.js 20
         uses: actions/setup-node@v4
@@ -34,7 +34,7 @@ jobs:
 
   build-tvos:
     name: Build tvOS
-    runs-on: macos-15
+    runs-on: macos-latest
     steps:
       - name: Use Node.js 20
         uses: actions/setup-node@v4
