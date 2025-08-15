@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-ios:
-    name: Build iOS App
+    name: Build IPA
     runs-on: macos-latest
 
     steps:
@@ -24,7 +24,7 @@ jobs:
       - name: Make build script executable
         run: chmod +x ./ipabuild.sh
 
-      - name: Build iOS app
+      - name: Build IPA
         run: ./ipabuild.sh ios
 
       - name: Compress IPA
