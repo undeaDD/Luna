@@ -1,40 +1,39 @@
 name: Build and Release
 on:
-    push:
+  push:
     branches:
-        - main
-    pull_request:
+      - main
+  pull_request:
     branches:
-        - main
+      - main
 
 jobs:
-    build-ios:
+  build-ios:
     name: Build IPA
     runs-on: macos-latest
-    
+
     steps:
-        - name: Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
-        
-        - name: Set up Xcode
+
+      - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-            xcode-version: latest-stable
-        
-        - name: Make build script executable
+          xcode-version: latest-stable
+
+      - name: Make build script executable
         run: chmod +x ./ipabuild.sh
-        
-        - name: Build IPA
+
+      - name: Build IPA
         run: ./ipabuild.sh ios
-        
-        - name: Compress IPA
+
+      - name: Compress IPA
         run: |
           cd build
           zip -r Sora.zip Sora.ipa
-        
-        - name: Upload IPA artifact
+
+      - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-            name: Sora-iOS-Build
-            path: build/Sora.zip
-            retention-days: 30
+          name: Sora IPA
+          path: build/Sora.zip
