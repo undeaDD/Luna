@@ -184,6 +184,108 @@ class TMDBService: ObservableObject {
         }
     }
     
+    // MARK: - Get Trending Movies and TV Shows
+    func getTrending(mediaType: String = "all", timeWindow: String = "week") async throws -> [TMDBSearchResult] {
+        let urlString = "\(baseURL)/trending/\(mediaType)/\(timeWindow)?api_key=\(apiKey)&language=\(currentLanguage)"
+        
+        guard let url = URL(string: urlString) else {
+            throw TMDBError.invalidURL
+        }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let response = try JSONDecoder().decode(TMDBSearchResponse.self, from: data)
+            return response.results
+        } catch {
+            throw TMDBError.networkError(error)
+        }
+    }
+    
+    // MARK: - Get Popular Movies
+    func getPopularMovies(page: Int = 1) async throws -> [TMDBMovie] {
+        let urlString = "\(baseURL)/movie/popular?api_key=\(apiKey)&language=\(currentLanguage)&page=\(page)"
+        
+        guard let url = URL(string: urlString) else {
+            throw TMDBError.invalidURL
+        }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let response = try JSONDecoder().decode(TMDBMovieSearchResponse.self, from: data)
+            return response.results
+        } catch {
+            throw TMDBError.networkError(error)
+        }
+    }
+    
+    // MARK: - Get Popular TV Shows
+    func getPopularTVShows(page: Int = 1) async throws -> [TMDBTVShow] {
+        let urlString = "\(baseURL)/tv/popular?api_key=\(apiKey)&language=\(currentLanguage)&page=\(page)"
+        
+        guard let url = URL(string: urlString) else {
+            throw TMDBError.invalidURL
+        }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let response = try JSONDecoder().decode(TMDBTVSearchResponse.self, from: data)
+            return response.results
+        } catch {
+            throw TMDBError.networkError(error)
+        }
+    }
+    
+    // MARK: - Get Now Playing Movies
+    func getNowPlayingMovies(page: Int = 1) async throws -> [TMDBMovie] {
+        let urlString = "\(baseURL)/movie/now_playing?api_key=\(apiKey)&language=\(currentLanguage)&page=\(page)"
+        
+        guard let url = URL(string: urlString) else {
+            throw TMDBError.invalidURL
+        }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let response = try JSONDecoder().decode(TMDBMovieSearchResponse.self, from: data)
+            return response.results
+        } catch {
+            throw TMDBError.networkError(error)
+        }
+    }
+    
+    // MARK: - Get Top Rated Movies
+    func getTopRatedMovies(page: Int = 1) async throws -> [TMDBMovie] {
+        let urlString = "\(baseURL)/movie/top_rated?api_key=\(apiKey)&language=\(currentLanguage)&page=\(page)"
+        
+        guard let url = URL(string: urlString) else {
+            throw TMDBError.invalidURL
+        }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let response = try JSONDecoder().decode(TMDBMovieSearchResponse.self, from: data)
+            return response.results
+        } catch {
+            throw TMDBError.networkError(error)
+        }
+    }
+    
+    // MARK: - Get Top Rated TV Shows
+    func getTopRatedTVShows(page: Int = 1) async throws -> [TMDBTVShow] {
+        let urlString = "\(baseURL)/tv/top_rated?api_key=\(apiKey)&language=\(currentLanguage)&page=\(page)"
+        
+        guard let url = URL(string: urlString) else {
+            throw TMDBError.invalidURL
+        }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let response = try JSONDecoder().decode(TMDBTVSearchResponse.self, from: data)
+            return response.results
+        } catch {
+            throw TMDBError.networkError(error)
+        }
+    }
+    
     // MARK: - Helper function to get romaji title
     func getRomajiTitle(for mediaType: String, id: Int) async -> String? {
         do {

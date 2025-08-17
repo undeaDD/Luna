@@ -25,7 +25,6 @@ struct MediaDetailView: View {
     @State private var synopsis: String = ""
     @State private var isBookmarked: Bool = false
     @State private var showingSearchResults = false
-    @State private var showingNoServicesAlert = false
     @State private var selectedEpisodeForSearch: TMDBEpisode?
     @State private var romajiTitle: String?
     
@@ -77,11 +76,6 @@ struct MediaDetailView: View {
                 isMovie: searchResult.isMovie,
                 selectedEpisode: selectedEpisodeForSearch
             )
-        }
-        .alert("No Active Services", isPresented: $showingNoServicesAlert) {
-            Button("OK") { }
-        } message: {
-            Text("You don't have any active services. Please go to the Services tab to download and activate services.")
         }
     }
     
@@ -284,9 +278,9 @@ struct MediaDetailView: View {
                 searchInServices()
             }) {
                 HStack {
-                    Image(systemName: "play.fill")
+                    Image(systemName: serviceManager.activeServices.isEmpty ? "exclamationmark.triangle" : "play.fill")
                     
-                    Text(playButtonText)
+                    Text(serviceManager.activeServices.isEmpty ? "No Services" : playButtonText)
                         .fontWeight(.semibold)
                 }
                 .frame(maxWidth: .infinity)
@@ -294,15 +288,16 @@ struct MediaDetailView: View {
                 .padding(.horizontal, 25)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.black.opacity(0.2))
+                        .fill(serviceManager.activeServices.isEmpty ? Color.gray.opacity(0.3) : Color.black.opacity(0.2))
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(.ultraThinMaterial)
+                                .fill(serviceManager.activeServices.isEmpty ? .thinMaterial : .ultraThinMaterial)
                         )
                 )
-                .foregroundColor(.primary)
+                .foregroundColor(serviceManager.activeServices.isEmpty ? .secondary : .primary)
                 .cornerRadius(8)
             }
+            .disabled(serviceManager.activeServices.isEmpty)
             
             Button(action: {
                 toggleBookmark()
@@ -346,10 +341,8 @@ struct MediaDetailView: View {
     }
     
     private func searchInServices() {
-        if serviceManager.activeServices.isEmpty {
-            showingNoServicesAlert = true
-            return
-        }
+        // This function will only be called when services are available
+        // since the button is disabled when no services are active
         
         if !searchResult.isMovie {
             if selectedEpisodeForSearch != nil {

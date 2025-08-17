@@ -124,6 +124,27 @@ struct TMDBMovie: Codable, Identifiable {
         guard let posterPath = posterPath else { return nil }
         return "\(TMDBService.tmdbImageBaseURL)\(posterPath)"
     }
+    
+    var fullBackdropURL: String? {
+        guard let backdropPath = backdropPath else { return nil }
+        return "\(TMDBService.tmdbImageBaseURL)\(backdropPath)"
+    }
+    
+    var asSearchResult: TMDBSearchResult {
+        return TMDBSearchResult(
+            id: id,
+            mediaType: "movie",
+            title: title,
+            name: nil,
+            overview: overview,
+            posterPath: posterPath,
+            backdropPath: backdropPath,
+            releaseDate: releaseDate,
+            firstAirDate: nil,
+            voteAverage: voteAverage,
+            popularity: popularity
+        )
+    }
 }
 
 // MARK: - TV Show Model
@@ -153,6 +174,22 @@ struct TMDBTVShow: Codable, Identifiable {
     var fullBackdropURL: String? {
         guard let backdropPath = backdropPath else { return nil }
         return "\(TMDBService.tmdbImageBaseURL)\(backdropPath)"
+    }
+    
+    var asSearchResult: TMDBSearchResult {
+        return TMDBSearchResult(
+            id: id,
+            mediaType: "tv",
+            title: nil,
+            name: name,
+            overview: overview,
+            posterPath: posterPath,
+            backdropPath: backdropPath,
+            releaseDate: nil,
+            firstAirDate: firstAirDate,
+            voteAverage: voteAverage,
+            popularity: popularity
+        )
     }
 }
 
