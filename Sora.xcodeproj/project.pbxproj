@@ -649,8 +649,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 8.5.0;
+				kind = exactVersion;
+				version = 7.9.1;
 			};
 		};
 		13F072C12E4B2F8500EF90EB /* XCRemoteSwiftPackageReference "SoraCore" */ = {
