@@ -1,0 +1,561 @@
+//
+//  NetworkFetch.swift
+//  Sora
+//
+//  Created by Mac on 17/08/2025.
+//
+
+import SoraCore
+import JavaScriptCore
+import WebKit
+import SwiftUI
+
+extension JSContext {
+    func setupNetworkFetch() {
+        let networkFetchNativeFunction: @convention(block) (String, Int, String?, JSValue, JSValue) -> Void = { urlString, timeoutSeconds, referer, resolve, reject in
+            DispatchQueue.main.async {
+                NetworkFetchManager.shared.performNetworkFetch(
+                    urlString: urlString,
+                    timeoutSeconds: timeoutSeconds,
+                    referer: referer,
+                    resolve: resolve,
+                    reject: reject
+                )
+            }
+        }
+        
+        self.setObject(networkFetchNativeFunction, forKeyedSubscript: "networkFetchNative" as NSString)
+        
+        let networkFetchDefinition = """
+            function networkFetch(url, timeoutSeconds = 10, referer = null) {
+                return new Promise(function(resolve, reject) {
+                    networkFetchNative(url, timeoutSeconds, referer, function(result) {
+                        resolve({
+                            url: result.originalUrl,
+                            requests: result.requests,
+                            success: result.success,
+                            error: result.error || null,
+                            totalRequests: result.requests.length
+                        });
+                    }, reject);
+                });
+            }
+            """
+        
+        self.evaluateScript(networkFetchDefinition)
+    }
+}
+
+class NetworkFetchManager: NSObject, ObservableObject {
+    static let shared = NetworkFetchManager()
+    
+    private var activeMonitors: [String: NetworkFetchMonitor] = [:]
+    
+    private override init() {
+        super.init()
+    }
+    
+    func performNetworkFetch(urlString: String, timeoutSeconds: Int, referer: String?, resolve: JSValue, reject: JSValue) {
+        Logger.shared.log("NetworkFetchManager: Starting fetch for \(urlString)", type: "Debug")
+        
+        let monitorId = UUID().uuidString
+        let monitor = NetworkFetchMonitor()
+        activeMonitors[monitorId] = monitor
+        
+        monitor.startMonitoring(
+            urlString: urlString,
+            timeoutSeconds: timeoutSeconds,
+            referer: referer
+        ) { [weak self] result in
+            Logger.shared.log("NetworkFetchManager: Fetch completed for \(urlString)", type: "Debug")
+            
+            self?.activeMonitors.removeValue(forKey: monitorId)
+            
+            DispatchQueue.main.async {
+                if !resolve.isUndefined {
+                    Logger.shared.log("NetworkFetchManager: Calling resolve with result", type: "Debug")
+                    resolve.call(withArguments: [result])
+                } else {
+                    Logger.shared.log("NetworkFetchManager: Resolve callback is undefined!", type: "Error")
+                }
+            }
+        }
+    }
+}
+
+class NetworkFetchMonitor: NSObject, ObservableObject {
+    private var webView: WKWebView?
+    private var completionHandler: (([String: Any]) -> Void)?
+    private var timer: Timer?
+    
+    @Published private(set) var networkRequests: [String] = []
+    @Published private(set) var statusMessage = "Initializing..."
+    
+    func startMonitoring(urlString: String, timeoutSeconds: Int, referer: String?, completion: @escaping ([String: Any]) -> Void) {
+        completionHandler = completion
+        networkRequests.removeAll()
+        statusMessage = "Loading URL for \(timeoutSeconds) seconds..."
+        
+        guard let url = URL(string: urlString) else {
+            completion([
+                "originalUrl": urlString,
+                "requests": [],
+                "success": false,
+                "error": "Invalid URL format"
+            ])
+            return
+        }
+        
+        setupWebView()
+        loadURL(url: url, referer: referer)
+        
+        timer = Timer.scheduledTimer(withTimeInterval: TimeInterval(timeoutSeconds), repeats: false) { [weak self] _ in
+            self?.stopMonitoring()
+        }
+        
+        Logger.shared.log("NetworkFetch started for: \(urlString) (timeout: \(timeoutSeconds)s)", type: "Debug")
+    }
+    
+    private func setupWebView() {
+        let config = WKWebViewConfiguration()
+        config.allowsInlineMediaPlayback = true
+        config.mediaTypesRequiringUserActionForPlayback = []
+        
+        let jsCode = """
+        (function() {
+            console.log('Advanced network interceptor loaded');
+            
+            Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+            Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
+            Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
+            delete window.navigator.__proto__.webdriver;
+            
+            window.chrome = { runtime: {} };
+            Object.defineProperty(navigator, 'permissions', { get: () => undefined });
+            
+            const originalFetch = window.fetch;
+            const originalXHROpen = XMLHttpRequest.prototype.open;
+            const originalXHRSend = XMLHttpRequest.prototype.send;
+            
+            window.fetch = function() {
+                const url = arguments[0];
+                const options = arguments[1] || {};
+                
+                try {
+                    const fullUrl = new URL(url, window.location.href).href;
+                    console.log('FETCH INTERCEPTED:', fullUrl);
+                    window.webkit.messageHandlers.networkLogger.postMessage({
+                        type: 'fetch',
+                        url: fullUrl
+                    });
+                } catch(e) {
+                    console.log('FETCH INTERCEPTED (fallback):', url);
+                    window.webkit.messageHandlers.networkLogger.postMessage({
+                        type: 'fetch',
+                        url: url.toString()
+                    });
+                }
+                return originalFetch.apply(this, arguments);
+            };
+            
+            XMLHttpRequest.prototype.open = function() {
+                const method = arguments[0];
+                const url = arguments[1];
+                
+                try {
+                    this._url = new URL(url, window.location.href).href;
+                } catch(e) {
+                    this._url = url;
+                }
+                
+                console.log('XHR OPEN:', this._url);
+                window.webkit.messageHandlers.networkLogger.postMessage({
+                    type: 'xhr-open',
+                    url: this._url
+                });
+                
+                const self = this;
+                const originalOnReadyStateChange = this.onreadystatechange;
+                
+                this.onreadystatechange = function() {
+                    if (this.readyState === 4) {
+                        if (this.responseURL) {
+                            console.log('XHR RESPONSE URL:', this.responseURL);
+                            window.webkit.messageHandlers.networkLogger.postMessage({
+                                type: 'xhr-response',
+                                url: this.responseURL
+                            });
+                        }
+                        
+                        try {
+                            const responseText = this.responseText;
+                            if (responseText) {
+                                const urlRegex = /(https?:\\/\\/[^\\s"'<>]+\\.(m3u8|ts|mp4|webm|mkv))/gi;
+                                const matches = responseText.match(urlRegex);
+                                if (matches) {
+                                    matches.forEach(function(match) {
+                                        console.log('URL IN RESPONSE:', match);
+                                        window.webkit.messageHandlers.networkLogger.postMessage({
+                                            type: 'response-content',
+                                            url: match
+                                        });
+                                    });
+                                }
+                            }
+                        } catch(e) {
+                            console.log('Response text check failed:', e);
+                        }
+                    }
+                    
+                    if (originalOnReadyStateChange) {
+                        originalOnReadyStateChange.apply(this, arguments);
+                    }
+                };
+                
+                return originalXHROpen.apply(this, arguments);
+            };
+            
+            XMLHttpRequest.prototype.send = function() {
+                if (this._url) {
+                    console.log('XHR SEND:', this._url);
+                    window.webkit.messageHandlers.networkLogger.postMessage({
+                        type: 'xhr-send',
+                        url: this._url
+                    });
+                }
+                return originalXHRSend.apply(this, arguments);
+            };
+            
+            const originalWebSocket = window.WebSocket;
+            window.WebSocket = function(url, protocols) {
+                console.log('WEBSOCKET:', url);
+                window.webkit.messageHandlers.networkLogger.postMessage({
+                    type: 'websocket',
+                    url: url
+                });
+                return new originalWebSocket(url, protocols);
+            };
+            
+            const hookUrlProperties = function(obj, properties) {
+                properties.forEach(function(prop) {
+                    if (obj && obj.prototype) {
+                        const descriptor = Object.getOwnPropertyDescriptor(obj.prototype, prop) || {};
+                        const originalSetter = descriptor.set;
+                        
+                        if (originalSetter) {
+                            Object.defineProperty(obj.prototype, prop, {
+                                set: function(value) {
+                                    if (typeof value === 'string' && (value.includes('http') || value.includes('.m3u8') || value.includes('.ts'))) {
+                                        console.log('URL PROPERTY SET:', prop, value);
+                                        window.webkit.messageHandlers.networkLogger.postMessage({
+                                            type: 'property-set',
+                                            url: value
+                                        });
+                                    }
+                                    return originalSetter.call(this, value);
+                                },
+                                get: descriptor.get,
+                                configurable: true
+                            });
+                        }
+                    }
+                });
+            };
+            
+            hookUrlProperties(HTMLVideoElement, ['src']);
+            hookUrlProperties(HTMLSourceElement, ['src']);
+            hookUrlProperties(HTMLScriptElement, ['src']);
+            hookUrlProperties(HTMLImageElement, ['src']);
+            
+            let jwHookAttempts = 0;
+            const aggressiveJWHook = function() {
+                jwHookAttempts++;
+                console.log('JWPlayer hook attempt:', jwHookAttempts);
+                
+                if (window.jwplayer) {
+                    console.log('JWPlayer detected!');
+                    
+                    const originalJWPlayer = window.jwplayer;
+                    window.jwplayer = function(id) {
+                        console.log('JWPlayer called with ID:', id);
+                        const player = originalJWPlayer.apply(this, arguments);
+                        
+                        if (player && player.setup) {
+                            const originalSetup = player.setup;
+                            player.setup = function(config) {
+                                console.log('JWPlayer setup config:', config);
+                                
+                                const extractUrls = function(obj, path = '') {
+                                    if (!obj) return;
+                                    
+                                    if (typeof obj === 'string' && (obj.includes('http') || obj.includes('.m3u8') || obj.includes('.ts'))) {
+                                        console.log('JWPlayer URL found at', path + ':', obj);
+                                        window.webkit.messageHandlers.networkLogger.postMessage({
+                                            type: 'jwplayer-config',
+                                            url: obj
+                                        });
+                                    } else if (typeof obj === 'object' && obj !== null) {
+                                        Object.keys(obj).forEach(function(key) {
+                                            extractUrls(obj[key], path + '.' + key);
+                                        });
+                                    }
+                                };
+                                
+                                extractUrls(config);
+                                return originalSetup.call(this, config);
+                            };
+                        }
+                        
+                        return player;
+                    };
+                    
+                    Object.keys(originalJWPlayer).forEach(function(key) {
+                        window.jwplayer[key] = originalJWPlayer[key];
+                    });
+                }
+                
+                if (jwHookAttempts < 20) {
+                    setTimeout(aggressiveJWHook, 200);
+                }
+            };
+            
+            aggressiveJWHook();
+            
+            const nuclearScan = function() {
+                console.log('Nuclear scan initiated');
+                
+                Object.keys(window).forEach(function(key) {
+                    try {
+                        const value = window[key];
+                        if (typeof value === 'string' && (value.includes('.m3u8') || value.includes('.ts') || (value.includes('http') && value.includes('.')))) {
+                            console.log('Global URL found:', key, value);
+                            window.webkit.messageHandlers.networkLogger.postMessage({
+                                type: 'global-variable',
+                                url: value
+                            });
+                        }
+                    } catch(e) {
+                    }
+                });
+                
+                document.querySelectorAll('script').forEach(function(script) {
+                    if (script.textContent) {
+                        const urlRegex = /(https?:\\/\\/[^\\s"'<>]+\\.(m3u8|ts|mp4))/gi;
+                        const matches = script.textContent.match(urlRegex);
+                        if (matches) {
+                            matches.forEach(function(match) {
+                                console.log('URL in script:', match);
+                                window.webkit.messageHandlers.networkLogger.postMessage({
+                                    type: 'script-content',
+                                    url: match
+                                });
+                            });
+                        }
+                    }
+                });
+                
+                const clickableSelectors = [
+                    'button', '.play', '.play-button', '[data-play]', '.video-play',
+                    '.jwplayer', '.player', '[id*="player"]', '[class*="play"]',
+                    'div[onclick]', 'span[onclick]', 'a[onclick]'
+                ];
+                
+                clickableSelectors.forEach(function(selector) {
+                    document.querySelectorAll(selector).forEach(function(el) {
+                        try {
+                            el.click();
+                            console.log('Force clicked:', selector);
+                        } catch(e) {
+                            console.log('Click failed:', e);
+                        }
+                    });
+                });
+            };
+            
+            setTimeout(nuclearScan, 500);
+            setTimeout(nuclearScan, 1500);
+            setTimeout(nuclearScan, 3000);
+            
+            console.log('Advanced interceptor setup complete');
+        })();
+        """
+        
+        let userScript = WKUserScript(source: jsCode, injectionTime: .atDocumentStart, forMainFrameOnly: false)
+        config.userContentController.addUserScript(userScript)
+        config.userContentController.add(self, name: "networkLogger")
+        
+        webView = WKWebView(frame: CGRect(x: 0, y: 0, width: 1920, height: 1080), configuration: config)
+        webView?.navigationDelegate = self
+        
+        webView?.customUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+    
+    private func loadURL(url: URL, referer: String?) {
+        guard let webView = webView else { return }
+        
+        addRequest(url.absoluteString)
+        
+        var request = URLRequest(url: url)
+        request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36", forHTTPHeaderField: "User-Agent")
+        request.setValue("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8", forHTTPHeaderField: "Accept")
+        request.setValue("en-US,en;q=0.5", forHTTPHeaderField: "Accept-Language")
+        request.setValue("gzip, deflate, br", forHTTPHeaderField: "Accept-Encoding")
+        request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
+        request.setValue("upgrade-insecure-requests", forHTTPHeaderField: "Upgrade-Insecure-Requests")
+        request.setValue("same-origin", forHTTPHeaderField: "Sec-Fetch-Site")
+        request.setValue("navigate", forHTTPHeaderField: "Sec-Fetch-Mode")
+        
+        // Use custom referer if provided, otherwise use random one
+        let refererToUse: String
+        if let customReferer = referer, !customReferer.isEmpty {
+            refererToUse = customReferer
+        } else {
+            let randomReferers = [
+                "https://www.google.com/",
+                "https://www.youtube.com/",
+                "https://twitter.com/",
+                "https://www.reddit.com/",
+                "https://www.facebook.com/"
+            ]
+            refererToUse = randomReferers.randomElement() ?? "https://www.google.com/"
+        }
+        
+        request.setValue(refererToUse, forHTTPHeaderField: "Referer")
+        
+        print("Loading with referer: \(refererToUse)")
+        
+        webView.load(request)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            self.simulateUserInteraction()
+        }
+        
+        print("Started loading: \(url.absoluteString)")
+    }
+    
+    private func simulateUserInteraction() {
+        guard let webView = webView else { return }
+        
+        let jsInteraction = """
+        setTimeout(function() {
+            const playButtons = document.querySelectorAll('button, div, span, a').filter(function(el) {
+                const text = el.textContent || el.innerText || '';
+                const classes = el.className || '';
+                return text.toLowerCase().includes('play') || 
+                       classes.toLowerCase().includes('play') ||
+                       el.getAttribute('aria-label')?.toLowerCase().includes('play');
+            });
+            
+            playButtons.forEach(function(btn, index) {
+                setTimeout(function() {
+                    btn.click();
+                    console.log('Clicked play button:', btn);
+                }, index * 200);
+            });
+            
+            window.scrollTo(0, document.body.scrollHeight / 2);
+            setTimeout(function() {
+                window.scrollTo(0, 0);
+            }, 500);
+            
+            document.querySelectorAll('video').forEach(function(video) {
+                if (video.play && typeof video.play === 'function') {
+                    video.play().catch(function(e) {
+                        console.log('Could not autoplay video:', e);
+                    });
+                }
+            });
+            
+            if (window.jwplayer) {
+                try {
+                    const players = window.jwplayer().getInstances?.() || [];
+                    players.forEach(function(player) {
+                        if (player.play) {
+                            player.play();
+                        }
+                    });
+                } catch(e) {
+                    console.log('JW Player interaction failed:', e);
+                }
+            }
+            
+            if (window.videojs) {
+                try {
+                    window.videojs.getAllPlayers?.().forEach(function(player) {
+                        if (player.play) {
+                            player.play();
+                        }
+                    });
+                } catch(e) {
+                    console.log('Video.js interaction failed:', e);
+                }
+            }
+        }, 1000);
+        """
+        
+        webView.evaluateJavaScript(jsInteraction) { result, error in
+            if let error = error {
+                print("JavaScript interaction error: \(error)")
+            }
+        }
+    }
+    
+    private func stopMonitoring() {
+        timer?.invalidate()
+        timer = nil
+        
+        webView?.stopLoading()
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: "networkLogger")
+        
+        let result: [String: Any] = [
+            "originalUrl": webView?.url?.absoluteString ?? "",
+            "requests": networkRequests,
+            "success": true
+        ]
+        
+        webView = nil
+        statusMessage = "Completed! Found \(networkRequests.count) requests"
+        
+        completionHandler?(result)
+        completionHandler = nil
+        
+        print("Monitoring stopped. Total requests: \(networkRequests.count)")
+    }
+    
+    private func addRequest(_ urlString: String) {
+        DispatchQueue.main.async {
+            if !self.networkRequests.contains(urlString) {
+                self.networkRequests.append(urlString)
+                print("Captured: \(urlString)")
+            }
+        }
+    }
+}
+
+extension NetworkFetchMonitor: WKNavigationDelegate {
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        print("WebView finished loading main document")
+    }
+    
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        print("WebView failed: \(error.localizedDescription)")
+    }
+    
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if let url = navigationAction.request.url {
+            addRequest(url.absoluteString)
+        }
+        decisionHandler(.allow)
+    }
+}
+
+extension NetworkFetchMonitor: WKScriptMessageHandler {
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        if message.name == "networkLogger" {
+            if let messageBody = message.body as? [String: Any],
+               let url = messageBody["url"] as? String {
+                addRequest(url)
+            }
+        }
+    }
+}
