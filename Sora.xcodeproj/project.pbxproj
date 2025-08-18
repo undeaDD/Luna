@@ -151,6 +151,7 @@
 		13F0726D2E4B2D9000EF90EB /* JSLoader */ = {
 			isa = PBXGroup;
 			children = (
+				046FB82C2E5218C7007A8EB6 /* JSController-NetworkFetch.swift */,
 				13F072BD2E4B2ED600EF90EB /* Services */,
 				046FB82C2E5218C7007A8EB6 /* JSController-NetworkFetch.swift */,
 				13F0726F2E4B2D9000EF90EB /* JavaScriptCore+Extensions.swift */,

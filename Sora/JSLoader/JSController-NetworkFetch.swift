@@ -12,12 +12,13 @@ import SwiftUI
 
 extension JSContext {
     func setupNetworkFetch() {
-        let networkFetchNativeFunction: @convention(block) (String, Int, String?, JSValue, JSValue) -> Void = { urlString, timeoutSeconds, referer, resolve, reject in
+        let networkFetchNativeFunction: @convention(block) (String, Int, JSValue?, String?, JSValue, JSValue) -> Void = { urlString, timeoutSeconds, headers, cutoff, resolve, reject in
             DispatchQueue.main.async {
                 NetworkFetchManager.shared.performNetworkFetch(
                     urlString: urlString,
                     timeoutSeconds: timeoutSeconds,
-                    referer: referer,
+                    headers: headers,
+                    cutoff: cutoff,
                     resolve: resolve,
                     reject: reject
                 )
@@ -27,15 +28,17 @@ extension JSContext {
         self.setObject(networkFetchNativeFunction, forKeyedSubscript: "networkFetchNative" as NSString)
         
         let networkFetchDefinition = """
-            function networkFetch(url, timeoutSeconds = 10, referer = null) {
+            function networkFetch(url, timeoutSeconds = 10, headers = {}, cutoff = null) {
                 return new Promise(function(resolve, reject) {
-                    networkFetchNative(url, timeoutSeconds, referer, function(result) {
+                    networkFetchNative(url, timeoutSeconds, headers, cutoff, function(result) {
                         resolve({
                             url: result.originalUrl,
                             requests: result.requests,
                             success: result.success,
                             error: result.error || null,
-                            totalRequests: result.requests.length
+                            totalRequests: result.requests.length,
+                            cutoffTriggered: result.cutoffTriggered || false,
+                            cutoffUrl: result.cutoffUrl || null
                         });
                     }, reject);
                 });
@@ -55,7 +58,7 @@ class NetworkFetchManager: NSObject, ObservableObject {
         super.init()
     }
     
-    func performNetworkFetch(urlString: String, timeoutSeconds: Int, referer: String?, resolve: JSValue, reject: JSValue) {
+    func performNetworkFetch(urlString: String, timeoutSeconds: Int, headers: JSValue?, cutoff: String?, resolve: JSValue, reject: JSValue) {
         Logger.shared.log("NetworkFetchManager: Starting fetch for \(urlString)", type: "Debug")
         
         let monitorId = UUID().uuidString
@@ -65,7 +68,8 @@ class NetworkFetchManager: NSObject, ObservableObject {
         monitor.startMonitoring(
             urlString: urlString,
             timeoutSeconds: timeoutSeconds,
-            referer: referer
+            headers: headers,
+            cutoff: cutoff
         ) { [weak self] result in
             Logger.shared.log("NetworkFetchManager: Fetch completed for \(urlString)", type: "Debug")
             
@@ -90,10 +94,17 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
     
     @Published private(set) var networkRequests: [String] = []
     @Published private(set) var statusMessage = "Initializing..."
+    @Published private(set) var cutoffTriggered = false
+    @Published private(set) var cutoffUrl: String? = nil
     
-    func startMonitoring(urlString: String, timeoutSeconds: Int, referer: String?, completion: @escaping ([String: Any]) -> Void) {
+    private var cutoffString: String? = nil
+    
+    func startMonitoring(urlString: String, timeoutSeconds: Int, headers: JSValue?, cutoff: String?, completion: @escaping ([String: Any]) -> Void) {
         completionHandler = completion
         networkRequests.removeAll()
+        cutoffTriggered = false
+        cutoffUrl = nil
+        cutoffString = cutoff
         statusMessage = "Loading URL for \(timeoutSeconds) seconds..."
         
         guard let url = URL(string: urlString) else {
@@ -107,10 +118,10 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         }
         
         setupWebView()
-        loadURL(url: url, referer: referer)
+        loadURL(url: url, headers: headers)
         
         timer = Timer.scheduledTimer(withTimeInterval: TimeInterval(timeoutSeconds), repeats: false) { [weak self] _ in
-            self?.stopMonitoring()
+            self?.stopMonitoring(reason: "timeout")
         }
         
         Logger.shared.log("NetworkFetch started for: \(urlString) (timeout: \(timeoutSeconds)s)", type: "Debug")
@@ -390,12 +401,13 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         webView?.customUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
     
-    private func loadURL(url: URL, referer: String?) {
+    private func loadURL(url: URL, headers: JSValue?) {
         guard let webView = webView else { return }
         
         addRequest(url.absoluteString)
         
         var request = URLRequest(url: url)
+        
         request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36", forHTTPHeaderField: "User-Agent")
         request.setValue("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8", forHTTPHeaderField: "Accept")
         request.setValue("en-US,en;q=0.5", forHTTPHeaderField: "Accept-Language")
@@ -405,11 +417,16 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         request.setValue("same-origin", forHTTPHeaderField: "Sec-Fetch-Site")
         request.setValue("navigate", forHTTPHeaderField: "Sec-Fetch-Mode")
         
-        // Use custom referer if provided, otherwise use random one
-        let refererToUse: String
-        if let customReferer = referer, !customReferer.isEmpty {
-            refererToUse = customReferer
-        } else {
+        if let headers = headers, !headers.isUndefined && !headers.isNull {
+            if let headersDict = headers.toDictionary() as? [String: String] {
+                for (key, value) in headersDict {
+                    request.setValue(value, forHTTPHeaderField: key)
+                    print("Custom header set: \(key): \(value)")
+                }
+            }
+        }
+        
+        if request.value(forHTTPHeaderField: "Referer") == nil {
             let randomReferers = [
                 "https://www.google.com/",
                 "https://www.youtube.com/",
@@ -417,12 +434,10 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
                 "https://www.reddit.com/",
                 "https://www.facebook.com/"
             ]
-            refererToUse = randomReferers.randomElement() ?? "https://www.google.com/"
+            let defaultReferer = randomReferers.randomElement() ?? "https://www.google.com/"
+            request.setValue(defaultReferer, forHTTPHeaderField: "Referer")
+            print("Using default referer: \(defaultReferer)")
         }
-        
-        request.setValue(refererToUse, forHTTPHeaderField: "Referer")
-        
-        print("Loading with referer: \(refererToUse)")
         
         webView.load(request)
         
@@ -438,6 +453,7 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         
         let jsInteraction = """
         setTimeout(function() {
+            // Try to find and click play buttons
             const playButtons = document.querySelectorAll('button, div, span, a').filter(function(el) {
                 const text = el.textContent || el.innerText || '';
                 const classes = el.className || '';
@@ -500,7 +516,7 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         }
     }
     
-    private func stopMonitoring() {
+    private func stopMonitoring(reason: String = "completed") {
         timer?.invalidate()
         timer = nil
         
@@ -510,16 +526,24 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         let result: [String: Any] = [
             "originalUrl": webView?.url?.absoluteString ?? "",
             "requests": networkRequests,
-            "success": true
+            "success": true,
+            "cutoffTriggered": cutoffTriggered,
+            "cutoffUrl": cutoffUrl as Any
         ]
         
         webView = nil
-        statusMessage = "Completed! Found \(networkRequests.count) requests"
+        
+        if cutoffTriggered {
+            statusMessage = "Cutoff triggered! Found \(networkRequests.count) requests"
+            Logger.shared.log("NetworkFetch stopped early due to cutoff: \(cutoffUrl ?? "unknown")", type: "Debug")
+        } else {
+            statusMessage = "Completed! Found \(networkRequests.count) requests"
+        }
         
         completionHandler?(result)
         completionHandler = nil
         
-        print("Monitoring stopped. Total requests: \(networkRequests.count)")
+        print("Monitoring stopped (\(reason)). Total requests: \(networkRequests.count)")
     }
     
     private func addRequest(_ urlString: String) {
@@ -527,6 +551,16 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
             if !self.networkRequests.contains(urlString) {
                 self.networkRequests.append(urlString)
                 print("Captured: \(urlString)")
+                
+                if let cutoff = self.cutoffString, !cutoff.isEmpty {
+                    if urlString.lowercased().contains(cutoff.lowercased()) {
+                        print("Cutoff triggered by: \(urlString)")
+                        self.cutoffTriggered = true
+                        self.cutoffUrl = urlString
+                        self.stopMonitoring(reason: "cutoff")
+                        return
+                    }
+                }
             }
         }
     }
