@@ -12,12 +12,12 @@ import SwiftUI
 
 extension JSContext {
     func setupNetworkFetch() {
-        let networkFetchNativeFunction: @convention(block) (String, Int, String?, JSValue, JSValue) -> Void = { urlString, timeoutSeconds, referer, resolve, reject in
+        let networkFetchNativeFunction: @convention(block) (String, Int, JSValue?, JSValue, JSValue) -> Void = { urlString, timeoutSeconds, headers, resolve, reject in
             DispatchQueue.main.async {
                 NetworkFetchManager.shared.performNetworkFetch(
                     urlString: urlString,
                     timeoutSeconds: timeoutSeconds,
-                    referer: referer,
+                    headers: headers,
                     resolve: resolve,
                     reject: reject
                 )
@@ -27,9 +27,9 @@ extension JSContext {
         self.setObject(networkFetchNativeFunction, forKeyedSubscript: "networkFetchNative" as NSString)
         
         let networkFetchDefinition = """
-            function networkFetch(url, timeoutSeconds = 10, referer = null) {
+            function networkFetch(url, timeoutSeconds = 10, headers = {}) {
                 return new Promise(function(resolve, reject) {
-                    networkFetchNative(url, timeoutSeconds, referer, function(result) {
+                    networkFetchNative(url, timeoutSeconds, headers, function(result) {
                         resolve({
                             url: result.originalUrl,
                             requests: result.requests,
@@ -55,7 +55,7 @@ class NetworkFetchManager: NSObject, ObservableObject {
         super.init()
     }
     
-    func performNetworkFetch(urlString: String, timeoutSeconds: Int, referer: String?, resolve: JSValue, reject: JSValue) {
+    func performNetworkFetch(urlString: String, timeoutSeconds: Int, headers: JSValue?, resolve: JSValue, reject: JSValue) {
         Logger.shared.log("NetworkFetchManager: Starting fetch for \(urlString)", type: "Debug")
         
         let monitorId = UUID().uuidString
@@ -65,7 +65,7 @@ class NetworkFetchManager: NSObject, ObservableObject {
         monitor.startMonitoring(
             urlString: urlString,
             timeoutSeconds: timeoutSeconds,
-            referer: referer
+            headers: headers
         ) { [weak self] result in
             Logger.shared.log("NetworkFetchManager: Fetch completed for \(urlString)", type: "Debug")
             
@@ -91,7 +91,7 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
     @Published private(set) var networkRequests: [String] = []
     @Published private(set) var statusMessage = "Initializing..."
     
-    func startMonitoring(urlString: String, timeoutSeconds: Int, referer: String?, completion: @escaping ([String: Any]) -> Void) {
+    func startMonitoring(urlString: String, timeoutSeconds: Int, headers: JSValue?, completion: @escaping ([String: Any]) -> Void) {
         completionHandler = completion
         networkRequests.removeAll()
         statusMessage = "Loading URL for \(timeoutSeconds) seconds..."
@@ -107,7 +107,7 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         }
         
         setupWebView()
-        loadURL(url: url, referer: referer)
+        loadURL(url: url, headers: headers)
         
         timer = Timer.scheduledTimer(withTimeInterval: TimeInterval(timeoutSeconds), repeats: false) { [weak self] _ in
             self?.stopMonitoring()
@@ -390,12 +390,13 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         webView?.customUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
     
-    private func loadURL(url: URL, referer: String?) {
+    private func loadURL(url: URL, headers: JSValue?) {
         guard let webView = webView else { return }
         
         addRequest(url.absoluteString)
         
         var request = URLRequest(url: url)
+        
         request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36", forHTTPHeaderField: "User-Agent")
         request.setValue("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8", forHTTPHeaderField: "Accept")
         request.setValue("en-US,en;q=0.5", forHTTPHeaderField: "Accept-Language")
@@ -405,11 +406,16 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         request.setValue("same-origin", forHTTPHeaderField: "Sec-Fetch-Site")
         request.setValue("navigate", forHTTPHeaderField: "Sec-Fetch-Mode")
         
-        // Use custom referer if provided, otherwise use random one
-        let refererToUse: String
-        if let customReferer = referer, !customReferer.isEmpty {
-            refererToUse = customReferer
-        } else {
+        if let headers = headers, !headers.isUndefined && !headers.isNull {
+            if let headersDict = headers.toDictionary() as? [String: String] {
+                for (key, value) in headersDict {
+                    request.setValue(value, forHTTPHeaderField: key)
+                    print("Custom header set: \(key): \(value)")
+                }
+            }
+        }
+        
+        if request.value(forHTTPHeaderField: "Referer") == nil {
             let randomReferers = [
                 "https://www.google.com/",
                 "https://www.youtube.com/",
@@ -417,12 +423,10 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
                 "https://www.reddit.com/",
                 "https://www.facebook.com/"
             ]
-            refererToUse = randomReferers.randomElement() ?? "https://www.google.com/"
+            let defaultReferer = randomReferers.randomElement() ?? "https://www.google.com/"
+            request.setValue(defaultReferer, forHTTPHeaderField: "Referer")
+            print("Using default referer: \(defaultReferer)")
         }
-        
-        request.setValue(refererToUse, forHTTPHeaderField: "Referer")
-        
-        print("Loading with referer: \(refererToUse)")
         
         webView.load(request)
         
@@ -438,6 +442,7 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         
         let jsInteraction = """
         setTimeout(function() {
+            // Try to find and click play buttons
             const playButtons = document.querySelectorAll('button, div, span, a').filter(function(el) {
                 const text = el.textContent || el.innerText || '';
                 const classes = el.className || '';
