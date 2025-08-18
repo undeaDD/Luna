@@ -12,12 +12,13 @@ import SwiftUI
 
 extension JSContext {
     func setupNetworkFetch() {
-        let networkFetchNativeFunction: @convention(block) (String, Int, JSValue?, JSValue, JSValue) -> Void = { urlString, timeoutSeconds, headers, resolve, reject in
+        let networkFetchNativeFunction: @convention(block) (String, Int, JSValue?, String?, JSValue, JSValue) -> Void = { urlString, timeoutSeconds, headers, cutoff, resolve, reject in
             DispatchQueue.main.async {
                 NetworkFetchManager.shared.performNetworkFetch(
                     urlString: urlString,
                     timeoutSeconds: timeoutSeconds,
                     headers: headers,
+                    cutoff: cutoff,
                     resolve: resolve,
                     reject: reject
                 )
@@ -27,15 +28,17 @@ extension JSContext {
         self.setObject(networkFetchNativeFunction, forKeyedSubscript: "networkFetchNative" as NSString)
         
         let networkFetchDefinition = """
-            function networkFetch(url, timeoutSeconds = 10, headers = {}) {
+            function networkFetch(url, timeoutSeconds = 10, headers = {}, cutoff = null) {
                 return new Promise(function(resolve, reject) {
-                    networkFetchNative(url, timeoutSeconds, headers, function(result) {
+                    networkFetchNative(url, timeoutSeconds, headers, cutoff, function(result) {
                         resolve({
                             url: result.originalUrl,
                             requests: result.requests,
                             success: result.success,
                             error: result.error || null,
-                            totalRequests: result.requests.length
+                            totalRequests: result.requests.length,
+                            cutoffTriggered: result.cutoffTriggered || false,
+                            cutoffUrl: result.cutoffUrl || null
                         });
                     }, reject);
                 });
@@ -55,7 +58,7 @@ class NetworkFetchManager: NSObject, ObservableObject {
         super.init()
     }
     
-    func performNetworkFetch(urlString: String, timeoutSeconds: Int, headers: JSValue?, resolve: JSValue, reject: JSValue) {
+    func performNetworkFetch(urlString: String, timeoutSeconds: Int, headers: JSValue?, cutoff: String?, resolve: JSValue, reject: JSValue) {
         Logger.shared.log("NetworkFetchManager: Starting fetch for \(urlString)", type: "Debug")
         
         let monitorId = UUID().uuidString
@@ -65,7 +68,8 @@ class NetworkFetchManager: NSObject, ObservableObject {
         monitor.startMonitoring(
             urlString: urlString,
             timeoutSeconds: timeoutSeconds,
-            headers: headers
+            headers: headers,
+            cutoff: cutoff
         ) { [weak self] result in
             Logger.shared.log("NetworkFetchManager: Fetch completed for \(urlString)", type: "Debug")
             
@@ -90,10 +94,17 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
     
     @Published private(set) var networkRequests: [String] = []
     @Published private(set) var statusMessage = "Initializing..."
+    @Published private(set) var cutoffTriggered = false
+    @Published private(set) var cutoffUrl: String? = nil
     
-    func startMonitoring(urlString: String, timeoutSeconds: Int, headers: JSValue?, completion: @escaping ([String: Any]) -> Void) {
+    private var cutoffString: String? = nil
+    
+    func startMonitoring(urlString: String, timeoutSeconds: Int, headers: JSValue?, cutoff: String?, completion: @escaping ([String: Any]) -> Void) {
         completionHandler = completion
         networkRequests.removeAll()
+        cutoffTriggered = false
+        cutoffUrl = nil
+        cutoffString = cutoff
         statusMessage = "Loading URL for \(timeoutSeconds) seconds..."
         
         guard let url = URL(string: urlString) else {
@@ -110,7 +121,7 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         loadURL(url: url, headers: headers)
         
         timer = Timer.scheduledTimer(withTimeInterval: TimeInterval(timeoutSeconds), repeats: false) { [weak self] _ in
-            self?.stopMonitoring()
+            self?.stopMonitoring(reason: "timeout")
         }
         
         Logger.shared.log("NetworkFetch started for: \(urlString) (timeout: \(timeoutSeconds)s)", type: "Debug")
@@ -505,7 +516,7 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         }
     }
     
-    private func stopMonitoring() {
+    private func stopMonitoring(reason: String = "completed") {
         timer?.invalidate()
         timer = nil
         
@@ -515,16 +526,24 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         let result: [String: Any] = [
             "originalUrl": webView?.url?.absoluteString ?? "",
             "requests": networkRequests,
-            "success": true
+            "success": true,
+            "cutoffTriggered": cutoffTriggered,
+            "cutoffUrl": cutoffUrl as Any
         ]
         
         webView = nil
-        statusMessage = "Completed! Found \(networkRequests.count) requests"
+        
+        if cutoffTriggered {
+            statusMessage = "Cutoff triggered! Found \(networkRequests.count) requests"
+            Logger.shared.log("NetworkFetch stopped early due to cutoff: \(cutoffUrl ?? "unknown")", type: "Debug")
+        } else {
+            statusMessage = "Completed! Found \(networkRequests.count) requests"
+        }
         
         completionHandler?(result)
         completionHandler = nil
         
-        print("Monitoring stopped. Total requests: \(networkRequests.count)")
+        print("Monitoring stopped (\(reason)). Total requests: \(networkRequests.count)")
     }
     
     private func addRequest(_ urlString: String) {
@@ -532,6 +551,16 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
             if !self.networkRequests.contains(urlString) {
                 self.networkRequests.append(urlString)
                 print("Captured: \(urlString)")
+                
+                if let cutoff = self.cutoffString, !cutoff.isEmpty {
+                    if urlString.lowercased().contains(cutoff.lowercased()) {
+                        print("Cutoff triggered by: \(urlString)")
+                        self.cutoffTriggered = true
+                        self.cutoffUrl = urlString
+                        self.stopMonitoring(reason: "cutoff")
+                        return
+                    }
+                }
             }
         }
     }
