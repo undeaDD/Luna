@@ -36,6 +36,9 @@ struct ModulesSearchResultsSheet: View {
     @State private var pendingSubtitles: [String]?
     @State private var pendingService: Services?
     @State private var showingStreamMenu = false
+    @State private var isFetchingStreams = false
+    @State private var currentFetchingTitle = ""
+    @State private var streamFetchProgress = ""
     
     @StateObject private var serviceManager = ServiceManager.shared
     
@@ -294,6 +297,48 @@ struct ModulesSearchResultsSheet: View {
                 Text("Play '\(result.title)'?")
             }
         }
+        .overlay(
+            Group {
+                if isFetchingStreams {
+                    ZStack {
+                        Color.black.opacity(0.4)
+                            .ignoresSafeArea()
+                        
+                        VStack(spacing: 20) {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .scaleEffect(1.5)
+                            
+                            VStack(spacing: 8) {
+                                Text("Fetching Streams")
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                
+                                Text(currentFetchingTitle)
+                                    .font(.subheadline)
+                                    .foregroundColor(.white.opacity(0.9))
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.center)
+                                
+                                if !streamFetchProgress.isEmpty {
+                                    Text(streamFetchProgress)
+                                        .font(.caption)
+                                        .foregroundColor(.white.opacity(0.7))
+                                        .multilineTextAlignment(.center)
+                                }
+                            }
+                        }
+                        .padding(30)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(.ultraThinMaterial)
+                        )
+                        .padding(.horizontal, 40)
+                    }
+                }
+            }
+        )
         .onAppear {
             startProgressiveSearch()
         }
@@ -434,14 +479,20 @@ struct ModulesSearchResultsSheet: View {
     private func playContent(_ result: SearchItem) {
         Logger.shared.log("Starting playback for: \(result.title)", type: "Stream")
         
+        isFetchingStreams = true
+        currentFetchingTitle = result.title
+        streamFetchProgress = "Initializing..."
+        
         guard let service = serviceManager.activeServices.first(where: { service in
             moduleResults.contains { $0.service.id == service.id && $0.results.contains { $0.id == result.id } }
         }) else {
             Logger.shared.log("Could not find service for result: \(result.title)", type: "Error")
+            isFetchingStreams = false
             return
         }
         
         Logger.shared.log("Using service: \(service.metadata.sourceName)", type: "Stream")
+        streamFetchProgress = "Loading service: \(service.metadata.sourceName)"
         
         let jsController = JSController()
         let servicePath = serviceManager.servicesDirectory.appendingPathComponent(service.localPath)
@@ -451,6 +502,7 @@ struct ModulesSearchResultsSheet: View {
         
         guard FileManager.default.fileExists(atPath: jsPath.path) else {
             Logger.shared.log("JavaScript file not found for service: \(service.metadata.sourceName)", type: "Error")
+            isFetchingStreams = false
             return
         }
         
@@ -458,17 +510,23 @@ struct ModulesSearchResultsSheet: View {
             let jsContent = try String(contentsOf: jsPath, encoding: .utf8)
             jsController.loadScript(jsContent)
             Logger.shared.log("JavaScript loaded successfully", type: "Stream")
+            streamFetchProgress = "JavaScript loaded successfully"
         } catch {
             Logger.shared.log("Failed to load JavaScript for service \(service.metadata.sourceName): \(error.localizedDescription)", type: "Error")
+            isFetchingStreams = false
             return
         }
+        
+        streamFetchProgress = "Fetching episodes..."
         
         jsController.fetchEpisodesJS(url: result.href) { episodes in
             DispatchQueue.main.async {
                 Logger.shared.log("Fetched \(episodes.count) episodes for: \(result.title)", type: "Stream")
+                self.streamFetchProgress = "Found \(episodes.count) episode\(episodes.count == 1 ? "" : "s")"
                 
                 if episodes.isEmpty {
                     Logger.shared.log("No episodes found for: \(result.title)", type: "Error")
+                    self.isFetchingStreams = false
                     return
                 }
                 
@@ -477,11 +535,15 @@ struct ModulesSearchResultsSheet: View {
                 if self.isMovie {
                     targetHref = episodes.first?.href ?? result.href
                     Logger.shared.log("Movie - Using href: \(targetHref)", type: "Stream")
+                    self.streamFetchProgress = "Preparing movie stream..."
                 } else {
                     guard let selectedEpisode = self.selectedEpisode else {
                         Logger.shared.log("No episode selected for TV show", type: "Error")
+                        self.isFetchingStreams = false
                         return
                     }
+                    
+                    self.streamFetchProgress = "Finding episode S\(selectedEpisode.seasonNumber)E\(selectedEpisode.episodeNumber)..."
                     
                     var seasons: [[EpisodeLink]] = []
                     var currentSeason: [EpisodeLink] = []
@@ -507,17 +569,20 @@ struct ModulesSearchResultsSheet: View {
                     
                     guard targetSeasonIndex >= 0 && targetSeasonIndex < seasons.count else {
                         Logger.shared.log("Season \(selectedEpisode.seasonNumber) not found. Available seasons: \(seasons.count)", type: "Error")
+                        self.isFetchingStreams = false
                         return
                     }
                     
                     let season = seasons[targetSeasonIndex]
                     guard let targetEpisode = season.first(where: { $0.number == targetEpisodeNumber }) else {
                         Logger.shared.log("Episode \(targetEpisodeNumber) not found in season \(selectedEpisode.seasonNumber). Available episodes: \(season.map { $0.number })", type: "Error")
+                        self.isFetchingStreams = false
                         return
                     }
                     
                     targetHref = targetEpisode.href
                     Logger.shared.log("TV Show - S\(selectedEpisode.seasonNumber)E\(selectedEpisode.episodeNumber) - Using href: \(targetHref)", type: "Stream")
+                    self.streamFetchProgress = "Found episode, fetching stream..."
                 }
                 
                 jsController.fetchStreamUrlJS(episodeUrl: targetHref, module: service) { streamResult in
@@ -525,6 +590,7 @@ struct ModulesSearchResultsSheet: View {
                         let (streams, subtitles, sources) = streamResult
                         
                         Logger.shared.log("Stream fetch result - Streams: \(streams?.count ?? 0), Sources: \(sources?.count ?? 0)", type: "Stream")
+                        self.streamFetchProgress = "Processing stream data..."
                         
                         var availableStreams: [StreamOption] = []
                         
@@ -570,6 +636,7 @@ struct ModulesSearchResultsSheet: View {
                             self.streamOptions = availableStreams
                             self.pendingSubtitles = subtitles
                             self.pendingService = service
+                            self.isFetchingStreams = false
                             self.showingStreamMenu = true
                             return
                         }
@@ -600,6 +667,7 @@ struct ModulesSearchResultsSheet: View {
                             self.playStreamURL(url.absoluteString, service: service, subtitles: subtitles)
                         } else {
                             Logger.shared.log("Failed to create URL from stream string", type: "Error")
+                            self.isFetchingStreams = false
                         }
                     }
                 }
@@ -610,6 +678,7 @@ struct ModulesSearchResultsSheet: View {
     private func playStreamURL(_ urlString: String, service: Services, subtitles: [String]?) {
         guard let url = URL(string: urlString) else {
             Logger.shared.log("Failed to create URL from stream string: \(urlString)", type: "Error")
+            isFetchingStreams = false
             return
         }
         
@@ -639,6 +708,7 @@ struct ModulesSearchResultsSheet: View {
                   let window = windowScene.windows.first(where: { $0.isKeyWindow }),
                   let rootVC = window.rootViewController else {
                 Logger.shared.log("Could not find root view controller", type: "Error")
+                self.isFetchingStreams = false
                 return
             }
             
@@ -648,6 +718,7 @@ struct ModulesSearchResultsSheet: View {
             }
             
             Logger.shared.log("Presenting player from: \(type(of: topVC))", type: "Stream")
+            self.isFetchingStreams = false
             
             topVC.present(playerVC, animated: true) {
                 Logger.shared.log("Player presented successfully", type: "Stream")
