@@ -101,7 +101,7 @@ struct FeaturedCard: View {
                 .frame(width: cardWidth, alignment: .leading)
                 .padding(.top, 8)
             }
-            .frame(width: cardWidth)
+            .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
     }

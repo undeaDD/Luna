@@ -288,7 +288,7 @@ struct HomeView: View {
             if !trendingContent.isEmpty {
                 MediaSection(
                     title: "Trending This Week",
-                    items: Array(trendingContent.prefix(10)),
+                    items: Array(trendingContent.prefix(15)),
                     isLarge: true
                 )
             }
@@ -296,35 +296,35 @@ struct HomeView: View {
             if !nowPlayingMovies.isEmpty {
                 MediaSection(
                     title: "Now Playing",
-                    items: nowPlayingMovies.prefix(10).map { $0.asSearchResult }
+                    items: nowPlayingMovies.prefix(15).map { $0.asSearchResult }
                 )
             }
             
             if !popularMovies.isEmpty {
                 MediaSection(
                     title: "Popular Movies",
-                    items: popularMovies.prefix(10).map { $0.asSearchResult }
+                    items: popularMovies.prefix(15).map { $0.asSearchResult }
                 )
             }
             
             if !popularTVShows.isEmpty {
                 MediaSection(
                     title: "Popular TV Shows",
-                    items: popularTVShows.prefix(10).map { $0.asSearchResult }
+                    items: popularTVShows.prefix(15).map { $0.asSearchResult }
                 )
             }
             
             if !topRatedMovies.isEmpty {
                 MediaSection(
                     title: "Top Rated Movies",
-                    items: topRatedMovies.prefix(10).map { $0.asSearchResult }
+                    items: topRatedMovies.prefix(15).map { $0.asSearchResult }
                 )
             }
             
             if !topRatedTVShows.isEmpty {
                 MediaSection(
                     title: "Top Rated TV Shows",
-                    items: topRatedTVShows.prefix(10).map { $0.asSearchResult }
+                    items: topRatedTVShows.prefix(15).map { $0.asSearchResult }
                 )
             }
             
