@@ -288,7 +288,7 @@ struct HomeView: View {
             if !trendingContent.isEmpty {
                 MediaSection(
                     title: "Trending This Week",
-                    items: Array(trendingContent.prefix(10)),
+                    items: Array(trendingContent.prefix(15)),
                     isLarge: true
                 )
             }
@@ -296,35 +296,35 @@ struct HomeView: View {
             if !nowPlayingMovies.isEmpty {
                 MediaSection(
                     title: "Now Playing",
-                    items: nowPlayingMovies.prefix(10).map { $0.asSearchResult }
+                    items: nowPlayingMovies.prefix(15).map { $0.asSearchResult }
                 )
             }
             
             if !popularMovies.isEmpty {
                 MediaSection(
                     title: "Popular Movies",
-                    items: popularMovies.prefix(10).map { $0.asSearchResult }
+                    items: popularMovies.prefix(15).map { $0.asSearchResult }
                 )
             }
             
             if !popularTVShows.isEmpty {
                 MediaSection(
                     title: "Popular TV Shows",
-                    items: popularTVShows.prefix(10).map { $0.asSearchResult }
+                    items: popularTVShows.prefix(15).map { $0.asSearchResult }
                 )
             }
             
             if !topRatedMovies.isEmpty {
                 MediaSection(
                     title: "Top Rated Movies",
-                    items: topRatedMovies.prefix(10).map { $0.asSearchResult }
+                    items: topRatedMovies.prefix(15).map { $0.asSearchResult }
                 )
             }
             
             if !topRatedTVShows.isEmpty {
                 MediaSection(
                     title: "Top Rated TV Shows",
-                    items: topRatedTVShows.prefix(10).map { $0.asSearchResult }
+                    items: topRatedTVShows.prefix(15).map { $0.asSearchResult }
                 )
             }
             
@@ -426,7 +426,7 @@ struct MediaSection: View {
             .padding(.horizontal)
             
             ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 12) {
+                LazyHStack(spacing: isLarge ? 20 : 10) {
                     ForEach(items) { item in
                         if isLarge {
                             FeaturedCard(result: item, isLarge: true)
@@ -449,48 +449,50 @@ struct MediaCard: View {
     
     var body: some View {
         NavigationLink(destination: MediaDetailView(searchResult: result)) {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
                 KFImage(URL(string: result.fullPosterURL ?? ""))
                     .placeholder {
                         FallbackImageView(
                             isMovie: result.isMovie,
-                            size: CGSize(width: 140, height: 210)
+                            size: CGSize(width: 120, height: 180)
                         )
                     }
                     .resizable()
                     .aspectRatio(2/3, contentMode: .fill)
-                    .frame(width: 140, height: 210)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                    .frame(width: 120, height: 180)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 1)
                 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 3) {
                     Text(result.displayTitle)
                         .font(.caption)
                         .fontWeight(.medium)
                         .lineLimit(1)
                         .foregroundColor(.primary)
                     
-                    HStack() {
-                        Image(systemName: "star.fill")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                        
-                        Text(String(format: "%.1f", result.voteAverage))
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
+                    HStack(spacing: 3) {
+                        HStack(spacing: 2) {
+                            Image(systemName: "star.fill")
+                                .font(.caption2)
+                                .foregroundColor(.yellow)
+                            
+                            Text(String(format: "%.1f", result.voteAverage))
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
                         
                         Spacer()
                         
                         Text(result.isMovie ? "Movie" : "TV")
                             .font(.caption2)
                             .foregroundColor(.secondary)
-                            .padding(.horizontal, 6)
+                            .padding(.horizontal, 5)
                             .padding(.vertical, 2)
-                            .background(Color.secondary.opacity(0.2))
+                            .background(Color.secondary.opacity(0.15))
                             .clipShape(Capsule())
                     }
                 }
-                .frame(width: 140, alignment: .leading)
+                .frame(width: 120, alignment: .leading)
             }
         }
         .buttonStyle(PlainButtonStyle())

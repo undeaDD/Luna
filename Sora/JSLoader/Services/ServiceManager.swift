@@ -39,34 +39,54 @@ class ServiceManager: ObservableObject {
         createServicesDirectoryIfNeeded()
         loadExistingServices()
         loadDefaultServicesIfNeeded()
+        let activeCount = services.filter { $0.isActive }.count
+        Logger.shared.log("Active services: \(activeCount)/\(services.count)", type: "ServiceManager")
     }
     
     // MARK: - UserDefaults Persistence
     
     private func generateServiceUUID(from metadata: ServicesMetadata, folderName: String) -> UUID {
-        let identifier = "\(metadata.sourceName)_\(metadata.author.name)_\(metadata.version)_\(folderName)"
-        let data = identifier.data(using: .utf8) ?? Data()
-        let hash = data.withUnsafeBytes { bytes in
-            var hasher = Hasher()
-            hasher.combine(bytes: UnsafeRawBufferPointer(bytes))
-            return hasher.finalize()
+        let identifier = "\(metadata.sourceName)\(metadata.author.name)\(metadata.version)_\(folderName)"
+        
+        var hash: UInt64 = 5381
+        for char in identifier.utf8 {
+            hash = ((hash << 5) &+ hash) &+ UInt64(char)
         }
         
-        let uuidString = String(format: "%08X-%04X-%04X-%04X-%012X", hash & 0xFFFFFFFF, (hash >> 32) & 0xFFFF, (hash >> 48) & 0xFFFF, (hash >> 64) & 0xFFFF, (hash >> 80) & 0xFFFFFFFFFFFF)
-        return UUID(uuidString: uuidString) ?? UUID()
+        var uuidBytes: [UInt8] = []
+        
+        for i in 0..<8 {
+            uuidBytes.append(UInt8((hash >> (i * 8)) & 0xFF))
+        }
+        
+        var hash2: UInt64 = 2166136261
+        for char in String(identifier.reversed()).utf8 {
+            hash2 = (hash2 &* 16777619) ^ UInt64(char)
+        }
+        
+        for i in 0..<8 {
+            uuidBytes.append(UInt8((hash2 >> (i * 8)) & 0xFF))
+        }
+        
+        uuidBytes[6] = (uuidBytes[6] & 0x0F) | 0x40
+        uuidBytes[8] = (uuidBytes[8] & 0x3F) | 0x80
+        
+        return NSUUID(uuidBytes: uuidBytes) as UUID
     }
     
     private func saveServiceStates() {
         let serviceStates = Dictionary(uniqueKeysWithValues: services.map { ($0.id.uuidString, $0.isActive) })
         UserDefaults.standard.set(serviceStates, forKey: "ServiceActiveStates")
-        Logger.shared.log("Saved service states to UserDefaults", type: "ServiceManager")
+        UserDefaults.standard.synchronize()
     }
     
     private func loadServiceState(for serviceId: UUID) -> Bool {
         guard let serviceStates = UserDefaults.standard.object(forKey: "ServiceActiveStates") as? [String: Bool] else {
+            Logger.shared.log("No service states found in UserDefaults", type: "ServiceManager")
             return false
         }
-        return serviceStates[serviceId.uuidString] ?? false
+        let state = serviceStates[serviceId.uuidString] ?? false
+        return state
     }
     
     // MARK: - Public Methods
@@ -145,7 +165,9 @@ class ServiceManager: ObservableObject {
         if let index = services.firstIndex(where: { $0.id == service.id }) {
             services[index].isActive = isActive
             saveServiceStates()
-            Logger.shared.log("Set service \(service.metadata.sourceName) to \(isActive ? "active" : "inactive")", type: "ServiceManager")
+            Logger.shared.log("Set service \(service.metadata.sourceName) (ID: \(service.id.uuidString)) to \(isActive ? "active" : "inactive")", type: "ServiceManager")
+        } else {
+            Logger.shared.log("Could not find service \(service.metadata.sourceName) (ID: \(service.id.uuidString)) to update state", type: "ServiceManager")
         }
     }
     

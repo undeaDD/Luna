@@ -68,7 +68,10 @@ struct ServiceRow: View {
     @State private var showingSettings = false
     
     private var isServiceActive: Bool {
-        serviceManager.services.first(where: { $0.id == service.id })?.isActive ?? false
+        if let managedService = serviceManager.services.first(where: { $0.id == service.id }) {
+            return managedService.isActive
+        }
+        return service.isActive
     }
     
     private var hasSettings: Bool {

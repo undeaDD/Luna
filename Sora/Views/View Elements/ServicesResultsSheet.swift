@@ -10,6 +10,12 @@ import UIKit
 import SwiftUI
 import Kingfisher
 
+struct StreamOption {
+    let id = UUID()
+    let name: String
+    let url: String
+}
+
 struct ModulesSearchResultsSheet: View {
     let mediaTitle: String
     let originalTitle: String?
@@ -26,6 +32,13 @@ struct ModulesSearchResultsSheet: View {
     @State private var totalServicesCount = 0
     @State private var player: AVPlayer?
     @State private var playerViewController: NormalPlayer?
+    @State private var streamOptions: [StreamOption] = []
+    @State private var pendingSubtitles: [String]?
+    @State private var pendingService: Services?
+    @State private var showingStreamMenu = false
+    @State private var isFetchingStreams = false
+    @State private var currentFetchingTitle = ""
+    @State private var streamFetchProgress = ""
     
     @StateObject private var serviceManager = ServiceManager.shared
     
@@ -284,8 +297,62 @@ struct ModulesSearchResultsSheet: View {
                 Text("Play '\(result.title)'?")
             }
         }
+        .overlay(
+            Group {
+                if isFetchingStreams {
+                    ZStack {
+                        Color.black.opacity(0.4)
+                            .ignoresSafeArea()
+                        
+                        VStack(spacing: 20) {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .scaleEffect(1.5)
+                            
+                            VStack(spacing: 8) {
+                                Text("Fetching Streams")
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                
+                                Text(currentFetchingTitle)
+                                    .font(.subheadline)
+                                    .foregroundColor(.white.opacity(0.9))
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.center)
+                                
+                                if !streamFetchProgress.isEmpty {
+                                    Text(streamFetchProgress)
+                                        .font(.caption)
+                                        .foregroundColor(.white.opacity(0.7))
+                                        .multilineTextAlignment(.center)
+                                }
+                            }
+                        }
+                        .padding(30)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(.ultraThinMaterial)
+                        )
+                        .padding(.horizontal, 40)
+                    }
+                }
+            }
+        )
         .onAppear {
             startProgressiveSearch()
+        }
+        .confirmationDialog("Select Server", isPresented: $showingStreamMenu, titleVisibility: .visible) {
+            ForEach(streamOptions, id: \.id) { option in
+                Button(option.name) {
+                    if let service = pendingService {
+                        playStreamURL(option.url, service: service, subtitles: pendingSubtitles)
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Choose a server to stream from")
         }
     }
     
@@ -412,14 +479,20 @@ struct ModulesSearchResultsSheet: View {
     private func playContent(_ result: SearchItem) {
         Logger.shared.log("Starting playback for: \(result.title)", type: "Stream")
         
+        isFetchingStreams = true
+        currentFetchingTitle = result.title
+        streamFetchProgress = "Initializing..."
+        
         guard let service = serviceManager.activeServices.first(where: { service in
             moduleResults.contains { $0.service.id == service.id && $0.results.contains { $0.id == result.id } }
         }) else {
             Logger.shared.log("Could not find service for result: \(result.title)", type: "Error")
+            isFetchingStreams = false
             return
         }
         
         Logger.shared.log("Using service: \(service.metadata.sourceName)", type: "Stream")
+        streamFetchProgress = "Loading service: \(service.metadata.sourceName)"
         
         let jsController = JSController()
         let servicePath = serviceManager.servicesDirectory.appendingPathComponent(service.localPath)
@@ -429,6 +502,7 @@ struct ModulesSearchResultsSheet: View {
         
         guard FileManager.default.fileExists(atPath: jsPath.path) else {
             Logger.shared.log("JavaScript file not found for service: \(service.metadata.sourceName)", type: "Error")
+            isFetchingStreams = false
             return
         }
         
@@ -436,17 +510,23 @@ struct ModulesSearchResultsSheet: View {
             let jsContent = try String(contentsOf: jsPath, encoding: .utf8)
             jsController.loadScript(jsContent)
             Logger.shared.log("JavaScript loaded successfully", type: "Stream")
+            streamFetchProgress = "JavaScript loaded successfully"
         } catch {
             Logger.shared.log("Failed to load JavaScript for service \(service.metadata.sourceName): \(error.localizedDescription)", type: "Error")
+            isFetchingStreams = false
             return
         }
+        
+        streamFetchProgress = "Fetching episodes..."
         
         jsController.fetchEpisodesJS(url: result.href) { episodes in
             DispatchQueue.main.async {
                 Logger.shared.log("Fetched \(episodes.count) episodes for: \(result.title)", type: "Stream")
+                self.streamFetchProgress = "Found \(episodes.count) episode\(episodes.count == 1 ? "" : "s")"
                 
                 if episodes.isEmpty {
                     Logger.shared.log("No episodes found for: \(result.title)", type: "Error")
+                    self.isFetchingStreams = false
                     return
                 }
                 
@@ -455,11 +535,15 @@ struct ModulesSearchResultsSheet: View {
                 if self.isMovie {
                     targetHref = episodes.first?.href ?? result.href
                     Logger.shared.log("Movie - Using href: \(targetHref)", type: "Stream")
+                    self.streamFetchProgress = "Preparing movie stream..."
                 } else {
                     guard let selectedEpisode = self.selectedEpisode else {
                         Logger.shared.log("No episode selected for TV show", type: "Error")
+                        self.isFetchingStreams = false
                         return
                     }
+                    
+                    self.streamFetchProgress = "Finding episode S\(selectedEpisode.seasonNumber)E\(selectedEpisode.episodeNumber)..."
                     
                     var seasons: [[EpisodeLink]] = []
                     var currentSeason: [EpisodeLink] = []
@@ -485,17 +569,20 @@ struct ModulesSearchResultsSheet: View {
                     
                     guard targetSeasonIndex >= 0 && targetSeasonIndex < seasons.count else {
                         Logger.shared.log("Season \(selectedEpisode.seasonNumber) not found. Available seasons: \(seasons.count)", type: "Error")
+                        self.isFetchingStreams = false
                         return
                     }
                     
                     let season = seasons[targetSeasonIndex]
                     guard let targetEpisode = season.first(where: { $0.number == targetEpisodeNumber }) else {
                         Logger.shared.log("Episode \(targetEpisodeNumber) not found in season \(selectedEpisode.seasonNumber). Available episodes: \(season.map { $0.number })", type: "Error")
+                        self.isFetchingStreams = false
                         return
                     }
                     
                     targetHref = targetEpisode.href
                     Logger.shared.log("TV Show - S\(selectedEpisode.seasonNumber)E\(selectedEpisode.episodeNumber) - Using href: \(targetHref)", type: "Stream")
+                    self.streamFetchProgress = "Found episode, fetching stream..."
                 }
                 
                 jsController.fetchStreamUrlJS(episodeUrl: targetHref, module: service) { streamResult in
@@ -503,13 +590,68 @@ struct ModulesSearchResultsSheet: View {
                         let (streams, subtitles, sources) = streamResult
                         
                         Logger.shared.log("Stream fetch result - Streams: \(streams?.count ?? 0), Sources: \(sources?.count ?? 0)", type: "Stream")
+                        self.streamFetchProgress = "Processing stream data..."
+                        
+                        var availableStreams: [StreamOption] = []
+                        
+                        if let streams = streams, streams.count > 1 {
+                            var streamNames: [String] = []
+                            var streamURLs: [String] = []
+                            
+                            for (_, stream) in streams.enumerated() {
+                                if stream.hasPrefix("http") {
+                                    streamURLs.append(stream)
+                                } else {
+                                    streamNames.append(stream)
+                                }
+                            }
+                            
+                            if !streamNames.isEmpty && !streamURLs.isEmpty {
+                                let maxPairs = min(streamNames.count, streamURLs.count)
+                                for i in 0..<maxPairs {
+                                    availableStreams.append(StreamOption(name: streamNames[i], url: streamURLs[i]))
+                                }
+                                
+                                if streamURLs.count > streamNames.count {
+                                    for i in streamNames.count..<streamURLs.count {
+                                        availableStreams.append(StreamOption(name: "Stream \(i + 1)", url: streamURLs[i]))
+                                    }
+                                }
+                            } else if streamURLs.count > 1 {
+                                for (index, url) in streamURLs.enumerated() {
+                                    availableStreams.append(StreamOption(name: "Stream \(index + 1)", url: url))
+                                }
+                            } else if streams.count > 1 {
+                                let urls = streams.filter { $0.hasPrefix("http") }
+                                if urls.count > 1 {
+                                    for (index, url) in urls.enumerated() {
+                                        availableStreams.append(StreamOption(name: "Stream \(index + 1)", url: url))
+                                    }
+                                }
+                            }
+                        }
+                        
+                        if availableStreams.count > 1 {
+                            Logger.shared.log("Found \(availableStreams.count) stream options, showing selection", type: "Stream")
+                            self.streamOptions = availableStreams
+                            self.pendingSubtitles = subtitles
+                            self.pendingService = service
+                            self.isFetchingStreams = false
+                            self.showingStreamMenu = true
+                            return
+                        }
                         
                         var streamURL: URL?
                         
                         if let streams = streams, !streams.isEmpty {
-                            Logger.shared.log("Found \(streams.count) stream(s) for \(result.title)", type: "Stream")
-                            Logger.shared.log("First stream URL: \(streams.first!)", type: "Stream")
-                            streamURL = URL(string: streams.first!)
+                            let urlCandidates = streams.filter { $0.hasPrefix("http") }
+                            if let firstURL = urlCandidates.first {
+                                Logger.shared.log("Found single stream URL: \(firstURL)", type: "Stream")
+                                streamURL = URL(string: firstURL)
+                            } else {
+                                Logger.shared.log("First stream URL: \(streams.first!)", type: "Stream")
+                                streamURL = URL(string: streams.first!)
+                            }
                         } else if let sources = sources, !sources.isEmpty {
                             Logger.shared.log("Found \(sources.count) source(s) with headers for \(result.title)", type: "Stream")
                             if let firstSource = sources.first,
@@ -522,52 +664,65 @@ struct ModulesSearchResultsSheet: View {
                         }
                         
                         if let url = streamURL {
-                            Logger.shared.log("Attempting to play URL: \(url.absoluteString)", type: "Stream")
-                            let serviceURL = service.metadata.baseUrl
-                            
-                            let headers = [
-                                "Origin": serviceURL,
-                                "Referer": serviceURL,
-                                "User-Agent": URLSession.randomUserAgent
-                            ]
-                            let asset = AVURLAsset(url: url, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
-                            
-                            let playerItem = AVPlayerItem(asset: asset)
-                            
-                            let newPlayer = AVPlayer(playerItem: playerItem)
-                            self.player = newPlayer
-                            
-                            let playerVC = NormalPlayer()
-                            playerVC.player = newPlayer
-                            self.playerViewController = playerVC
-                            
-                            DispatchQueue.main.async {
-                                guard let windowScene = UIApplication.shared.connectedScenes
-                                    .compactMap({ $0 as? UIWindowScene })
-                                    .first(where: { $0.activationState == .foregroundActive }),
-                                      let window = windowScene.windows.first(where: { $0.isKeyWindow }),
-                                      let rootVC = window.rootViewController else {
-                                    Logger.shared.log("Could not find root view controller", type: "Error")
-                                    return
-                                }
-                                
-                                var topVC = rootVC
-                                while let presented = topVC.presentedViewController {
-                                    topVC = presented
-                                }
-                                
-                                Logger.shared.log("Presenting player from: \(type(of: topVC))", type: "Stream")
-                                
-                                topVC.present(playerVC, animated: true) {
-                                    Logger.shared.log("Player presented successfully", type: "Stream")
-                                    newPlayer.play()
-                                }
-                            }
+                            self.playStreamURL(url.absoluteString, service: service, subtitles: subtitles)
                         } else {
                             Logger.shared.log("Failed to create URL from stream string", type: "Error")
+                            self.isFetchingStreams = false
                         }
                     }
                 }
+            }
+        }
+    }
+    
+    private func playStreamURL(_ urlString: String, service: Services, subtitles: [String]?) {
+        guard let url = URL(string: urlString) else {
+            Logger.shared.log("Failed to create URL from stream string: \(urlString)", type: "Error")
+            isFetchingStreams = false
+            return
+        }
+        
+        Logger.shared.log("Attempting to play URL: \(url.absoluteString)", type: "Stream")
+        let serviceURL = service.metadata.baseUrl
+        
+        let headers = [
+            "Origin": serviceURL,
+            "Referer": serviceURL,
+            "User-Agent": URLSession.randomUserAgent
+        ]
+        let asset = AVURLAsset(url: url, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
+        
+        let playerItem = AVPlayerItem(asset: asset)
+        
+        let newPlayer = AVPlayer(playerItem: playerItem)
+        self.player = newPlayer
+        
+        let playerVC = NormalPlayer()
+        playerVC.player = newPlayer
+        self.playerViewController = playerVC
+        
+        DispatchQueue.main.async {
+            guard let windowScene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first(where: { $0.activationState == .foregroundActive }),
+                  let window = windowScene.windows.first(where: { $0.isKeyWindow }),
+                  let rootVC = window.rootViewController else {
+                Logger.shared.log("Could not find root view controller", type: "Error")
+                self.isFetchingStreams = false
+                return
+            }
+            
+            var topVC = rootVC
+            while let presented = topVC.presentedViewController {
+                topVC = presented
+            }
+            
+            Logger.shared.log("Presenting player from: \(type(of: topVC))", type: "Stream")
+            self.isFetchingStreams = false
+            
+            topVC.present(playerVC, animated: true) {
+                Logger.shared.log("Player presented successfully", type: "Stream")
+                newPlayer.play()
             }
         }
     }

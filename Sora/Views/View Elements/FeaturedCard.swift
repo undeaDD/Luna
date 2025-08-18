@@ -72,20 +72,6 @@ struct FeaturedCard: View {
                         Spacer()
                     }
                     .padding(8)
-                    
-                    HStack {
-                        Spacer()
-                        VStack {
-                            Spacer()
-                            Image(systemName: "play.circle.fill")
-                                .font(.title)
-                                .foregroundColor(.white)
-                                .opacity(0.9)
-                                .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
-                            Spacer()
-                        }
-                        Spacer()
-                    }
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
@@ -94,7 +80,7 @@ struct FeaturedCard: View {
                     Text(result.displayTitle)
                         .font(isLarge ? .subheadline : .caption)
                         .fontWeight(.medium)
-                        .lineLimit(2)
+                        .lineLimit(1)
                         .foregroundColor(.primary)
                     
                     HStack(spacing: 4) {
@@ -115,7 +101,7 @@ struct FeaturedCard: View {
                 .frame(width: cardWidth, alignment: .leading)
                 .padding(.top, 8)
             }
-            .frame(width: cardWidth)
+            .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
     }
