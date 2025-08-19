@@ -12,18 +12,16 @@ struct ServicesView: View {
     @StateObject private var serviceManager = ServiceManager.shared
     
     var body: some View {
-        NavigationView {
-            VStack {
-                if serviceManager.services.isEmpty {
-                    emptyStateView
-                } else {
-                    servicesList
-                }
+        VStack {
+            if serviceManager.services.isEmpty {
+                emptyStateView
+            } else {
+                servicesList
             }
-            .navigationTitle("Services")
-#if os(iOS)
-            .navigationBarTitleDisplayMode(.large)
-#endif
+        }
+        .navigationTitle("Services")
+        .refreshable {
+            await serviceManager.refreshDefaultServices()
         }
     }
     
@@ -44,7 +42,7 @@ struct ServicesView: View {
     @ViewBuilder
     private var servicesList: some View {
         List {
-            ForEach(serviceManager.services) { service in
+            ForEach(serviceManager.services, id: \.id) { service in
                 ServiceRow(service: service, serviceManager: serviceManager)
             }
             .onDelete(perform: deleteServices)
@@ -61,10 +59,22 @@ struct ServicesView: View {
 
 struct ServiceRow: View {
     let service: Services
-    let serviceManager: ServiceManager
+    @ObservedObject var serviceManager: ServiceManager
+    @State private var showingSettings = false
+    
+    private var isServiceActive: Bool {
+        if let managedService = serviceManager.services.first(where: { $0.id == service.id }) {
+            return managedService.isActive
+        }
+        return service.isActive
+    }
+    
+    private var hasSettings: Bool {
+        service.metadata.settings == true
+    }
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack {
             KFImage(URL(string: service.metadata.iconUrl))
                 .placeholder {
                     RoundedRectangle(cornerRadius: 8)
@@ -75,87 +85,64 @@ struct ServiceRow: View {
                         )
                 }
                 .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 50, height: 50)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(service.isActive ? Color.green.opacity(0.3) : Color.clear, lineWidth: 2)
-                )
+                .frame(width: 40, height: 40)
+                .clipShape(Circle())
+                .padding(.trailing, 10)
             
-            VStack(alignment: .leading, spacing: 6) {
-                Text(service.metadata.sourceName)
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .lineLimit(1)
-                
-                HStack {
-                    Text("by \(service.metadata.author.name)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
-                    Spacer()
-                    
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(alignment: .bottom, spacing: 4) {
+                    Text(service.metadata.sourceName)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
                     Text("v\(service.metadata.version)")
-                        .font(.caption2)
-                        .fontWeight(.medium)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.secondary.opacity(0.15))
-                        .foregroundColor(.secondary)
-                        .cornerRadius(4)
+                        .font(.caption)
+                        .foregroundStyle(.gray)
                 }
                 
                 HStack(spacing: 8) {
-                    Text(service.metadata.language.uppercased())
-                        .font(.caption2)
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.blue.opacity(0.15))
-                        .foregroundColor(.blue)
-                        .cornerRadius(4)
+                    Text(service.metadata.author.name)
+                        .font(.caption)
+                        .foregroundStyle(.gray)
                     
-                    Text(service.metadata.streamType.capitalized)
-                        .font(.caption2)
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.green.opacity(0.15))
-                        .foregroundColor(.green)
-                        .cornerRadius(4)
+                    Text("•")
+                        .font(.caption)
+                        .foregroundStyle(.gray)
                     
-                    if service.isActive {
-                        Text("Active")
-                            .font(.caption2)
-                            .fontWeight(.semibold)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.green)
-                            .foregroundColor(.white)
-                            .cornerRadius(4)
-                    }
-                    
-                    Spacer()
+                    Text(service.metadata.language)
+                        .font(.caption)
+                        .foregroundStyle(.gray)
                 }
             }
             
-            Toggle("", isOn: Binding(
-                get: {
-                    service.isActive
-                },
-                set: { newValue in
-                    serviceManager.toggleServiceState(service)
+            Spacer()
+            
+            HStack(spacing: 12) {
+                if hasSettings {
+                    Button(action: {
+                        showingSettings = true
+                    }) {
+                        Image(systemName: "pencil")
+                            .foregroundStyle(Color.secondary)
+                            .frame(width: 20, height: 20)
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
-            ))
-#if os(iOS)
-            .toggleStyle(SwitchToggleStyle(tint: .green))
-#endif
+                
+                if isServiceActive {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Color.accentColor)
+                        .frame(width: 20, height: 20)
+                }
+            }
         }
-        .padding(.vertical, 8)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                serviceManager.setServiceState(service, isActive: !isServiceActive)
+            }
+        }
+        .sheet(isPresented: $showingSettings) {
+            ServiceSettingsView(service: service, serviceManager: serviceManager)
+        }
     }
-}
-
-#Preview {
-    ServicesView()
 }

@@ -193,6 +193,52 @@ class LoggerManager: ObservableObject {
             name: NSNotification.Name("LoggerNotification"),
             object: nil
         )
+        
+        loadExistingLogs()
+    }
+    
+    private func loadExistingLogs() {
+        Task {
+            let existingLogsString = await Logger.shared.getLogsAsync()
+            if !existingLogsString.isEmpty {
+                let logEntries = parseLogsString(existingLogsString)
+                DispatchQueue.main.async {
+                    self.logs = logEntries
+                }
+            }
+        }
+    }
+    
+    private func parseLogsString(_ logsString: String) -> [LogEntry] {
+        let logSections = logsString.components(separatedBy: "\n----\n")
+        var parsedLogs: [LogEntry] = []
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd-MM HH:mm:ss"
+        
+        for section in logSections {
+            guard !section.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { continue }
+            
+            let pattern = #"\[([^\]]+)\] \[([^\]]+)\] (.+)"#
+            if let regex = try? NSRegularExpression(pattern: pattern, options: []),
+               let match = regex.firstMatch(in: section, options: [], range: NSRange(section.startIndex..., in: section)) {
+                
+                let timestampRange = Range(match.range(at: 1), in: section)!
+                let typeRange = Range(match.range(at: 2), in: section)!
+                let messageRange = Range(match.range(at: 3), in: section)!
+                
+                let timestampString = String(section[timestampRange])
+                let type = String(section[typeRange])
+                let message = String(section[messageRange])
+                
+                if let timestamp = dateFormatter.date(from: timestampString) {
+                    let logEntry = LogEntry(timestamp: timestamp, message: message, type: type)
+                    parsedLogs.append(logEntry)
+                }
+            }
+        }
+        
+        return parsedLogs.sorted { $0.timestamp > $1.timestamp }
     }
     
     @objc private func handleLogNotification(_ notification: Notification) {
@@ -216,6 +262,9 @@ class LoggerManager: ObservableObject {
     
     func clearLogs() {
         logs.removeAll()
+        Task {
+            await Logger.shared.clearLogsAsync()
+        }
     }
 }
 

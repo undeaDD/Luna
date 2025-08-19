@@ -28,10 +28,10 @@ struct ContentView: View {
                     Text("Search")
                 }
             
-            ServicesView()
+            SettingsView()
                 .tabItem {
-                    Image(systemName: "square.stack.3d.up.fill")
-                    Text("Services")
+                    Image(systemName: "gear")
+                    Text("Settings")
                 }
         }
     }

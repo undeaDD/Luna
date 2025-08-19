@@ -86,15 +86,3 @@ struct FallbackImageView: View {
         }
     }
 }
-
-#Preview {
-    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3), spacing: 16) {
-        FallbackImageView(isMovie: true)
-        FallbackImageView(isMovie: false)
-        FallbackImageView(isMovie: true)
-        FallbackImageView(isMovie: false)
-        FallbackImageView(isMovie: true)
-        FallbackImageView(isMovie: false)
-    }
-    .padding()
-}

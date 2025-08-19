@@ -7,6 +7,20 @@
 
 import Foundation
 
+struct ServiceSetting {
+    let key: String
+    let value: String
+    let type: SettingType
+    let comment: String?
+    
+    enum SettingType {
+        case string
+        case bool
+        case int
+        case float
+    }
+}
+
 class ServiceManager: ObservableObject {
     static let shared = ServiceManager()
     
@@ -24,6 +38,55 @@ class ServiceManager: ObservableObject {
         
         createServicesDirectoryIfNeeded()
         loadExistingServices()
+        loadDefaultServicesIfNeeded()
+        let activeCount = services.filter { $0.isActive }.count
+        Logger.shared.log("Active services: \(activeCount)/\(services.count)", type: "ServiceManager")
+    }
+    
+    // MARK: - UserDefaults Persistence
+    
+    private func generateServiceUUID(from metadata: ServicesMetadata, folderName: String) -> UUID {
+        let identifier = "\(metadata.sourceName)\(metadata.author.name)\(metadata.version)_\(folderName)"
+        
+        var hash: UInt64 = 5381
+        for char in identifier.utf8 {
+            hash = ((hash << 5) &+ hash) &+ UInt64(char)
+        }
+        
+        var uuidBytes: [UInt8] = []
+        
+        for i in 0..<8 {
+            uuidBytes.append(UInt8((hash >> (i * 8)) & 0xFF))
+        }
+        
+        var hash2: UInt64 = 2166136261
+        for char in String(identifier.reversed()).utf8 {
+            hash2 = (hash2 &* 16777619) ^ UInt64(char)
+        }
+        
+        for i in 0..<8 {
+            uuidBytes.append(UInt8((hash2 >> (i * 8)) & 0xFF))
+        }
+        
+        uuidBytes[6] = (uuidBytes[6] & 0x0F) | 0x40
+        uuidBytes[8] = (uuidBytes[8] & 0x3F) | 0x80
+        
+        return NSUUID(uuidBytes: uuidBytes) as UUID
+    }
+    
+    private func saveServiceStates() {
+        let serviceStates = Dictionary(uniqueKeysWithValues: services.map { ($0.id.uuidString, $0.isActive) })
+        UserDefaults.standard.set(serviceStates, forKey: "ServiceActiveStates")
+        UserDefaults.standard.synchronize()
+    }
+    
+    private func loadServiceState(for serviceId: UUID) -> Bool {
+        guard let serviceStates = UserDefaults.standard.object(forKey: "ServiceActiveStates") as? [String: Bool] else {
+            Logger.shared.log("No service states found in UserDefaults", type: "ServiceManager")
+            return false
+        }
+        let state = serviceStates[serviceId.uuidString] ?? false
+        return state
     }
     
     // MARK: - Public Methods
@@ -54,6 +117,7 @@ class ServiceManager: ObservableObject {
             
             await MainActor.run {
                 self.services.append(service)
+                self.saveServiceStates()
                 self.downloadProgress = 1.0
                 self.downloadMessage = "Service downloaded successfully!"
             }
@@ -85,24 +149,39 @@ class ServiceManager: ObservableObject {
             }
             
             services.removeAll { $0.id == service.id }
+            
+            if var serviceStates = UserDefaults.standard.object(forKey: "ServiceActiveStates") as? [String: Bool] {
+                serviceStates.removeValue(forKey: service.id.uuidString)
+                UserDefaults.standard.set(serviceStates, forKey: "ServiceActiveStates")
+            }
+            
             Logger.shared.log("Removed service: \(service.metadata.sourceName)", type: "ServiceManager")
         } catch {
             Logger.shared.log("Failed to remove service \(service.metadata.sourceName): \(error.localizedDescription)", type: "ServiceManager")
         }
     }
     
-    func toggleServiceState(_ service: Services) {
+    func setServiceState(_ service: Services, isActive: Bool) {
         if let index = services.firstIndex(where: { $0.id == service.id }) {
-            services[index].isActive.toggle()
-            Logger.shared.log("Toggled service \(service.metadata.sourceName) to \(services[index].isActive ? "active" : "inactive")", type: "ServiceManager")
-            
-            let updatedServices = services
-            services = updatedServices
+            services[index].isActive = isActive
+            saveServiceStates()
+            Logger.shared.log("Set service \(service.metadata.sourceName) (ID: \(service.id.uuidString)) to \(isActive ? "active" : "inactive")", type: "ServiceManager")
+        } else {
+            Logger.shared.log("Could not find service \(service.metadata.sourceName) (ID: \(service.id.uuidString)) to update state", type: "ServiceManager")
         }
+    }
+    
+    func toggleServiceState(_ service: Services) {
+        setServiceState(service, isActive: !service.isActive)
     }
     
     var activeServices: [Services] {
         return services.filter { $0.isActive }
+    }
+    
+    func refreshDefaultServices() async {
+        UserDefaults.standard.set(false, forKey: "DefaultServicesLoaded")
+        await loadDefaultServices()
     }
     
     // MARK: Search Methods
@@ -260,16 +339,19 @@ class ServiceManager: ObservableObject {
     }
     
     private func saveService(metadata: ServicesMetadata, jsContent: String, metadataUrl: String) async throws -> Services {
-        let serviceId = UUID()
-        let serviceFolderName = "\(metadata.sourceName.replacingOccurrences(of: " ", with: "_"))_\(serviceId.uuidString.prefix(8))"
+        let tempServiceId = UUID()
+        let serviceFolderName = "\(metadata.sourceName.replacingOccurrences(of: " ", with: "_"))_\(tempServiceId.uuidString.prefix(8))"
         let servicePath = servicesDirectory.appendingPathComponent(serviceFolderName)
         try FileManager.default.createDirectory(at: servicePath, withIntermediateDirectories: true)
         
         let jsonData = try JSONEncoder().encode(metadata)
         let jsonPath = servicePath.appendingPathComponent("metadata.json")
         try jsonData.write(to: jsonPath)
+        
         let jsPath = servicePath.appendingPathComponent("script.js")
         try jsContent.write(to: jsPath, atomically: true, encoding: .utf8)
+        
+        let serviceId = generateServiceUUID(from: metadata, folderName: serviceFolderName)
         
         let service = Services(
             id: serviceId,
@@ -320,11 +402,20 @@ class ServiceManager: ObservableObject {
             let data = try Data(contentsOf: metadataPath)
             let metadata = try JSONDecoder().decode(ServicesMetadata.self, from: data)
             
+            let serviceIdPath = folderURL.appendingPathComponent("service_id.json")
+            if FileManager.default.fileExists(atPath: serviceIdPath.path) {
+                try? FileManager.default.removeItem(at: serviceIdPath)
+            }
+            
+            let serviceId = generateServiceUUID(from: metadata, folderName: folderURL.lastPathComponent)
+            let savedState = loadServiceState(for: serviceId)
+            
             return Services(
+                id: serviceId,
                 metadata: metadata,
                 localPath: folderURL.lastPathComponent,
                 metadataUrl: "",
-                isActive: false
+                isActive: savedState
             )
         } catch {
             Logger.shared.log("Failed to load service from \(folderURL.lastPathComponent): \(error.localizedDescription)", type: "ServiceManager")
@@ -337,6 +428,222 @@ class ServiceManager: ObservableObject {
             self.downloadProgress = progress
             self.downloadMessage = message
         }
+    }
+    
+    // MARK: - Default Services
+    
+    private func loadDefaultServicesIfNeeded() {
+        if UserDefaults.standard.bool(forKey: "DefaultServicesLoaded") {
+            return
+        }
+        
+        Task {
+            await loadDefaultServices()
+        }
+    }
+    
+    private func loadDefaultServices() async {
+        let defaultServiceURLs = [
+            "https://raw.githubusercontent.com/cranci1/Sora-Modules/refs/heads/main/Emby/Emby.json",
+            "https://raw.githubusercontent.com/cranci1/Sora-Modules/refs/heads/main/JellyFin/jellyfin.json"
+        ]
+        
+        Logger.shared.log("Loading default services...", type: "ServiceManager")
+        
+        for serviceURL in defaultServiceURLs {
+            do {
+                Logger.shared.log("Loading default service from: \(serviceURL)", type: "ServiceManager")
+                
+                let metadata = try await downloadAndParseMetadata(from: serviceURL)
+                
+                let existingService = services.first { service in
+                    service.metadata.sourceName == metadata.sourceName &&
+                    service.metadata.author.name == metadata.author.name &&
+                    service.metadata.version == metadata.version
+                }
+                
+                if existingService != nil {
+                    Logger.shared.log("Default service \(metadata.sourceName) already exists, skipping", type: "ServiceManager")
+                    continue
+                }
+                
+                let jsContent = try await downloadJavaScript(from: metadata.scriptUrl)
+                let service = try await saveService(metadata: metadata, jsContent: jsContent, metadataUrl: serviceURL)
+                
+                await MainActor.run {
+                    self.services.append(service)
+                }
+                
+                Logger.shared.log("Successfully loaded default service: \(metadata.sourceName)", type: "ServiceManager")
+                
+            } catch {
+                Logger.shared.log("Failed to load default service from \(serviceURL): \(error.localizedDescription)", type: "ServiceManager")
+            }
+        }
+        
+        await MainActor.run {
+            self.saveServiceStates()
+        }
+        
+        UserDefaults.standard.set(true, forKey: "DefaultServicesLoaded")
+        Logger.shared.log("Finished loading default services", type: "ServiceManager")
+    }
+    
+    // MARK: - Service Settings
+    
+    func getServiceSettings(_ service: Services) -> [ServiceSetting] {
+        let servicePath = servicesDirectory.appendingPathComponent(service.localPath)
+        let jsPath = servicePath.appendingPathComponent("script.js")
+        
+        guard FileManager.default.fileExists(atPath: jsPath.path) else {
+            Logger.shared.log("JavaScript file not found for service: \(service.metadata.sourceName)", type: "ServiceManager")
+            return []
+        }
+        
+        do {
+            let jsContent = try String(contentsOf: jsPath, encoding: .utf8)
+            return parseSettingsFromJS(jsContent)
+        } catch {
+            Logger.shared.log("Failed to read JavaScript file for service \(service.metadata.sourceName): \(error.localizedDescription)", type: "ServiceManager")
+            return []
+        }
+    }
+    
+    func updateServiceSettings(_ service: Services, settings: [ServiceSetting]) -> Bool {
+        let servicePath = servicesDirectory.appendingPathComponent(service.localPath)
+        let jsPath = servicePath.appendingPathComponent("script.js")
+        
+        guard FileManager.default.fileExists(atPath: jsPath.path) else {
+            Logger.shared.log("JavaScript file not found for service: \(service.metadata.sourceName)", type: "ServiceManager")
+            return false
+        }
+        
+        do {
+            let jsContent = try String(contentsOf: jsPath, encoding: .utf8)
+            let updatedJS = updateSettingsInJS(jsContent, with: settings)
+            try updatedJS.write(to: jsPath, atomically: true, encoding: .utf8)
+            Logger.shared.log("Successfully updated settings for service: \(service.metadata.sourceName)", type: "ServiceManager")
+            return true
+        } catch {
+            Logger.shared.log("Failed to update settings for service \(service.metadata.sourceName): \(error.localizedDescription)", type: "ServiceManager")
+            return false
+        }
+    }
+    
+    private func parseSettingsFromJS(_ jsContent: String) -> [ServiceSetting] {
+        var settings: [ServiceSetting] = []
+        let lines = jsContent.components(separatedBy: .newlines)
+        
+        var inSettingsSection = false
+        
+        for line in lines {
+            let trimmedLine = line.trimmingCharacters(in: .whitespaces)
+            
+            if trimmedLine.contains("// Settings start") {
+                inSettingsSection = true
+                continue
+            }
+            
+            if trimmedLine.contains("// Settings end") {
+                break
+            }
+            
+            if inSettingsSection && trimmedLine.hasPrefix("const ") {
+                if let setting = parseSettingLine(trimmedLine) {
+                    settings.append(setting)
+                }
+            }
+        }
+        
+        return settings
+    }
+    
+    private func parseSettingLine(_ line: String) -> ServiceSetting? {
+        let pattern = #"const\s+(\w+)\s*=\s*([^;]+);"#
+        let regex = try? NSRegularExpression(pattern: pattern)
+        let range = NSRange(location: 0, length: line.utf16.count)
+        
+        guard let match = regex?.firstMatch(in: line, range: range),
+              let keyRange = Range(match.range(at: 1), in: line),
+              let valueRange = Range(match.range(at: 2), in: line) else {
+            return nil
+        }
+        
+        let key = String(line[keyRange])
+        let valueString = String(line[valueRange]).trimmingCharacters(in: .whitespaces)
+        
+        let commentPattern = #"//\s*(.+)$"#
+        let commentRegex = try? NSRegularExpression(pattern: commentPattern)
+        let comment = commentRegex?.firstMatch(in: line, range: range).flatMap { match in
+            Range(match.range(at: 1), in: line).map { String(line[$0]) }
+        }
+        
+        let type: ServiceSetting.SettingType
+        let cleanValue: String
+        
+        if valueString.hasPrefix("\"") && valueString.hasSuffix("\"") {
+            type = .string
+            cleanValue = String(valueString.dropFirst().dropLast())
+        } else if valueString.lowercased() == "true" || valueString.lowercased() == "false" {
+            type = .bool
+            cleanValue = valueString.lowercased()
+        } else if valueString.contains(".") {
+            type = .float
+            cleanValue = valueString
+        } else if Int(valueString) != nil {
+            type = .int
+            cleanValue = valueString
+        } else {
+            type = .string
+            cleanValue = valueString
+        }
+        
+        return ServiceSetting(key: key, value: cleanValue, type: type, comment: comment)
+    }
+    
+    private func updateSettingsInJS(_ jsContent: String, with settings: [ServiceSetting]) -> String {
+        var lines = jsContent.components(separatedBy: .newlines)
+        var inSettingsSection = false
+        
+        for (index, line) in lines.enumerated() {
+            let trimmedLine = line.trimmingCharacters(in: .whitespaces)
+            
+            if trimmedLine.contains("// Settings start") {
+                inSettingsSection = true
+                continue
+            }
+            
+            if trimmedLine.contains("// Settings end") {
+                break
+            }
+            
+            if inSettingsSection && trimmedLine.hasPrefix("const ") {
+                let pattern = #"const\s+(\w+)\s*=\s*([^;]+);"#
+                let regex = try? NSRegularExpression(pattern: pattern)
+                let range = NSRange(location: 0, length: trimmedLine.utf16.count)
+                
+                if let match = regex?.firstMatch(in: trimmedLine, range: range),
+                   let keyRange = Range(match.range(at: 1), in: trimmedLine) {
+                    let key = String(trimmedLine[keyRange])
+                    
+                    if let setting = settings.first(where: { $0.key == key }) {
+                        let formattedValue: String
+                        switch setting.type {
+                        case .string:
+                            formattedValue = "\"\(setting.value)\""
+                        case .bool, .int, .float:
+                            formattedValue = setting.value
+                        }
+                        
+                        let commentPart = setting.comment.map { " // \($0)" } ?? ""
+                        let leadingWhitespace = String(line.prefix(while: { $0.isWhitespace }))
+                        lines[index] = "\(leadingWhitespace)const \(setting.key) = \(formattedValue);\(commentPart)"
+                    }
+                }
+            }
+        }
+        
+        return lines.joined(separator: "\n")
     }
 }
 

@@ -10,19 +10,19 @@ import AVKit
 class NormalPlayer: AVPlayerViewController, AVPlayerViewControllerDelegate {
     private var originalRate: Float = 1.0
     
-    #if os(iOS)
+#if os(iOS)
     private var holdGesture: UILongPressGestureRecognizer?
-    #endif
+#endif
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        #if os(iOS)
+#if os(iOS)
         setupHoldGesture()
-        #endif
+        setupPictureInPictureHandling()
+#endif
         
         setupAudioSession()
-        setupPictureInPictureHandling()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -30,7 +30,7 @@ class NormalPlayer: AVPlayerViewController, AVPlayerViewControllerDelegate {
         player?.pause()
     }
     
-    #if os(iOS)
+#if os(iOS)
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         if UserDefaults.standard.bool(forKey: "alwaysLandscape") {
             return .landscape
@@ -38,9 +38,7 @@ class NormalPlayer: AVPlayerViewController, AVPlayerViewControllerDelegate {
             return .all
         }
     }
-    #endif
     
-    #if os(iOS)
     private func setupHoldGesture() {
         holdGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleHoldGesture(_:)))
         holdGesture?.minimumPressDuration = 0.5
@@ -48,19 +46,15 @@ class NormalPlayer: AVPlayerViewController, AVPlayerViewControllerDelegate {
             view.addGestureRecognizer(holdGesture)
         }
     }
-    #endif
     
     private func setupPictureInPictureHandling() {
         delegate = self
         
-        #if os(iOS)
         if AVPictureInPictureController.isPictureInPictureSupported() {
             self.allowsPictureInPicturePlayback = true
         }
-        #endif
     }
     
-    #if os(iOS)
     func playerViewController(_ playerViewController: AVPlayerViewController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
         let windowScene = UIApplication.shared.connectedScenes
             .filter { $0.activationState == .foregroundActive }
@@ -81,9 +75,7 @@ class NormalPlayer: AVPlayerViewController, AVPlayerViewControllerDelegate {
             completionHandler(false)
         }
     }
-    #endif
     
-    #if os(iOS)
     @objc private func handleHoldGesture(_ gesture: UILongPressGestureRecognizer) {
         switch gesture.state {
         case .began:
@@ -94,7 +86,7 @@ class NormalPlayer: AVPlayerViewController, AVPlayerViewControllerDelegate {
             break
         }
     }
-    #endif
+#endif
     
     private func beginHoldSpeed() {
         guard let player = player else { return }
@@ -110,16 +102,14 @@ class NormalPlayer: AVPlayerViewController, AVPlayerViewControllerDelegate {
     func setupAudioSession() {
         do {
             let audioSession = AVAudioSession.sharedInstance()
-            
-            #if os(iOS)
+#if os(iOS)
             try audioSession.setCategory(.playback, mode: .moviePlayback, options: .mixWithOthers)
             try audioSession.setActive(true)
             try audioSession.overrideOutputAudioPort(.speaker)
-            #elseif os(tvOS)
+#elseif os(tvOS)
             try audioSession.setCategory(.playback, mode: .moviePlayback)
             try audioSession.setActive(true)
-            #endif
-            
+#endif
         } catch {
             Logger.shared.log("Failed to set up AVAudioSession: \(error)")
         }

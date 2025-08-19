@@ -11,6 +11,7 @@ struct SearchView: View {
     @AppStorage("mediaColumnsPortrait") private var mediaColumnsPortrait: Int = 3
     @AppStorage("mediaColumnsLandscape") private var mediaColumnsLandscape: Int = 5
     @AppStorage("tmdbLanguage") private var selectedLanguage = "en-US"
+    @AppStorage("searchHistory") private var searchHistoryData: Data = Data()
     
     @State private var searchText = ""
     @State private var searchResults: [TMDBSearchResult] = []
@@ -19,6 +20,7 @@ struct SearchView: View {
     @State private var searchFilter: SearchFilter = .all
     @State private var showServiceDownloadAlert = false
     @State private var serviceDownloadError: String?
+    @State private var searchHistory: [String] = []
     
     @StateObject private var tmdbService = TMDBService.shared
     @StateObject private var serviceManager = ServiceManager.shared
@@ -75,7 +77,7 @@ struct SearchView: View {
     }
     
     private var searchContent: some View {
-        VStack(spacing: 0) {
+        ScrollView {
             VStack(spacing: 12) {
                 HStack(spacing: 8) {
                     HStack(spacing: 8) {
@@ -196,24 +198,81 @@ struct SearchView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if searchText.isEmpty {
-                VStack {
-                    Image(systemName: "magnifyingglass.circle")
-                        .imageScale(.large)
-                        .font(.system(size: 60))
-                        .foregroundColor(.secondary)
-                    
-                    Text("Search Movies & TV Shows")
-                        .font(.title2)
-                        .foregroundColor(.secondary)
-                        .padding()
-                    
-                    Text("Find your favorite movies and TV shows from The Movie Database")
-                        .font(.body)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
+                if searchHistory.isEmpty {
+                    VStack {
+                        Image(systemName: "magnifyingglass.circle")
+                            .imageScale(.large)
+                            .font(.system(size: 60))
+                            .foregroundColor(.secondary)
+                        
+                        Text("Search Movies & TV Shows")
+                            .font(.title2)
+                            .foregroundColor(.secondary)
+                            .padding()
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    VStack(alignment: .leading, spacing: 0) {
+                        HStack {
+                            Text("Recent Searches")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                            
+                            Spacer()
+                            
+                            Button("Clear") {
+                                clearSearchHistory()
+                            }
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                        }
                         .padding(.horizontal)
+                        .padding(.top)
+                        
+                        VStack(spacing: 0) {
+                            ForEach(Array(searchHistory.enumerated()), id: \.offset) { index, historyItem in
+                                Button(action: {
+                                    searchText = historyItem
+                                    performSearchOrDownloadService()
+                                }) {
+                                    HStack {
+                                        Image(systemName: "clock")
+                                            .foregroundColor(.secondary)
+                                            .font(.system(size: 16))
+                                        
+                                        Text(historyItem)
+                                            .foregroundColor(.primary)
+                                            .font(.body)
+                                            .multilineTextAlignment(.leading)
+                                        
+                                        Spacer()
+                                        
+                                        Button(action: {
+                                            removeFromSearchHistory(at: index)
+                                        }) {
+                                            Image(systemName: "xmark")
+                                                .foregroundColor(.secondary)
+                                                .font(.system(size: 14))
+                                        }
+                                        .buttonStyle(PlainButtonStyle())
+                                    }
+                                    .padding(.horizontal)
+                                    .padding(.vertical, 12)
+                                    .contentShape(Rectangle())
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                
+                                if index < searchHistory.count - 1 {
+                                    Divider()
+                                        .padding(.leading, 40)
+                                }
+                            }
+                        }
+                        .clipped()
+                        
+                        Spacer()
+                    }
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if filteredResults.isEmpty && !searchResults.isEmpty {
                 VStack {
                     Image(systemName: "tv.and.hifispeaker.fill")
@@ -282,6 +341,48 @@ struct SearchView: View {
                 performSearch()
             }
         }
+        .onAppear {
+            loadSearchHistory()
+        }
+    }
+    
+    // MARK: - Search History Management
+    
+    private func loadSearchHistory() {
+        if let decodedHistory = try? JSONDecoder().decode([String].self, from: searchHistoryData) {
+            searchHistory = decodedHistory
+        }
+    }
+    
+    private func saveSearchHistory() {
+        if let encodedHistory = try? JSONEncoder().encode(searchHistory) {
+            searchHistoryData = encodedHistory
+        }
+    }
+    
+    private func addToSearchHistory(_ query: String) {
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedQuery.isEmpty else { return }
+        
+        searchHistory.removeAll { $0.lowercased() == trimmedQuery.lowercased() }
+        searchHistory.insert(trimmedQuery, at: 0)
+        
+        if searchHistory.count > 10 {
+            searchHistory = Array(searchHistory.prefix(10))
+        }
+        
+        saveSearchHistory()
+    }
+    
+    private func removeFromSearchHistory(at index: Int) {
+        guard index < searchHistory.count else { return }
+        searchHistory.remove(at: index)
+        saveSearchHistory()
+    }
+    
+    private func clearSearchHistory() {
+        searchHistory.removeAll()
+        saveSearchHistory()
     }
     
     
@@ -336,6 +437,9 @@ struct SearchView: View {
                 await MainActor.run {
                     self.searchResults = results
                     self.isLoading = false
+                    if !results.isEmpty {
+                        self.addToSearchHistory(self.searchText)
+                    }
                 }
             } catch {
                 await MainActor.run {
