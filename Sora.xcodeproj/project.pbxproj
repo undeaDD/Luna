@@ -151,7 +151,6 @@
 		13F0726D2E4B2D9000EF90EB /* JSLoader */ = {
 			isa = PBXGroup;
 			children = (
-				046FB82C2E5218C7007A8EB6 /* JSController-NetworkFetch.swift */,
 				13F072BD2E4B2ED600EF90EB /* Services */,
 				046FB82C2E5218C7007A8EB6 /* JSController-NetworkFetch.swift */,
 				13F0726F2E4B2D9000EF90EB /* JavaScriptCore+Extensions.swift */,
@@ -166,6 +165,7 @@
 		13F072752E4B2D9000EF90EB /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				13F0727D2E4B2D9000EF90EB /* ContentView.swift */,
 				13F072762E4B2D9000EF90EB /* Base Views */,
 				13F0727F2E4B2D9000EF90EB /* View Elements */,
 			);
@@ -180,7 +180,6 @@
 				13F0727A2E4B2D9000EF90EB /* HomeView.swift */,
 				13F0727B2E4B2D9000EF90EB /* LibraryView.swift */,
 				13F0727C2E4B2D9000EF90EB /* MediaDetailView.swift */,
-				13F0727D2E4B2D9000EF90EB /* ContentView.swift */,
 			);
 			path = "Base Views";
 			sourceTree = "<group>";

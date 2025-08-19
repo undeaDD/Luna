@@ -38,6 +38,7 @@ class NormalPlayer: AVPlayerViewController, AVPlayerViewControllerDelegate {
             return .all
         }
     }
+    
     private func setupHoldGesture() {
         holdGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleHoldGesture(_:)))
         holdGesture?.minimumPressDuration = 0.5
@@ -74,6 +75,7 @@ class NormalPlayer: AVPlayerViewController, AVPlayerViewControllerDelegate {
             completionHandler(false)
         }
     }
+    
     @objc private func handleHoldGesture(_ gesture: UILongPressGestureRecognizer) {
         switch gesture.state {
         case .began:
@@ -100,7 +102,6 @@ class NormalPlayer: AVPlayerViewController, AVPlayerViewControllerDelegate {
     func setupAudioSession() {
         do {
             let audioSession = AVAudioSession.sharedInstance()
-            
 #if os(iOS)
             try audioSession.setCategory(.playback, mode: .moviePlayback, options: .mixWithOthers)
             try audioSession.setActive(true)
@@ -109,7 +110,6 @@ class NormalPlayer: AVPlayerViewController, AVPlayerViewControllerDelegate {
             try audioSession.setCategory(.playback, mode: .moviePlayback)
             try audioSession.setActive(true)
 #endif
-            
         } catch {
             Logger.shared.log("Failed to set up AVAudioSession: \(error)")
         }

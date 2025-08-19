@@ -12,21 +12,16 @@ struct ServicesView: View {
     @StateObject private var serviceManager = ServiceManager.shared
     
     var body: some View {
-        NavigationView {
-            VStack {
-                if serviceManager.services.isEmpty {
-                    emptyStateView
-                } else {
-                    servicesList
-                }
+        VStack {
+            if serviceManager.services.isEmpty {
+                emptyStateView
+            } else {
+                servicesList
             }
-            .navigationTitle("Services")
-#if os(iOS)
-            .navigationBarTitleDisplayMode(.large)
-#endif
-            .refreshable {
-                await serviceManager.refreshDefaultServices()
-            }
+        }
+        .navigationTitle("Services")
+        .refreshable {
+            await serviceManager.refreshDefaultServices()
         }
     }
     

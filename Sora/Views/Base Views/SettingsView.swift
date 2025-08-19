@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SettingsView: View {
     @AppStorage("tmdbLanguage") private var selectedLanguage = "en-US"
-    @Environment(\.dismiss) private var dismiss
     
     let languages = [
         ("en-US", "English (US)"),
@@ -76,29 +75,22 @@ struct SettingsView: View {
             }
             
             Section {
+                NavigationLink(destination: ServicesView()) {
+                    Text("Services")
+                }
+                
                 NavigationLink(destination: LoggerView()) {
                     Text("Logger")
                 }
             }
         }
         .navigationTitle("Settings")
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.large)
-#endif
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Done") {
-                    dismiss()
-                }
-            }
-        }
     }
 }
 
 struct LanguageSelectionView: View {
     @Binding var selectedLanguage: String
     let languages: [(String, String)]
-    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         List {
@@ -108,97 +100,14 @@ struct LanguageSelectionView: View {
                     Spacer()
                     if selectedLanguage == language.0 {
                         Image(systemName: "checkmark")
-                            .foregroundColor(.blue)
                     }
                 }
                 .contentShape(Rectangle())
                 .onTapGesture {
                     selectedLanguage = language.0
-                    dismiss()
                 }
             }
         }
         .navigationTitle("Language")
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-#endif
     }
-}
-
-struct AboutView: View {
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                VStack(spacing: 8) {
-                    Image(systemName: "star.circle.fill")
-                        .font(.system(size: 80))
-                        .foregroundColor(.blue)
-                    
-                    Text("Celestial")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                    
-                    Text("Version 1.0")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 20)
-                
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("About Celestial")
-                        .font(.headline)
-                    
-                    Text("Celestial is a modern movie and TV show discovery app that helps you find and explore content from The Movie Database (TMDB). Discover new favorites, keep track of what you want to watch, and explore detailed information about movies and TV shows.")
-                        .font(.body)
-                    
-                    Text("Features")
-                        .font(.headline)
-                        .padding(.top)
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        FeatureRow(icon: "magnifyingglass", text: "Search movies and TV shows")
-                        FeatureRow(icon: "books.vertical", text: "Personal library management")
-                        FeatureRow(icon: "globe", text: "Multi-language support")
-                        FeatureRow(icon: "star", text: "Ratings and reviews")
-                    }
-                    
-                    Text("Data Source")
-                        .font(.headline)
-                        .padding(.top)
-                    
-                    Text("This app uses The Movie Database (TMDB) API to provide movie and TV show information. TMDB is a community-built movie and TV database.")
-                        .font(.body)
-                    
-                    Link("Visit TMDB", destination: URL(string: "https://www.themoviedb.org")!)
-                        .foregroundColor(.blue)
-                }
-                .padding(.horizontal)
-            }
-        }
-        .navigationTitle("About")
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-#endif
-    }
-}
-
-struct FeatureRow: View {
-    let icon: String
-    let text: String
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .foregroundColor(.blue)
-                .frame(width: 20)
-            Text(text)
-                .font(.body)
-            Spacer()
-        }
-    }
-}
-
-#Preview {
-    SettingsView()
 }

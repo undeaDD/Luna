@@ -51,8 +51,6 @@ struct HomeView: View {
             } else {
                 mainScrollView
             }
-            
-            navigationOverlay
         }
         .navigationBarHidden(true)
         .onAppear {
@@ -104,35 +102,6 @@ struct HomeView: View {
             .cornerRadius(8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-    
-    @ViewBuilder
-    private var navigationOverlay: some View {
-        VStack {
-            HStack {
-                Text("Sora")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                Spacer()
-                
-                Button(action: {
-                    showingSettings = true
-                }) {
-                    Image(systemName: "gearshape")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
-                        .frame(width: 32, height: 32)
-                        .background(Color.black.opacity(0.3))
-                        .clipShape(Circle())
-                }
-            }
-            .padding(.horizontal)
-            .padding(.top, 10)
-            
-            Spacer()
-        }
     }
     
     @ViewBuilder
