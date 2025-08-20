@@ -13,6 +13,8 @@
 		13830AEC2E55BD9200B3CDE4 /* AlgorithmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AEB2E55BD9200B3CDE4 /* AlgorithmManager.swift */; };
 		13830AEE2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AED2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift */; };
 		13830AF02E55C04F00B3CDE4 /* AlgorithmSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */; };
+		13830AF22E55F51300B3CDE4 /* AlternativeUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AF12E55F51300B3CDE4 /* AlternativeUIView.swift */; };
+		13830AF42E55F5FF00B3CDE4 /* AccentColorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AF32E55F5FF00B3CDE4 /* AccentColorManager.swift */; };
 		13E34D2A2E535CB500C7BF07 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 13E34D292E535CB500C7BF07 /* Kingfisher */; };
 		13F0725F2E4B2D3300EF90EB /* SoraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F0725E2E4B2D3300EF90EB /* SoraApp.swift */; };
 		13F072632E4B2D3700EF90EB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13F072622E4B2D3700EF90EB /* Assets.xcassets */; };
@@ -59,6 +61,8 @@
 		13830AEB2E55BD9200B3CDE4 /* AlgorithmManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlgorithmManager.swift; sourceTree = "<group>"; };
 		13830AED2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JaroWinklerSimilarity.swift; sourceTree = "<group>"; };
 		13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlgorithmSelectionView.swift; sourceTree = "<group>"; };
+		13830AF12E55F51300B3CDE4 /* AlternativeUIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlternativeUIView.swift; sourceTree = "<group>"; };
+		13830AF32E55F5FF00B3CDE4 /* AccentColorManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccentColorManager.swift; sourceTree = "<group>"; };
 		13F0725B2E4B2D3300EF90EB /* Sora.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sora.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13F0725E2E4B2D3300EF90EB /* SoraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraApp.swift; sourceTree = "<group>"; };
 		13F072622E4B2D3700EF90EB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -254,6 +258,7 @@
 		13F072912E4B2D9100EF90EB /* Color */ = {
 			isa = PBXGroup;
 			children = (
+				13830AF32E55F5FF00B3CDE4 /* AccentColorManager.swift */,
 				13F072922E4B2D9100EF90EB /* ambientColor.swift */,
 			);
 			path = Color;
@@ -308,6 +313,7 @@
 			children = (
 				13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */,
 				13631B312E4F1A200035C39F /* ServiceSettingsView.swift */,
+				13830AF12E55F51300B3CDE4 /* AlternativeUIView.swift */,
 				13F072792E4B2D9000EF90EB /* ServicesView.swift */,
 				13F0727E2E4B2D9000EF90EB /* LoggerView.swift */,
 			);
@@ -402,6 +408,7 @@
 				13F0729D2E4B2D9200EF90EB /* JSController-Search.swift in Sources */,
 				13F072A02E4B2D9200EF90EB /* JSController-Streams.swift in Sources */,
 				13F072AC2E4B2D9200EF90EB /* Shows-Details.swift in Sources */,
+				13830AF22E55F51300B3CDE4 /* AlternativeUIView.swift in Sources */,
 				13F072BA2E4B2D9200EF90EB /* TMDBService.swift in Sources */,
 				13F0725F2E4B2D3300EF90EB /* SoraApp.swift in Sources */,
 				13F072A42E4B2D9200EF90EB /* ServicesView.swift in Sources */,
@@ -429,6 +436,7 @@
 				13631B322E4F1A200035C39F /* ServiceSettingsView.swift in Sources */,
 				13F072B32E4B2D9200EF90EB /* ServicesResultsSheet.swift in Sources */,
 				13F072A52E4B2D9200EF90EB /* HomeView.swift in Sources */,
+				13830AF42E55F5FF00B3CDE4 /* AccentColorManager.swift in Sources */,
 				13F072A12E4B2D9200EF90EB /* JSController.swift in Sources */,
 				13F0729F2E4B2D9200EF90EB /* ServiceManager.swift in Sources */,
 			);

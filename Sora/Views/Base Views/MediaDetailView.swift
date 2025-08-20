@@ -113,7 +113,6 @@ struct MediaDetailView: View {
                 loadMediaDetails()
             }
             .padding(.top)
-            .foregroundColor(.blue)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

@@ -97,7 +97,6 @@ struct HomeView: View {
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 12)
-            .background(Color.blue)
             .foregroundColor(.white)
             .cornerRadius(8)
         }
@@ -249,9 +248,10 @@ struct HomeView: View {
             continueWatchingSection
             
             if !trendingContent.isEmpty {
+                let filteredTrending = trendingContent.filter { $0.id != heroContent?.id }
                 MediaSection(
                     title: "Trending This Week",
-                    items: Array(trendingContent.prefix(15)),
+                    items: Array(filteredTrending.prefix(15)),
                     isLarge: true
                 )
             }

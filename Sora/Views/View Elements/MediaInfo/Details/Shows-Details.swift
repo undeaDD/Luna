@@ -175,10 +175,8 @@ struct TVShowSeasonsSection: View {
             } label: {
                 HStack(spacing: 4) {
                     Text(selectedSeason?.name ?? "Season 1")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
+                    
                     Image(systemName: "chevron.down")
-                        .font(.caption)
                 }
                 .foregroundColor(.primary)
             }

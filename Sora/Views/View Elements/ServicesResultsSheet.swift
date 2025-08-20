@@ -107,8 +107,6 @@ struct ModulesSearchResultsSheet: View {
                                     .font(.caption)
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
-                                    .background(Color.blue.opacity(0.2))
-                                    .foregroundColor(.blue)
                                     .cornerRadius(8)
                             }
                         }
@@ -784,7 +782,6 @@ struct CompactMediaResultRow: View {
                         
                         Image(systemName: "play.circle")
                             .font(.caption)
-                            .foregroundColor(.blue)
                     }
                 }
                 
@@ -890,7 +887,6 @@ struct EnhancedMediaResultRow: View {
                         
                         Image(systemName: "play.circle.fill")
                             .font(.title2)
-                            .foregroundColor(.blue)
                     }
                 }
                 
@@ -966,7 +962,6 @@ struct MediaResultRow: View {
                         Spacer()
                         
                         Image(systemName: "play.circle")
-                            .foregroundColor(.blue)
                     }
                 }
                 

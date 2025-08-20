@@ -194,7 +194,6 @@ struct SearchView: View {
                         performSearchOrDownloadService()
                     }
                     .padding(.top)
-                    .foregroundColor(.blue)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if searchText.isEmpty {
@@ -224,7 +223,6 @@ struct SearchView: View {
                                 clearSearchHistory()
                             }
                             .font(.caption)
-                            .foregroundColor(.blue)
                         }
                         .padding(.horizontal)
                         .padding(.top)

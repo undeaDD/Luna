@@ -95,6 +95,10 @@ struct SettingsView: View {
                     Text("Services")
                 }
                 
+                NavigationLink(destination: AlternativeUIView()) {
+                    Text("Alternative UI")
+                }
+                
                 NavigationLink(destination: LoggerView()) {
                     Text("Logger")
                 }

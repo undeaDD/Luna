@@ -161,7 +161,6 @@ struct LogEntryRow: View {
                         }) {
                             Text(isExpanded ? "Show Less" : "Show More")
                                 .font(.caption)
-                                .foregroundColor(.blue)
                         }
                     }
                 }
