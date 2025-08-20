@@ -41,6 +41,7 @@ struct ModulesSearchResultsSheet: View {
     @State private var streamFetchProgress = ""
     
     @StateObject private var serviceManager = ServiceManager.shared
+    @StateObject private var algorithmManager = AlgorithmManager.shared
     
     private var servicesWithResults: [(service: Services, results: [SearchItem])] {
         moduleResults.filter { !$0.results.isEmpty }
@@ -473,7 +474,7 @@ struct ModulesSearchResultsSheet: View {
     }
     
     private func calculateSimilarity(original: String, result: String) -> Double {
-        return LevenshteinDistance.calculateSimilarity(original: original, result: result)
+        return algorithmManager.calculateSimilarity(original: original, result: result)
     }
     
     private func playContent(_ result: SearchItem) {
@@ -795,7 +796,7 @@ struct CompactMediaResultRow: View {
     }
     
     private func calculateSimilarity(original: String, result: String) -> Double {
-        return LevenshteinDistance.calculateSimilarity(original: original, result: result)
+        return AlgorithmManager.shared.calculateSimilarity(original: original, result: result)
     }
 }
 
@@ -901,7 +902,7 @@ struct EnhancedMediaResultRow: View {
     }
     
     private func calculateSimilarity(original: String, result: String) -> Double {
-        return LevenshteinDistance.calculateSimilarity(original: original, result: result)
+        return AlgorithmManager.shared.calculateSimilarity(original: original, result: result)
     }
 }
 
@@ -912,7 +913,7 @@ struct MediaResultRow: View {
     let onTap: () -> Void
     
     private var similarityScore: Double {
-        LevenshteinDistance.calculateSimilarity(original: originalTitle, result: result.title)
+        AlgorithmManager.shared.calculateSimilarity(original: originalTitle, result: result.title)
     }
     
     private var scoreColor: Color {

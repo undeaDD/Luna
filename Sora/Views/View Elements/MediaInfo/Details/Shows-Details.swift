@@ -31,12 +31,13 @@ struct TVShowSeasonsSection: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 8) {
             if let tvShow = tvShow {
                 Text("Details")
                     .font(.title2)
                     .fontWeight(.bold)
                     .padding(.horizontal)
+                    .padding(.top)
                 
                 VStack(spacing: 12) {
                     if let numberOfSeasons = tvShow.numberOfSeasons, numberOfSeasons > 0 {

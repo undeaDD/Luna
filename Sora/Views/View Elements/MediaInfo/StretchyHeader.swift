@@ -59,7 +59,6 @@ struct StretchyHeaderView: View {
                 )
                 .frame(height: 100)
                 .clipShape(RoundedRectangle(cornerRadius: 0))
-                .animation(.easeInOut(duration: 0.8), value: localAmbientColor)
             }
         }
         .frame(height: headerHeight)

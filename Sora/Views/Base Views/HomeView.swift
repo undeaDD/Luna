@@ -124,9 +124,7 @@ struct HomeView: View {
                 headerHeight: heroHeight,
                 minHeaderHeight: 300,
                 onAmbientColorExtracted: { color in
-                    withAnimation(.easeInOut(duration: 0.8)) {
-                        ambientColor = color
-                    }
+                    ambientColor = color
                 }
             )
             
@@ -149,7 +147,6 @@ struct HomeView: View {
         )
         .frame(height: 150)
         .clipShape(RoundedRectangle(cornerRadius: 0))
-        .animation(.easeInOut(duration: 0.8), value: ambientColor)
     }
     
     @ViewBuilder
@@ -171,6 +168,7 @@ struct HomeView: View {
                             Image(systemName: "star.fill")
                                 .font(.caption)
                                 .foregroundColor(.yellow)
+                            
                             Text(String(format: "%.1f", hero.voteAverage))
                                 .font(.caption)
                                 .fontWeight(.medium)
@@ -184,7 +182,7 @@ struct HomeView: View {
                 }
                 
                 Text(hero.displayTitle)
-                    .font(.largeTitle)
+                    .font(.system(size: 25))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                     .lineLimit(2)
@@ -192,13 +190,11 @@ struct HomeView: View {
                     .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
                 
                 if let overview = hero.overview, !overview.isEmpty {
-                    Text(String(overview.prefix(120)) + (overview.count > 120 ? "..." : ""))
-                        .font(.body)
+                    Text(String(overview.prefix(100)) + (overview.count > 100 ? "..." : ""))
                         .foregroundColor(.white.opacity(0.9))
-                        .lineLimit(3)
+                        .lineLimit(2)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 20)
-                        .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
                 }
                 
                 HStack(spacing: 16) {
@@ -241,10 +237,8 @@ struct HomeView: View {
                         .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                     }
                 }
-                .padding(.top, 8)
             }
             .frame(maxWidth: .infinity)
-            .padding(.bottom, 40)
             .padding(.horizontal)
         }
     }
@@ -409,7 +403,6 @@ struct MediaSection: View {
         }
         .padding(.vertical, 24)
         .opacity(items.isEmpty ? 0 : 1)
-        .animation(.easeInOut(duration: 0.5), value: items.isEmpty)
     }
 }
 

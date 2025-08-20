@@ -178,9 +178,7 @@ struct MediaDetailView: View {
                 headerHeight: headerHeight,
                 minHeaderHeight: minHeaderHeight,
                 onAmbientColorExtracted: { color in
-                    withAnimation(.easeInOut(duration: 0.8)) {
-                        ambientColor = color
-                    }
+                    ambientColor = color
                 }
             )
             
@@ -192,7 +190,7 @@ struct MediaDetailView: View {
     @ViewBuilder
     private var contentContainer: some View {
         VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 16) {
                 synopsisSection
                 playAndBookmarkSection
                 
@@ -222,7 +220,6 @@ struct MediaDetailView: View {
         )
         .frame(height: 120)
         .clipShape(RoundedRectangle(cornerRadius: 0))
-        .animation(.easeInOut(duration: 0.8), value: ambientColor)
     }
     
     @ViewBuilder

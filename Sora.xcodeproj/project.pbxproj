@@ -10,6 +10,9 @@
 		046FB82D2E5218DC007A8EB6 /* JSController-NetworkFetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 046FB82C2E5218C7007A8EB6 /* JSController-NetworkFetch.swift */; };
 		131A62002E51CCE9009CE905 /* FeaturedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */; };
 		13631B322E4F1A200035C39F /* ServiceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13631B312E4F1A200035C39F /* ServiceSettingsView.swift */; };
+		13830AEC2E55BD9200B3CDE4 /* AlgorithmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AEB2E55BD9200B3CDE4 /* AlgorithmManager.swift */; };
+		13830AEE2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AED2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift */; };
+		13830AF02E55C04F00B3CDE4 /* AlgorithmSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */; };
 		13E34D2A2E535CB500C7BF07 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 13E34D292E535CB500C7BF07 /* Kingfisher */; };
 		13F0725F2E4B2D3300EF90EB /* SoraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F0725E2E4B2D3300EF90EB /* SoraApp.swift */; };
 		13F072632E4B2D3700EF90EB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13F072622E4B2D3700EF90EB /* Assets.xcassets */; };
@@ -43,7 +46,7 @@
 		13F072B52E4B2D9200EF90EB /* URLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072902E4B2D9100EF90EB /* URLSession.swift */; };
 		13F072B62E4B2D9200EF90EB /* ambientColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072922E4B2D9100EF90EB /* ambientColor.swift */; };
 		13F072B72E4B2D9200EF90EB /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072942E4B2D9100EF90EB /* Logger.swift */; };
-		13F072B82E4B2D9200EF90EB /* levenshteinDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072962E4B2D9100EF90EB /* levenshteinDistance.swift */; };
+		13F072B82E4B2D9200EF90EB /* LevenshteinDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072962E4B2D9100EF90EB /* LevenshteinDistance.swift */; };
 		13F072B92E4B2D9200EF90EB /* TMDBModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072992E4B2D9200EF90EB /* TMDBModels.swift */; };
 		13F072BA2E4B2D9200EF90EB /* TMDBService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F0729A2E4B2D9200EF90EB /* TMDBService.swift */; };
 		13F072C32E4B2F8500EF90EB /* SoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = 13F072C22E4B2F8500EF90EB /* SoraCore */; };
@@ -53,6 +56,9 @@
 		046FB82C2E5218C7007A8EB6 /* JSController-NetworkFetch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JSController-NetworkFetch.swift"; sourceTree = "<group>"; };
 		131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeaturedCard.swift; sourceTree = "<group>"; };
 		13631B312E4F1A200035C39F /* ServiceSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceSettingsView.swift; sourceTree = "<group>"; };
+		13830AEB2E55BD9200B3CDE4 /* AlgorithmManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlgorithmManager.swift; sourceTree = "<group>"; };
+		13830AED2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JaroWinklerSimilarity.swift; sourceTree = "<group>"; };
+		13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlgorithmSelectionView.swift; sourceTree = "<group>"; };
 		13F0725B2E4B2D3300EF90EB /* Sora.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sora.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13F0725E2E4B2D3300EF90EB /* SoraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraApp.swift; sourceTree = "<group>"; };
 		13F072622E4B2D3700EF90EB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -87,7 +93,7 @@
 		13F072902E4B2D9100EF90EB /* URLSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSession.swift; sourceTree = "<group>"; };
 		13F072922E4B2D9100EF90EB /* ambientColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ambientColor.swift; sourceTree = "<group>"; };
 		13F072942E4B2D9100EF90EB /* Logger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
-		13F072962E4B2D9100EF90EB /* levenshteinDistance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = levenshteinDistance.swift; sourceTree = "<group>"; };
+		13F072962E4B2D9100EF90EB /* LevenshteinDistance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LevenshteinDistance.swift; sourceTree = "<group>"; };
 		13F072992E4B2D9200EF90EB /* TMDBModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TMDBModels.swift; sourceTree = "<group>"; };
 		13F0729A2E4B2D9200EF90EB /* TMDBService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TMDBService.swift; sourceTree = "<group>"; };
 		13F072BB2E4B2DA900EF90EB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -166,6 +172,7 @@
 			isa = PBXGroup;
 			children = (
 				13F0727D2E4B2D9000EF90EB /* ContentView.swift */,
+				13F072C42E4B364B00EF90EB /* SettingsView */,
 				13F072762E4B2D9000EF90EB /* Base Views */,
 				13F0727F2E4B2D9000EF90EB /* View Elements */,
 			);
@@ -187,7 +194,6 @@
 		13F0727F2E4B2D9000EF90EB /* View Elements */ = {
 			isa = PBXGroup;
 			children = (
-				13F072C42E4B364B00EF90EB /* SettingsView */,
 				13F072802E4B2D9000EF90EB /* MediaInfo */,
 				131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */,
 				13F072882E4B2D9000EF90EB /* SearchResultCard.swift */,
@@ -264,7 +270,9 @@
 		13F072952E4B2D9100EF90EB /* Algorithm */ = {
 			isa = PBXGroup;
 			children = (
-				13F072962E4B2D9100EF90EB /* levenshteinDistance.swift */,
+				13830AEB2E55BD9200B3CDE4 /* AlgorithmManager.swift */,
+				13F072962E4B2D9100EF90EB /* LevenshteinDistance.swift */,
+				13830AED2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift */,
 			);
 			path = Algorithm;
 			sourceTree = "<group>";
@@ -298,6 +306,7 @@
 		13F072C42E4B364B00EF90EB /* SettingsView */ = {
 			isa = PBXGroup;
 			children = (
+				13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */,
 				13631B312E4F1A200035C39F /* ServiceSettingsView.swift */,
 				13F072792E4B2D9000EF90EB /* ServicesView.swift */,
 				13F0727E2E4B2D9000EF90EB /* LoggerView.swift */,
@@ -384,6 +393,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				13F072A32E4B2D9200EF90EB /* SearchView.swift in Sources */,
+				13830AEC2E55BD9200B3CDE4 /* AlgorithmManager.swift in Sources */,
 				13F072AD2E4B2D9200EF90EB /* DetailRow.swift in Sources */,
 				13F072B02E4B2D9200EF90EB /* SearchResultCard.swift in Sources */,
 				13F072B42E4B2D9200EF90EB /* resized.swift in Sources */,
@@ -405,7 +415,9 @@
 				13F0729C2E4B2D9200EF90EB /* JavaScriptCore+Extensions.swift in Sources */,
 				13F072B22E4B2D9200EF90EB /* FallbackImageView.swift in Sources */,
 				13F072B62E4B2D9200EF90EB /* ambientColor.swift in Sources */,
+				13830AF02E55C04F00B3CDE4 /* AlgorithmSelectionView.swift in Sources */,
 				13F0729E2E4B2D9200EF90EB /* JSController-Details.swift in Sources */,
+				13830AEE2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift in Sources */,
 				13F072B92E4B2D9200EF90EB /* TMDBModels.swift in Sources */,
 				13F072AA2E4B2D9200EF90EB /* CircularProgressBar.swift in Sources */,
 				046FB82D2E5218DC007A8EB6 /* JSController-NetworkFetch.swift in Sources */,
@@ -413,7 +425,7 @@
 				131A62002E51CCE9009CE905 /* FeaturedCard.swift in Sources */,
 				13F072A82E4B2D9200EF90EB /* ContentView.swift in Sources */,
 				13F072B72E4B2D9200EF90EB /* Logger.swift in Sources */,
-				13F072B82E4B2D9200EF90EB /* levenshteinDistance.swift in Sources */,
+				13F072B82E4B2D9200EF90EB /* LevenshteinDistance.swift in Sources */,
 				13631B322E4F1A200035C39F /* ServiceSettingsView.swift in Sources */,
 				13F072B32E4B2D9200EF90EB /* ServicesResultsSheet.swift in Sources */,
 				13F072A52E4B2D9200EF90EB /* HomeView.swift in Sources */,
