@@ -17,12 +17,118 @@ struct EpisodeCell: View {
     let onResetProgress: () -> Void
     
     @State private var isWatched: Bool = false
+    @AppStorage("horizontalEpisodeList") private var horizontalEpisodeList: Bool = false
     
     private var episodeKey: String {
         "episode_\(episode.seasonNumber)_\(episode.episodeNumber)"
     }
     
     var body: some View {
+        if horizontalEpisodeList {
+            horizontalLayout
+        } else {
+            verticalLayout
+        }
+    }
+    
+    @MainActor private var horizontalLayout: some View {
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: 8) {
+                ZStack {
+                    KFImage(URL(string: episode.fullStillURL ?? ""))
+                        .placeholder {
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                                .overlay(
+                                    Image(systemName: "tv")
+                                        .font(.title2)
+                                        .foregroundColor(.white.opacity(0.7))
+                                )
+                        }
+                        .resizable()
+                        .aspectRatio(16/9, contentMode: .fill)
+                        .frame(width: 240, height: 135)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    
+                    if progress > 0 && progress < 0.95 {
+                        VStack {
+                            Spacer()
+                            ProgressView(value: progress)
+                                .progressViewStyle(LinearProgressViewStyle(tint: .blue))
+                                .frame(height: 3)
+                                .padding(.horizontal, 4)
+                                .padding(.bottom, 4)
+                        }
+                        .frame(width: 240, height: 135)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("Episode \(episode.episodeNumber)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        Spacer()
+                        
+                        HStack {
+                            HStack(spacing: 2) {
+                                if episode.voteAverage > 0 {
+                                    Image(systemName: "star.fill")
+                                        .font(.caption2)
+                                        .foregroundColor(.yellow)
+                                    Text(String(format: "%.1f", episode.voteAverage))
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                    
+                                    
+                                    Text(" - ")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                if let runtime = episode.runtime, runtime > 0 {
+                                    Text(episode.runtimeFormatted)
+                                        .font(.caption2)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 2)
+                        .background(Color.gray.opacity(0.2))
+                        .clipShape(Capsule())
+                        .foregroundColor(.secondary)
+                    }
+                    
+                    if !episode.name.isEmpty {
+                        Text(episode.name)
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
+                    }
+                    
+                    if let overview = episode.overview, !overview.isEmpty {
+                        Text(overview)
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                            .lineLimit(3)
+                            .multilineTextAlignment(.leading)
+                    }
+                }
+                .frame(width: 240, alignment: .leading)
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+        .contextMenu {
+            episodeContextMenu
+        }
+        .onAppear {
+            loadEpisodeProgress()
+        }
+    }
+    
+    @MainActor private var verticalLayout: some View {
         Button(action: onTap) {
             HStack(spacing: 12) {
                 ZStack {
@@ -41,17 +147,6 @@ struct EpisodeCell: View {
                         .frame(width: 120, height: 68)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     
-                    Rectangle()
-                        .fill(Color.black.opacity(0.3))
-                        .overlay(
-                            Image(systemName: "play.fill")
-                                .font(.title3)
-                                .foregroundColor(.white)
-                        )
-                        .frame(width: 120, height: 68)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .opacity(0.8)
-                    
                     if progress > 0 && progress < 0.95 {
                         VStack {
                             Spacer()
@@ -64,22 +159,6 @@ struct EpisodeCell: View {
                         .frame(width: 120, height: 68)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
-                    
-                    if isWatched || progress >= 0.95 {
-                        VStack {
-                            HStack {
-                                Spacer()
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.system(size: 16))
-                                    .foregroundColor(.green)
-                                    .background(Color.black.opacity(0.5))
-                                    .clipShape(Circle())
-                                    .padding(6)
-                            }
-                            Spacer()
-                        }
-                        .frame(width: 120, height: 68)
-                    }
                 }
                 
                 VStack(alignment: .leading, spacing: 6) {
@@ -91,15 +170,33 @@ struct EpisodeCell: View {
                         
                         Spacer()
                         
-                        if let runtime = episode.runtime, runtime > 0 {
-                            Text(episode.runtimeFormatted)
-                                .font(.caption)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.gray.opacity(0.2))
-                                .clipShape(Capsule())
-                                .foregroundColor(.secondary)
+                        HStack {
+                            HStack(spacing: 2) {
+                                if episode.voteAverage > 0 {
+                                    Image(systemName: "star.fill")
+                                        .font(.caption2)
+                                        .foregroundColor(.yellow)
+                                    Text(String(format: "%.1f", episode.voteAverage))
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                    
+                                    
+                                    Text(" - ")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                if let runtime = episode.runtime, runtime > 0 {
+                                    Text(episode.runtimeFormatted)
+                                        .font(.caption2)
+                                }
+                            }
                         }
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 2)
+                        .background(Color.gray.opacity(0.2))
+                        .clipShape(Capsule())
+                        .foregroundColor(.secondary)
                     }
                     
                     if !episode.name.isEmpty {
@@ -117,30 +214,7 @@ struct EpisodeCell: View {
                             .lineLimit(3)
                             .fixedSize(horizontal: false, vertical: true)
                     }
-                    
-                    Spacer()
-                    
-                    HStack {
-                        if episode.voteAverage > 0 {
-                            HStack(spacing: 2) {
-                                Image(systemName: "star.fill")
-                                    .font(.caption2)
-                                    .foregroundColor(.yellow)
-                                Text(String(format: "%.1f", episode.voteAverage))
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        if progress > 0 {
-                            CircularProgressBar(progress: progress, size: 24, lineWidth: 2.5)
-                        }
-                    }
                 }
-                
-                Spacer()
             }
             .padding(12)
             .background(

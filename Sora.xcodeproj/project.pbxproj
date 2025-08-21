@@ -46,7 +46,7 @@
 		13F072B32E4B2D9200EF90EB /* ServicesResultsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F0728B2E4B2D9000EF90EB /* ServicesResultsSheet.swift */; };
 		13F072B42E4B2D9200EF90EB /* resized.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F0728E2E4B2D9100EF90EB /* resized.swift */; };
 		13F072B52E4B2D9200EF90EB /* URLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072902E4B2D9100EF90EB /* URLSession.swift */; };
-		13F072B62E4B2D9200EF90EB /* ambientColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072922E4B2D9100EF90EB /* ambientColor.swift */; };
+		13F072B62E4B2D9200EF90EB /* AmbientColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072922E4B2D9100EF90EB /* AmbientColor.swift */; };
 		13F072B72E4B2D9200EF90EB /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072942E4B2D9100EF90EB /* Logger.swift */; };
 		13F072B82E4B2D9200EF90EB /* LevenshteinDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072962E4B2D9100EF90EB /* LevenshteinDistance.swift */; };
 		13F072B92E4B2D9200EF90EB /* TMDBModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072992E4B2D9200EF90EB /* TMDBModels.swift */; };
@@ -95,7 +95,7 @@
 		13F0728B2E4B2D9000EF90EB /* ServicesResultsSheet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServicesResultsSheet.swift; sourceTree = "<group>"; };
 		13F0728E2E4B2D9100EF90EB /* resized.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = resized.swift; sourceTree = "<group>"; };
 		13F072902E4B2D9100EF90EB /* URLSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSession.swift; sourceTree = "<group>"; };
-		13F072922E4B2D9100EF90EB /* ambientColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ambientColor.swift; sourceTree = "<group>"; };
+		13F072922E4B2D9100EF90EB /* AmbientColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AmbientColor.swift; sourceTree = "<group>"; };
 		13F072942E4B2D9100EF90EB /* Logger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		13F072962E4B2D9100EF90EB /* LevenshteinDistance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LevenshteinDistance.swift; sourceTree = "<group>"; };
 		13F072992E4B2D9200EF90EB /* TMDBModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TMDBModels.swift; sourceTree = "<group>"; };
@@ -259,7 +259,7 @@
 			isa = PBXGroup;
 			children = (
 				13830AF32E55F5FF00B3CDE4 /* AccentColorManager.swift */,
-				13F072922E4B2D9100EF90EB /* ambientColor.swift */,
+				13F072922E4B2D9100EF90EB /* AmbientColor.swift */,
 			);
 			path = Color;
 			sourceTree = "<group>";
@@ -421,7 +421,7 @@
 				13F0729B2E4B2D9200EF90EB /* Services.swift in Sources */,
 				13F0729C2E4B2D9200EF90EB /* JavaScriptCore+Extensions.swift in Sources */,
 				13F072B22E4B2D9200EF90EB /* FallbackImageView.swift in Sources */,
-				13F072B62E4B2D9200EF90EB /* ambientColor.swift in Sources */,
+				13F072B62E4B2D9200EF90EB /* AmbientColor.swift in Sources */,
 				13830AF02E55C04F00B3CDE4 /* AlgorithmSelectionView.swift in Sources */,
 				13F0729E2E4B2D9200EF90EB /* JSController-Details.swift in Sources */,
 				13830AEE2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift in Sources */,

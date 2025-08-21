@@ -9,6 +9,8 @@ import SwiftUI
 
 struct AlternativeUIView: View {
     @AppStorage("seasonMenu") private var useSeasonMenu = false
+    @AppStorage("horizontalEpisodeList") private var horizontalEpisodeList = false
+    
     @StateObject private var accentColorManager = AccentColorManager.shared
     
     var body: some View {
@@ -29,6 +31,24 @@ struct AlternativeUIView: View {
                     Spacer()
                     
                     Toggle("", isOn: $useSeasonMenu)
+                        .tint(Color.accentColor)
+                }
+                
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Horizontal Episode list ")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        
+                        Text("Use dropdown menu instead of horizontal scroll for seasons")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
+                    }
+                    
+                    Spacer()
+                    
+                    Toggle("", isOn: $horizontalEpisodeList)
                         .tint(Color.accentColor)
                 }
             } header: {

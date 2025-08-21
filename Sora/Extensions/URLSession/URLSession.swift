@@ -74,8 +74,7 @@ extension URLSession {
         return URLSession(configuration: configuration)
     }()
     
-    static func fetchData(allowRedirects:Bool) -> URLSession
-    {
+    static func fetchData(allowRedirects:Bool) -> URLSession {
         let delegate = FetchDelegate(allowRedirects:allowRedirects)
         let configuration = URLSessionConfiguration.default
         configuration.httpAdditionalHeaders = ["User-Agent": randomUserAgent]

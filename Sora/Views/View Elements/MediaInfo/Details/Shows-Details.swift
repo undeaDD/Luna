@@ -21,6 +21,7 @@ struct TVShowSeasonsSection: View {
     @State private var romajiTitle: String?
     
     @StateObject private var serviceManager = ServiceManager.shared
+    @AppStorage("horizontalEpisodeList") private var horizontalEpisodeList: Bool = false
     
     private var isGroupedBySeasons: Bool {
         return tvShow?.seasons.filter { $0.seasonNumber > 0 }.count ?? 0 > 1
@@ -244,12 +245,23 @@ struct TVShowSeasonsSection: View {
     private var episodeListSection: some View {
         Group {
             if let seasonDetail = seasonDetail {
-                LazyVStack(spacing: 15) {
-                    ForEach(Array(seasonDetail.episodes.enumerated()), id: \.element.id) { index, episode in
-                        createEpisodeCell(episode: episode, index: index)
+                if horizontalEpisodeList {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHStack(alignment: .top, spacing: 15) {
+                            ForEach(Array(seasonDetail.episodes.enumerated()), id: \.element.id) { index, episode in
+                                createEpisodeCell(episode: episode, index: index)
+                            }
+                        }
                     }
+                    .padding(.horizontal)
+                } else {
+                    LazyVStack(spacing: 15) {
+                        ForEach(Array(seasonDetail.episodes.enumerated()), id: \.element.id) { index, episode in
+                            createEpisodeCell(episode: episode, index: index)
+                        }
+                    }
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
             } else if isLoadingSeason {
                 VStack(spacing: 12) {
                     ProgressView()
