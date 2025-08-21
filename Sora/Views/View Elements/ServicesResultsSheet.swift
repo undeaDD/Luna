@@ -887,6 +887,7 @@ struct EnhancedMediaResultRow: View {
                         
                         Image(systemName: "play.circle.fill")
                             .font(.title2)
+                            .tint(Color.accentColor)
                     }
                 }
                 
@@ -961,7 +962,9 @@ struct MediaResultRow: View {
                         
                         Spacer()
                         
-                        Image(systemName: "play.circle")
+                        Image(systemName: "play.circle.fill")
+                            .font(.title2)
+                            .tint(Color.accentColor)
                     }
                 }
                 

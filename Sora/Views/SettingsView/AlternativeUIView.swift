@@ -17,14 +17,19 @@ struct AlternativeUIView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Alternative Season Menu")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        
                         Text("Use dropdown menu instead of horizontal scroll for seasons")
                             .font(.caption)
                             .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
                     }
                     
                     Spacer()
                     
                     Toggle("", isOn: $useSeasonMenu)
+                        .tint(Color.accentColor)
                 }
             } header: {
                 Text("DISPLAY OPTIONS")
@@ -33,14 +38,25 @@ struct AlternativeUIView: View {
             }
             
             Section {
-                    ColorPicker("Accent Color", selection: $accentColorManager.currentAccentColor)
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Accent Color")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        
+                        Text("This affects buttons, links, and other interactive elements.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
+                    }
+                    
+                    ColorPicker("", selection: $accentColorManager.currentAccentColor)
                         .onChange(of: accentColorManager.currentAccentColor) { newColor in
                             accentColorManager.saveAccentColor(newColor)
                         }
+                }
             } header: {
                 Text("APPEARANCE")
-            } footer: {
-                Text("Choose an accent color for the app. This affects buttons, links, and other interactive elements.")
             }
         }
         .navigationTitle("Alternative UI")

@@ -8,24 +8,24 @@
 import Foundation
 
 enum SimilarityAlgorithm: String, CaseIterable {
-    case levenshtein = "levenshtein"
     case jaroWinkler = "jaro_winkler"
+    case levenshtein = "levenshtein"
     
     var displayName: String {
         switch self {
-        case .levenshtein:
-            return "Levenshtein Distance"
         case .jaroWinkler:
             return "Jaro-Winkler Similarity"
+        case .levenshtein:
+            return "Levenshtein Distance"
         }
     }
     
     var description: String {
         switch self {
-        case .levenshtein:
-            return "When you need precise differences across all text available."
         case .jaroWinkler:
             return "When matching names, titles, or short strings where prefix similarity are important."
+        case .levenshtein:
+            return "When you need precise differences across all text available."
         }
     }
 }

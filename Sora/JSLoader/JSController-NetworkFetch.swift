@@ -398,7 +398,7 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         webView = WKWebView(frame: CGRect(x: 0, y: 0, width: 1920, height: 1080), configuration: config)
         webView?.navigationDelegate = self
         
-        webView?.customUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        webView?.customUserAgent = URLSession.randomUserAgent
     }
     
     private func loadURL(url: URL, headers: JSValue?) {
@@ -408,7 +408,7 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         
         var request = URLRequest(url: url)
         
-        request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36", forHTTPHeaderField: "User-Agent")
+        request.setValue(URLSession.randomUserAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8", forHTTPHeaderField: "Accept")
         request.setValue("en-US,en;q=0.5", forHTTPHeaderField: "Accept-Language")
         request.setValue("gzip, deflate, br", forHTTPHeaderField: "Accept-Encoding")

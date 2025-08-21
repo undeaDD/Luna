@@ -31,6 +31,7 @@ struct AlgorithmSelectionView: View {
                             
                             if algorithmManager.selectedAlgorithm == algorithm {
                                 Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(Color.accentColor)
                             } else {
                                 Image(systemName: "circle")
                                     .foregroundColor(.secondary)

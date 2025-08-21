@@ -126,7 +126,7 @@ struct MediaDetailView: View {
                 }) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                         .frame(width: 32, height: 32)
                         .background(Color.black.opacity(0.3))
                         .clipShape(Circle())
@@ -139,7 +139,7 @@ struct MediaDetailView: View {
                 }) {
                     Image(systemName: "ellipsis")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                         .frame(width: 32, height: 32)
                         .background(Color.black.opacity(0.3))
                         .clipShape(Circle())
@@ -227,7 +227,7 @@ struct MediaDetailView: View {
             Text(searchResult.displayTitle)
                 .font(.largeTitle)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
                 .lineLimit(3)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity, alignment: .center)

@@ -175,6 +175,13 @@ struct LogEntryRow: View {
                 }
             }
         }
+        .contextMenu {
+            Button(action: {
+                UIPasteboard.general.string = log.message
+            }) {
+                Label("Copy Log Message", systemImage: "doc.on.doc")
+            }
+        }
     }
 }
 
