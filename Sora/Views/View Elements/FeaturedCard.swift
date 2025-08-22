@@ -59,7 +59,7 @@ struct FeaturedCard: View {
                                 Image(systemName: "star.fill")
                                     .font(.caption2)
                                     .foregroundColor(.yellow)
-                                Text(String(format: "%.1f", result.voteAverage))
+                                Text(String(format: "%.1f", result.voteAverage ?? 0.0))
                                     .font(.caption2)
                                     .fontWeight(.medium)
                                     .foregroundColor(.white)

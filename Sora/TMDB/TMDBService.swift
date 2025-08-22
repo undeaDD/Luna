@@ -36,7 +36,7 @@ class TMDBService: ObservableObject {
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
             let response = try JSONDecoder().decode(TMDBSearchResponse.self, from: data)
-            return response.results
+            return response.results.filter { $0.mediaType == "movie" || $0.mediaType == "tv" }
         } catch {
             throw TMDBError.networkError(error)
         }

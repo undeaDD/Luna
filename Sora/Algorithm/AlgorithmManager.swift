@@ -8,11 +8,14 @@
 import Foundation
 
 enum SimilarityAlgorithm: String, CaseIterable {
+    case hybrid = "hybrid"
     case jaroWinkler = "jaro_winkler"
     case levenshtein = "levenshtein"
     
     var displayName: String {
         switch self {
+        case .hybrid:
+            return "Hybrid"
         case .jaroWinkler:
             return "Jaro-Winkler Similarity"
         case .levenshtein:
@@ -22,6 +25,8 @@ enum SimilarityAlgorithm: String, CaseIterable {
     
     var description: String {
         switch self {
+        case .hybrid:
+            return "Combines both algorithms for optimal matching across different string types and lengths. (Jaro-Winkler + Levenshtein)"
         case .jaroWinkler:
             return "When matching names, titles, or short strings where prefix similarity are important."
         case .levenshtein:
@@ -40,8 +45,8 @@ class AlgorithmManager: ObservableObject {
     }
     
     private init() {
-        let savedAlgorithm = UserDefaults.standard.string(forKey: "selectedSimilarityAlgorithm") ?? SimilarityAlgorithm.jaroWinkler.rawValue
-        self.selectedAlgorithm = SimilarityAlgorithm(rawValue: savedAlgorithm) ?? .jaroWinkler
+        let savedAlgorithm = UserDefaults.standard.string(forKey: "selectedSimilarityAlgorithm") ?? SimilarityAlgorithm.hybrid.rawValue
+        self.selectedAlgorithm = SimilarityAlgorithm(rawValue: savedAlgorithm) ?? .hybrid
     }
     
     func calculateSimilarity(original: String, result: String) -> Double {
@@ -62,6 +67,8 @@ class AlgorithmManager: ObservableObject {
                 return LevenshteinDistance.calculateSimilarity(original: cleanOriginal, result: cleanResult)
             case .jaroWinkler:
                 return JaroWinklerSimilarity.calculateSimilarity(original: cleanOriginal, result: cleanResult)
+            case .hybrid:
+                return HybridSimilarity.calculateSimilarity(original: cleanOriginal, result: cleanResult)
             }
         }
     }

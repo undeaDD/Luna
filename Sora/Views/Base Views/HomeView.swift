@@ -162,13 +162,13 @@ struct HomeView: View {
                         .background(Color.white.opacity(0.2))
                         .clipShape(Capsule())
                     
-                    if hero.voteAverage > 0 {
+                    if (hero.voteAverage ?? 0.0) > 0 {
                         HStack(spacing: 2) {
                             Image(systemName: "star.fill")
                                 .font(.caption)
                                 .foregroundColor(.yellow)
                             
-                            Text(String(format: "%.1f", hero.voteAverage))
+                            Text(String(format: "%.1f", hero.voteAverage ?? 0.0))
                                 .font(.caption)
                                 .fontWeight(.medium)
                                 .foregroundColor(.white)
@@ -438,7 +438,7 @@ struct MediaCard: View {
                                 .font(.caption2)
                                 .foregroundColor(.yellow)
                             
-                            Text(String(format: "%.1f", result.voteAverage))
+                            Text(String(format: "%.1f", result.voteAverage ?? 0.0))
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
                         }
