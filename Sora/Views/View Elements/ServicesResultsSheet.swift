@@ -160,7 +160,7 @@ struct ModulesSearchResultsSheet: View {
                         .frame(maxWidth: .infinity)
                     }
                 } else {
-                    ForEach(serviceManager.activeServices, id: \.id) { service in
+                    ForEach(Array(serviceManager.activeServices.enumerated()), id: \.element.id) { index, service in
                         let moduleResult = moduleResults.first { $0.service.id == service.id }
                         let hasSearched = searchedServices.contains(service.id)
                         let isCurrentlySearching = isSearching && !hasSearched
@@ -342,7 +342,7 @@ struct ModulesSearchResultsSheet: View {
             startProgressiveSearch()
         }
         .confirmationDialog("Select Server", isPresented: $showingStreamMenu, titleVisibility: .visible) {
-            ForEach(streamOptions, id: \.id) { option in
+            ForEach(Array(streamOptions.enumerated()), id: \.element.id) { index, option in
                 Button(option.name) {
                     if let service = pendingService {
                         playStreamURL(option.url, service: service, subtitles: pendingSubtitles)
@@ -370,12 +370,15 @@ struct ModulesSearchResultsSheet: View {
                 query: searchQuery,
                 onResult: { service, results in
                     Task { @MainActor in
-                        if let existingIndex = moduleResults.firstIndex(where: { $0.service.id == service.id }) {
-                            moduleResults[existingIndex] = (service: service, results: results)
+                        var newModuleResults = moduleResults
+                        
+                        if let existingIndex = newModuleResults.firstIndex(where: { $0.service.id == service.id }) {
+                            newModuleResults[existingIndex] = (service: service, results: results)
                         } else {
-                            moduleResults.append((service: service, results: results))
+                            newModuleResults.append((service: service, results: results))
                         }
                         
+                        moduleResults = newModuleResults
                         searchedServices.insert(service.id)
                     }
                 },
@@ -636,7 +639,10 @@ struct ModulesSearchResultsSheet: View {
                             self.pendingSubtitles = subtitles
                             self.pendingService = service
                             self.isFetchingStreams = false
-                            self.showingStreamMenu = true
+                            
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                self.showingStreamMenu = true
+                            }
                             return
                         }
                         
