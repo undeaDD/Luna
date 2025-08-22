@@ -187,7 +187,6 @@ extension JSContext {
                 }
             }
             
-            Logger.shared.log("Redirect value is \(redirect.boolValue)", type: "Debug")
             let session = URLSession.fetchData(allowRedirects: redirect.boolValue)
             
             let task = session.downloadTask(with: request) { tempFileURL, response, error in

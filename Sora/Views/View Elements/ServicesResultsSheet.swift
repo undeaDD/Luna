@@ -14,6 +14,7 @@ struct StreamOption {
     let id = UUID()
     let name: String
     let url: String
+    let headers: [String: String]?
 }
 
 struct ModulesSearchResultsSheet: View {
@@ -345,7 +346,7 @@ struct ModulesSearchResultsSheet: View {
             ForEach(Array(streamOptions.enumerated()), id: \.element.id) { index, option in
                 Button(option.name) {
                     if let service = pendingService {
-                        playStreamURL(option.url, service: service, subtitles: pendingSubtitles)
+                        playStreamURL(option.url, service: service, subtitles: pendingSubtitles, headers: option.headers)
                     }
                 }
             }
@@ -596,7 +597,38 @@ struct ModulesSearchResultsSheet: View {
                         
                         var availableStreams: [StreamOption] = []
                         
-                        if let streams = streams, streams.count > 1 {
+                        if let sources = sources, !sources.isEmpty {
+                            Logger.shared.log("Processing \(sources.count) sources with potential headers", type: "Stream")
+                            
+                            var hasNewFormat = false
+                            for source in sources {
+                                if source["title"] is String && source["streamUrl"] is String {
+                                    hasNewFormat = true
+                                    break
+                                }
+                            }
+                            
+                            if hasNewFormat {
+                                Logger.shared.log("Detected new stream format with titles and headers", type: "Stream")
+                                for source in sources {
+                                    if let title = source["title"] as? String,
+                                       let streamUrl = source["streamUrl"] as? String {
+                                        let headers = source["headers"] as? [String: String]
+                                        availableStreams.append(StreamOption(name: title, url: streamUrl, headers: headers))
+                                        Logger.shared.log("Added stream: \(title) with headers: \(headers?.keys.joined(separator: ", ") ?? "none")", type: "Stream")
+                                    }
+                                }
+                            } else {
+                                Logger.shared.log("Using legacy source format", type: "Stream")
+                                for (index, source) in sources.enumerated() {
+                                    if let urlString = source["url"] as? String {
+                                        let headers = source["headers"] as? [String: String]
+                                        availableStreams.append(StreamOption(name: "Stream \(index + 1)", url: urlString, headers: headers))
+                                    }
+                                }
+                            }
+                        }
+                        else if let streams = streams, streams.count > 1 {
                             var streamNames: [String] = []
                             var streamURLs: [String] = []
                             
@@ -611,23 +643,23 @@ struct ModulesSearchResultsSheet: View {
                             if !streamNames.isEmpty && !streamURLs.isEmpty {
                                 let maxPairs = min(streamNames.count, streamURLs.count)
                                 for i in 0..<maxPairs {
-                                    availableStreams.append(StreamOption(name: streamNames[i], url: streamURLs[i]))
+                                    availableStreams.append(StreamOption(name: streamNames[i], url: streamURLs[i], headers: nil))
                                 }
                                 
                                 if streamURLs.count > streamNames.count {
                                     for i in streamNames.count..<streamURLs.count {
-                                        availableStreams.append(StreamOption(name: "Stream \(i + 1)", url: streamURLs[i]))
+                                        availableStreams.append(StreamOption(name: "Stream \(i + 1)", url: streamURLs[i], headers: nil))
                                     }
                                 }
                             } else if streamURLs.count > 1 {
                                 for (index, url) in streamURLs.enumerated() {
-                                    availableStreams.append(StreamOption(name: "Stream \(index + 1)", url: url))
+                                    availableStreams.append(StreamOption(name: "Stream \(index + 1)", url: url, headers: nil))
                                 }
                             } else if streams.count > 1 {
                                 let urls = streams.filter { $0.hasPrefix("http") }
                                 if urls.count > 1 {
                                     for (index, url) in urls.enumerated() {
-                                        availableStreams.append(StreamOption(name: "Stream \(index + 1)", url: url))
+                                        availableStreams.append(StreamOption(name: "Stream \(index + 1)", url: url, headers: nil))
                                     }
                                 }
                             }
@@ -647,8 +679,21 @@ struct ModulesSearchResultsSheet: View {
                         }
                         
                         var streamURL: URL?
+                        var streamHeaders: [String: String]? = nil
                         
-                        if let streams = streams, !streams.isEmpty {
+                        if let sources = sources, !sources.isEmpty {
+                            let firstSource = sources.first!
+                            
+                            if let streamUrl = firstSource["streamUrl"] as? String {
+                                Logger.shared.log("Found single stream URL from new format: \(streamUrl)", type: "Stream")
+                                streamURL = URL(string: streamUrl)
+                                streamHeaders = firstSource["headers"] as? [String: String]
+                            } else if let urlString = firstSource["url"] as? String {
+                                Logger.shared.log("Found single stream URL from legacy format: \(urlString)", type: "Stream")
+                                streamURL = URL(string: urlString)
+                                streamHeaders = firstSource["headers"] as? [String: String]
+                            }
+                        } else if let streams = streams, !streams.isEmpty {
                             let urlCandidates = streams.filter { $0.hasPrefix("http") }
                             if let firstURL = urlCandidates.first {
                                 Logger.shared.log("Found single stream URL: \(firstURL)", type: "Stream")
@@ -657,19 +702,12 @@ struct ModulesSearchResultsSheet: View {
                                 Logger.shared.log("First stream URL: \(streams.first!)", type: "Stream")
                                 streamURL = URL(string: streams.first!)
                             }
-                        } else if let sources = sources, !sources.isEmpty {
-                            Logger.shared.log("Found \(sources.count) source(s) with headers for \(result.title)", type: "Stream")
-                            if let firstSource = sources.first,
-                               let urlString = firstSource["url"] as? String {
-                                Logger.shared.log("First source URL: \(urlString)", type: "Stream")
-                                streamURL = URL(string: urlString)
-                            }
                         } else {
                             Logger.shared.log("No streams or sources found in result", type: "Error")
                         }
                         
                         if let url = streamURL {
-                            self.playStreamURL(url.absoluteString, service: service, subtitles: subtitles)
+                            self.playStreamURL(url.absoluteString, service: service, subtitles: subtitles, headers: streamHeaders)
                         } else {
                             Logger.shared.log("Failed to create URL from stream string", type: "Error")
                             self.isFetchingStreams = false
@@ -680,7 +718,7 @@ struct ModulesSearchResultsSheet: View {
         }
     }
     
-    private func playStreamURL(_ urlString: String, service: Services, subtitles: [String]?) {
+    private func playStreamURL(_ urlString: String, service: Services, subtitles: [String]?, headers customHeaders: [String: String]? = nil) {
         guard let url = URL(string: urlString) else {
             Logger.shared.log("Failed to create URL from stream string: \(urlString)", type: "Error")
             isFetchingStreams = false
@@ -690,11 +728,25 @@ struct ModulesSearchResultsSheet: View {
         Logger.shared.log("Attempting to play URL: \(url.absoluteString)", type: "Stream")
         let serviceURL = service.metadata.baseUrl
         
-        let headers = [
+        var headers = [
             "Origin": serviceURL,
             "Referer": serviceURL,
             "User-Agent": URLSession.randomUserAgent
         ]
+        
+        if let customHeaders = customHeaders {
+            Logger.shared.log("Using custom headers: \(customHeaders)", type: "Stream")
+            for (key, value) in customHeaders {
+                headers[key] = value
+            }
+            
+            if headers["User-Agent"] == nil {
+                headers["User-Agent"] = URLSession.randomUserAgent
+            }
+        }
+        
+        Logger.shared.log("Final headers: \(headers)", type: "Stream")
+        
         let asset = AVURLAsset(url: url, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
         
         let playerItem = AVPlayerItem(asset: asset)
