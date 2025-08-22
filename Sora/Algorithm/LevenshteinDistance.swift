@@ -9,11 +9,23 @@ import Foundation
 
 class LevenshteinDistance {
     public static func calculateSimilarity(original: String, result: String) -> Double {
+        guard !original.isEmpty && !result.isEmpty else {
+            return original.isEmpty && result.isEmpty ? 1.0 : 0.0
+        }
+        
         let normalizedOriginal = original.lowercased().replacingOccurrences(of: "[^a-z0-9\\s]", with: "", options: .regularExpression)
         let normalizedResult = result.lowercased().replacingOccurrences(of: "[^a-z0-9\\s]", with: "", options: .regularExpression)
         
+        guard !normalizedOriginal.isEmpty && !normalizedResult.isEmpty else {
+            return normalizedOriginal.isEmpty && normalizedResult.isEmpty ? 1.0 : 0.0
+        }
+        
         let distance = levenshteinDistance(normalizedOriginal, normalizedResult)
-        return 1.0 - Double(distance) / Double(max(normalizedOriginal.count, normalizedResult.count))
+        let maxLength = max(normalizedOriginal.count, normalizedResult.count)
+        
+        guard maxLength > 0 else { return 1.0 }
+        
+        return 1.0 - Double(distance) / Double(maxLength)
     }
     
     public static func levenshteinDistance(_ s1: String, _ s2: String) -> Int {

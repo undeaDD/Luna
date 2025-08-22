@@ -45,11 +45,24 @@ class AlgorithmManager: ObservableObject {
     }
     
     func calculateSimilarity(original: String, result: String) -> Double {
-        switch selectedAlgorithm {
-        case .levenshtein:
-            return LevenshteinDistance.calculateSimilarity(original: original, result: result)
-        case .jaroWinkler:
-            return JaroWinklerSimilarity.calculateSimilarity(original: original, result: result)
+        guard !original.isEmpty && !result.isEmpty else {
+            return original.isEmpty && result.isEmpty ? 1.0 : 0.0
+        }
+        
+        let cleanOriginal = original.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanResult = result.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !cleanOriginal.isEmpty && !cleanResult.isEmpty else {
+            return cleanOriginal.isEmpty && cleanResult.isEmpty ? 1.0 : 0.0
+        }
+        
+        do {
+            switch selectedAlgorithm {
+            case .levenshtein:
+                return LevenshteinDistance.calculateSimilarity(original: cleanOriginal, result: cleanResult)
+            case .jaroWinkler:
+                return JaroWinklerSimilarity.calculateSimilarity(original: cleanOriginal, result: cleanResult)
+            }
         }
     }
 }

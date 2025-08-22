@@ -476,7 +476,18 @@ struct ModulesSearchResultsSheet: View {
     }
     
     private func calculateSimilarity(original: String, result: String) -> Double {
-        return algorithmManager.calculateSimilarity(original: original, result: result)
+        guard !original.isEmpty && !result.isEmpty else {
+            return 0.0
+        }
+        
+        let cleanOriginal = original.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanResult = result.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !cleanOriginal.isEmpty && !cleanResult.isEmpty else {
+            return 0.0
+        }
+        
+        return algorithmManager.calculateSimilarity(original: cleanOriginal, result: cleanResult)
     }
     
     private func playContent(_ result: SearchItem) {
