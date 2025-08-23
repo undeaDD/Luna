@@ -66,8 +66,10 @@ struct FeaturedCard: View {
                             }
                             .padding(.horizontal, 6)
                             .padding(.vertical, 3)
-                            .background(Color.black.opacity(0.6))
-                            .clipShape(Capsule())
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(.ultraThinMaterial.opacity(0.9))
+                            )
                         }
                         Spacer()
                     }
@@ -81,7 +83,7 @@ struct FeaturedCard: View {
                         .font(isLarge ? .subheadline : .caption)
                         .fontWeight(.medium)
                         .lineLimit(1)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.white)
                     
                     HStack(spacing: 4) {
                         Text(result.isMovie ? "Movie" : "TV Show")

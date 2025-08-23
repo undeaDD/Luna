@@ -13,9 +13,11 @@ struct HomeView: View {
     @State private var trendingContent: [TMDBSearchResult] = []
     @State private var popularMovies: [TMDBMovie] = []
     @State private var popularTVShows: [TMDBTVShow] = []
+    @State private var popularAnime: [TMDBTVShow] = []
     @State private var nowPlayingMovies: [TMDBMovie] = []
     @State private var topRatedMovies: [TMDBMovie] = []
     @State private var topRatedTVShows: [TMDBTVShow] = []
+    @State private var topRatedAnime: [TMDBTVShow] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var heroContent: TMDBSearchResult?
@@ -159,8 +161,10 @@ struct HomeView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 4)
-                        .background(Color.white.opacity(0.2))
-                        .clipShape(Capsule())
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.ultraThinMaterial.opacity(0.9))
+                        )
                     
                     if (hero.voteAverage ?? 0.0) > 0 {
                         HStack(spacing: 2) {
@@ -186,7 +190,6 @@ struct HomeView: View {
                     .foregroundColor(.white)
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
-                    .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
                 
                 if let overview = hero.overview, !overview.isEmpty {
                     Text(String(overview.prefix(100)) + (overview.count > 100 ? "..." : ""))
@@ -201,16 +204,16 @@ struct HomeView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "play.fill")
                                 .font(.subheadline)
+                                .foregroundColor(.white)
                             Text("Watch Now")
                                 .fontWeight(.semibold)
+                                .foregroundColor(.white)
                         }
                         .frame(width: 140, height: 42)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(.ultraThinMaterial.opacity(0.9))
                         )
-                        .foregroundColor(.primary)
-                        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                     }
                     .buttonStyle(PlainButtonStyle())
                     
@@ -277,6 +280,13 @@ struct HomeView: View {
                 )
             }
             
+            if !popularAnime.isEmpty {
+                MediaSection(
+                    title: "Popular Anime",
+                    items: popularAnime.prefix(15).map { $0.asSearchResult }
+                )
+            }
+            
             if !topRatedMovies.isEmpty {
                 MediaSection(
                     title: "Top Rated Movies",
@@ -288,6 +298,13 @@ struct HomeView: View {
                 MediaSection(
                     title: "Top Rated TV Shows",
                     items: topRatedTVShows.prefix(15).map { $0.asSearchResult }
+                )
+            }
+            
+            if !topRatedAnime.isEmpty {
+                MediaSection(
+                    title: "Top Rated Anime",
+                    items: topRatedAnime.prefix(15).map { $0.asSearchResult }
                 )
             }
             
@@ -334,20 +351,24 @@ struct HomeView: View {
                 async let trending = tmdbService.getTrending()
                 async let popularM = tmdbService.getPopularMovies()
                 async let popularTV = tmdbService.getPopularTVShows()
+                async let popularA = tmdbService.getPopularAnime()
                 async let nowPlaying = tmdbService.getNowPlayingMovies()
                 async let topRatedM = tmdbService.getTopRatedMovies()
                 async let topRatedTV = tmdbService.getTopRatedTVShows()
+                async let topRatedA = tmdbService.getTopRatedAnime()
                 
-                let (trendingResult, popularMoviesResult, popularTVResult, nowPlayingResult, topRatedMoviesResult, topRatedTVResult) = try await (trending, popularM, popularTV, nowPlaying, topRatedM, topRatedTV)
+                let (trendingResult, popularMoviesResult, popularTVResult, popularAnimeResult, nowPlayingResult, topRatedMoviesResult, topRatedTVResult, topRatedAnimeResult) = try await (trending, popularM, popularTV, popularA, nowPlaying, topRatedM, topRatedTV, topRatedA)
                 
                 await MainActor.run {
                     withAnimation(.easeInOut(duration: 0.5)) {
                         self.trendingContent = trendingResult
                         self.popularMovies = popularMoviesResult
                         self.popularTVShows = popularTVResult
+                        self.popularAnime = popularAnimeResult
                         self.nowPlayingMovies = nowPlayingResult
                         self.topRatedMovies = topRatedMoviesResult
                         self.topRatedTVShows = topRatedTVResult
+                        self.topRatedAnime = topRatedAnimeResult
                         
                         self.heroContent = trendingResult.first { $0.backdropPath != nil } ?? trendingResult.first
                         self.isLoading = false
@@ -382,7 +403,7 @@ struct MediaSection: View {
                 Text(title)
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.white)
                 
                 Spacer()
             }
@@ -430,9 +451,9 @@ struct MediaCard: View {
                         .font(.caption)
                         .fontWeight(.medium)
                         .lineLimit(1)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.white)
                     
-                    HStack(spacing: 3) {
+                    HStack(alignment: .center,spacing: 3) {
                         HStack(spacing: 2) {
                             Image(systemName: "star.fill")
                                 .font(.caption2)
@@ -440,18 +461,20 @@ struct MediaCard: View {
                             
                             Text(String(format: "%.1f", result.voteAverage ?? 0.0))
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.white)
                         }
                         
                         Spacer()
                         
                         Text(result.isMovie ? "Movie" : "TV")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 2)
-                            .background(Color.secondary.opacity(0.15))
-                            .clipShape(Capsule())
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(.ultraThinMaterial.opacity(0.9))
+                            )
                     }
                 }
                 .frame(width: 120, alignment: .leading)

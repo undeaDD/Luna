@@ -286,6 +286,40 @@ class TMDBService: ObservableObject {
         }
     }
     
+    // MARK: - Get Popular Anime (Animation TV Shows from Japan)
+    func getPopularAnime(page: Int = 1) async throws -> [TMDBTVShow] {
+        let urlString = "\(baseURL)/discover/tv?api_key=\(apiKey)&language=\(currentLanguage)&page=\(page)&with_genres=16&with_origin_country=JP&sort_by=popularity.desc"
+        
+        guard let url = URL(string: urlString) else {
+            throw TMDBError.invalidURL
+        }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let response = try JSONDecoder().decode(TMDBTVSearchResponse.self, from: data)
+            return response.results
+        } catch {
+            throw TMDBError.networkError(error)
+        }
+    }
+    
+    // MARK: - Get Top Rated Anime (Animation TV Shows from Japan)
+    func getTopRatedAnime(page: Int = 1) async throws -> [TMDBTVShow] {
+        let urlString = "\(baseURL)/discover/tv?api_key=\(apiKey)&language=\(currentLanguage)&page=\(page)&with_genres=16&with_origin_country=JP&sort_by=vote_average.desc&vote_count.gte=100"
+        
+        guard let url = URL(string: urlString) else {
+            throw TMDBError.invalidURL
+        }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let response = try JSONDecoder().decode(TMDBTVSearchResponse.self, from: data)
+            return response.results
+        } catch {
+            throw TMDBError.networkError(error)
+        }
+    }
+    
     // MARK: - Helper function to get romaji title
     func getRomajiTitle(for mediaType: String, id: Int) async -> String? {
         do {

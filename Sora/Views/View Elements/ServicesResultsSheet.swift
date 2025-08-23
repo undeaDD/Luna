@@ -793,7 +793,7 @@ struct ModulesSearchResultsSheet: View {
                                 for source in sources {
                                     if let title = source["title"] as? String,
                                        let streamUrl = source["streamUrl"] as? String {
-                                        let headers = source["headers"] as? [String: String]
+                                        let headers = safeConvertToHeaders(source["headers"])
                                         availableStreams.append(StreamOption(name: title, url: streamUrl, headers: headers))
                                         Logger.shared.log("Added stream: \(title) with headers: \(headers?.keys.joined(separator: ", ") ?? "none")", type: "Stream")
                                     }
@@ -802,7 +802,7 @@ struct ModulesSearchResultsSheet: View {
                                 Logger.shared.log("Using legacy source format", type: "Stream")
                                 for (index, source) in sources.enumerated() {
                                     if let urlString = source["url"] as? String {
-                                        let headers = source["headers"] as? [String: String]
+                                        let headers = safeConvertToHeaders(source["headers"])
                                         availableStreams.append(StreamOption(name: "Stream \(index + 1)", url: urlString, headers: headers))
                                     }
                                 }
@@ -867,11 +867,11 @@ struct ModulesSearchResultsSheet: View {
                             if let streamUrl = firstSource["streamUrl"] as? String {
                                 Logger.shared.log("Found single stream URL from new format: \(streamUrl)", type: "Stream")
                                 streamURL = URL(string: streamUrl)
-                                streamHeaders = firstSource["headers"] as? [String: String]
+                                streamHeaders = safeConvertToHeaders(firstSource["headers"])
                             } else if let urlString = firstSource["url"] as? String {
                                 Logger.shared.log("Found single stream URL from legacy format: \(urlString)", type: "Stream")
                                 streamURL = URL(string: urlString)
-                                streamHeaders = firstSource["headers"] as? [String: String]
+                                streamHeaders = safeConvertToHeaders(firstSource["headers"])
                             }
                         } else if let streams = streams, !streams.isEmpty {
                             let urlCandidates = streams.filter { $0.hasPrefix("http") }
@@ -962,6 +962,48 @@ struct ModulesSearchResultsSheet: View {
                 newPlayer.play()
             }
         }
+    }
+    
+    private func safeConvertToHeaders(_ value: Any?) -> [String: String]? {
+        guard let value = value else { return nil }
+        
+        if value is NSNull { return nil }
+        
+        if let headers = value as? [String: String] {
+            return headers
+        }
+        
+        if let headersAny = value as? [String: Any] {
+            var safeHeaders: [String: String] = [:]
+            for (key, val) in headersAny {
+                if let stringValue = val as? String {
+                    safeHeaders[key] = stringValue
+                } else if let numberValue = val as? NSNumber {
+                    safeHeaders[key] = numberValue.stringValue
+                } else if !(val is NSNull) {
+                    safeHeaders[key] = String(describing: val)
+                }
+            }
+            return safeHeaders.isEmpty ? nil : safeHeaders
+        }
+        
+        if let headersAny = value as? [AnyHashable: Any] {
+            var safeHeaders: [String: String] = [:]
+            for (key, val) in headersAny {
+                let stringKey = String(describing: key)
+                if let stringValue = val as? String {
+                    safeHeaders[stringKey] = stringValue
+                } else if let numberValue = val as? NSNumber {
+                    safeHeaders[stringKey] = numberValue.stringValue
+                } else if !(val is NSNull) {
+                    safeHeaders[stringKey] = String(describing: val)
+                }
+            }
+            return safeHeaders.isEmpty ? nil : safeHeaders
+        }
+        
+        Logger.shared.log("Unable to safely convert headers of type: \(type(of: value))", type: "Warning")
+        return nil
     }
 }
 
