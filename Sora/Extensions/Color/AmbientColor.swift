@@ -31,13 +31,7 @@ extension Color {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
         
-        guard let context = CGContext(data: data,
-                                     width: width,
-                                     height: height,
-                                     bitsPerComponent: 8,
-                                     bytesPerRow: bytesPerRow,
-                                     space: colorSpace,
-                                     bitmapInfo: bitmapInfo) else {
+        guard let context = CGContext(data: data, width: width, height: height, bitsPerComponent: 8, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: bitmapInfo) else {
             return .black
         }
         
