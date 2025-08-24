@@ -128,22 +128,13 @@ struct MediaDetailView: View {
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.primary)
                         .frame(width: 32, height: 32)
-                        .background(Color.black.opacity(0.3))
-                        .clipShape(Circle())
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(.ultraThinMaterial.opacity(0.9))
+                        )
                 }
                 
                 Spacer()
-                
-                Button(action: {
-                    // TODO: Add menu functionality
-                }) {
-                    Image(systemName: "ellipsis")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.primary)
-                        .frame(width: 32, height: 32)
-                        .background(Color.black.opacity(0.3))
-                        .clipShape(Circle())
-                }
             }
             .padding(.horizontal)
             

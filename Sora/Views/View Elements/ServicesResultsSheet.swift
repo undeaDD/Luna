@@ -43,6 +43,13 @@ struct ModulesSearchResultsSheet: View {
     @State private var showingAlgorithmPicker = false
     @State private var showingFilterEditor = false
     @State private var highQualityThreshold: Double = 0.9
+    @State private var showingSeasonPicker = false
+    @State private var showingEpisodePicker = false
+    @State private var availableSeasons: [[EpisodeLink]] = []
+    @State private var selectedSeasonIndex = 0
+    @State private var pendingEpisodes: [EpisodeLink] = []
+    @State private var pendingResult: SearchItem?
+    @State private var pendingJSController: JSController?
     
     @StateObject private var serviceManager = ServiceManager.shared
     @StateObject private var algorithmManager = AlgorithmManager.shared
@@ -429,6 +436,47 @@ struct ModulesSearchResultsSheet: View {
         Text("Choose a server to stream from")
     }
     
+    @ViewBuilder
+    private var seasonPickerDialogContent: some View {
+        ForEach(Array(availableSeasons.enumerated()), id: \.offset) { index, season in
+            Button("Season \(index + 1) (\(season.count) episodes)") {
+                selectedSeasonIndex = index
+                pendingEpisodes = season
+                showingSeasonPicker = false
+                showingEpisodePicker = true
+            }
+        }
+        Button("Cancel", role: .cancel) {
+            resetPickerState()
+        }
+    }
+    
+    @ViewBuilder
+    private var seasonPickerDialogMessage: some View {
+        Text("Season \(selectedEpisode?.seasonNumber ?? 1) not found. Please choose the correct season:")
+    }
+    
+    @ViewBuilder
+    private var episodePickerDialogContent: some View {
+        ForEach(pendingEpisodes, id: \.href) { episode in
+            Button("Episode \(episode.number)") {
+                proceedWithSelectedEpisode(episode)
+            }
+        }
+        Button("Cancel", role: .cancel) {
+            resetPickerState()
+        }
+    }
+    
+    @ViewBuilder
+    private var episodePickerDialogMessage: some View {
+        if let episode = selectedEpisode {
+            Text("Choose the correct episode for S\(episode.seasonNumber)E\(episode.episodeNumber):")
+        } else {
+            Text("Choose an episode:")
+        }
+    }
+    
     private func filterResults(for results: [SearchItem]) -> (highQuality: [SearchItem], lowQuality: [SearchItem]) {
         let sortedResults = results.map { result in
             let primarySimilarity = calculateSimilarity(original: mediaTitle, result: result.title)
@@ -522,6 +570,16 @@ struct ModulesSearchResultsSheet: View {
             serverSelectionDialogContent
         } message: {
             serverSelectionDialogMessage
+        }
+        .confirmationDialog("Select Season", isPresented: $showingSeasonPicker, titleVisibility: .visible) {
+            seasonPickerDialogContent
+        } message: {
+            seasonPickerDialogMessage
+        }
+        .confirmationDialog("Select Episode", isPresented: $showingEpisodePicker, titleVisibility: .visible) {
+            episodePickerDialogContent
+        } message: {
+            episodePickerDialogMessage
         }
     }
     
@@ -659,6 +717,45 @@ struct ModulesSearchResultsSheet: View {
         return algorithmManager.calculateSimilarity(original: cleanOriginal, result: cleanResult)
     }
     
+    private func resetPickerState() {
+        availableSeasons = []
+        pendingEpisodes = []
+        pendingResult = nil
+        pendingJSController = nil
+        selectedSeasonIndex = 0
+        isFetchingStreams = false
+    }
+    
+    private func proceedWithSelectedEpisode(_ episode: EpisodeLink) {
+        showingEpisodePicker = false
+        
+        guard let jsController = pendingJSController,
+              let service = pendingService else {
+            Logger.shared.log("Missing controller or service for episode selection", type: "Error")
+            resetPickerState()
+            return
+        }
+        
+        isFetchingStreams = true
+        streamFetchProgress = "Fetching selected episode stream..."
+        
+        fetchStreamForEpisode(episode.href, jsController: jsController, service: service)
+    }
+    
+    private func fetchStreamForEpisode(_ episodeHref: String, jsController: JSController, service: Services) {
+        jsController.fetchStreamUrlJS(episodeUrl: episodeHref, module: service) { streamResult in
+            DispatchQueue.main.async {
+                let (streams, subtitles, sources) = streamResult
+                
+                Logger.shared.log("Stream fetch result - Streams: \(streams?.count ?? 0), Sources: \(sources?.count ?? 0)", type: "Stream")
+                self.streamFetchProgress = "Processing stream data..."
+                
+                self.processStreamResult(streams: streams, subtitles: subtitles, sources: sources, service: service)
+                self.resetPickerState()
+            }
+        }
+    }
+    
     private func playContent(_ result: SearchItem) {
         Logger.shared.log("Starting playback for: \(result.title)", type: "Stream")
         
@@ -750,151 +847,219 @@ struct ModulesSearchResultsSheet: View {
                     let targetSeasonIndex = selectedEpisode.seasonNumber - 1
                     let targetEpisodeNumber = selectedEpisode.episodeNumber
                     
-                    guard targetSeasonIndex >= 0 && targetSeasonIndex < seasons.count else {
-                        Logger.shared.log("Season \(selectedEpisode.seasonNumber) not found. Available seasons: \(seasons.count)", type: "Error")
-                        self.isFetchingStreams = false
-                        return
+                    if targetSeasonIndex >= 0 && targetSeasonIndex < seasons.count {
+                        let season = seasons[targetSeasonIndex]
+                        if let targetEpisode = season.first(where: { $0.number == targetEpisodeNumber }) {
+                            targetHref = targetEpisode.href
+                            Logger.shared.log("TV Show - S\(selectedEpisode.seasonNumber)E\(selectedEpisode.episodeNumber) - Using href: \(targetHref)", type: "Stream")
+                            self.streamFetchProgress = "Found episode, fetching stream..."
+                        } else {
+                            Logger.shared.log("Episode \(targetEpisodeNumber) not found in season \(selectedEpisode.seasonNumber). Available episodes: \(season.map { $0.number })", type: "Warning")
+                            
+                            var foundEpisode: EpisodeLink? = nil
+                            for otherSeason in seasons {
+                                if let episode = otherSeason.first(where: { $0.number == targetEpisodeNumber }) {
+                                    foundEpisode = episode
+                                    Logger.shared.log("Found episode \(targetEpisodeNumber) in a different season, auto-playing", type: "Stream")
+                                    break
+                                }
+                            }
+                            
+                            if let episode = foundEpisode {
+                                targetHref = episode.href
+                                Logger.shared.log("TV Show - Auto-selected E\(targetEpisodeNumber) - Using href: \(targetHref)", type: "Stream")
+                                self.streamFetchProgress = "Found episode, fetching stream..."
+                            } else {
+                                self.pendingEpisodes = season
+                                self.pendingResult = result
+                                self.pendingJSController = jsController
+                                self.isFetchingStreams = false
+                                
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    self.showingEpisodePicker = true
+                                }
+                                return
+                            }
+                        }
+                    } else {
+                        Logger.shared.log("Season \(selectedEpisode.seasonNumber) not found. Available seasons: \(seasons.count)", type: "Warning")
+                        
+                        var foundEpisode: EpisodeLink? = nil
+                        for season in seasons {
+                            if let episode = season.first(where: { $0.number == targetEpisodeNumber }) {
+                                foundEpisode = episode
+                                Logger.shared.log("Found episode \(targetEpisodeNumber) in a different season, auto-playing", type: "Stream")
+                                break
+                            }
+                        }
+                        
+                        if let episode = foundEpisode {
+                            targetHref = episode.href
+                            Logger.shared.log("TV Show - Auto-selected E\(targetEpisodeNumber) - Using href: \(targetHref)", type: "Stream")
+                            self.streamFetchProgress = "Found episode, fetching stream..."
+                        } else {
+                            if seasons.count > 1 {
+                                self.availableSeasons = seasons
+                                self.pendingResult = result
+                                self.pendingJSController = jsController
+                                self.isFetchingStreams = false
+                                
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    self.showingSeasonPicker = true
+                                }
+                                return
+                            } else {
+                                let season = seasons.first ?? []
+                                if !season.isEmpty {
+                                    self.pendingEpisodes = season
+                                    self.pendingResult = result
+                                    self.pendingJSController = jsController
+                                    self.isFetchingStreams = false
+                                    
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        self.showingEpisodePicker = true
+                                    }
+                                    return
+                                } else {
+                                    Logger.shared.log("No episodes found in any season", type: "Error")
+                                    self.isFetchingStreams = false
+                                    return
+                                }
+                            }
+                        }
                     }
-                    
-                    let season = seasons[targetSeasonIndex]
-                    guard let targetEpisode = season.first(where: { $0.number == targetEpisodeNumber }) else {
-                        Logger.shared.log("Episode \(targetEpisodeNumber) not found in season \(selectedEpisode.seasonNumber). Available episodes: \(season.map { $0.number })", type: "Error")
-                        self.isFetchingStreams = false
-                        return
-                    }
-                    
-                    targetHref = targetEpisode.href
-                    Logger.shared.log("TV Show - S\(selectedEpisode.seasonNumber)E\(selectedEpisode.episodeNumber) - Using href: \(targetHref)", type: "Stream")
-                    self.streamFetchProgress = "Found episode, fetching stream..."
                 }
                 
                 jsController.fetchStreamUrlJS(episodeUrl: targetHref, module: service) { streamResult in
                     DispatchQueue.main.async {
                         let (streams, subtitles, sources) = streamResult
-                        
-                        Logger.shared.log("Stream fetch result - Streams: \(streams?.count ?? 0), Sources: \(sources?.count ?? 0)", type: "Stream")
-                        self.streamFetchProgress = "Processing stream data..."
-                        
-                        var availableStreams: [StreamOption] = []
-                        
-                        if let sources = sources, !sources.isEmpty {
-                            Logger.shared.log("Processing \(sources.count) sources with potential headers", type: "Stream")
-                            
-                            var hasNewFormat = false
-                            for source in sources {
-                                if source["title"] is String && source["streamUrl"] is String {
-                                    hasNewFormat = true
-                                    break
-                                }
-                            }
-                            
-                            if hasNewFormat {
-                                Logger.shared.log("Detected new stream format with titles and headers", type: "Stream")
-                                for source in sources {
-                                    if let title = source["title"] as? String,
-                                       let streamUrl = source["streamUrl"] as? String {
-                                        let headers = safeConvertToHeaders(source["headers"])
-                                        availableStreams.append(StreamOption(name: title, url: streamUrl, headers: headers))
-                                        Logger.shared.log("Added stream: \(title) with headers: \(headers?.keys.joined(separator: ", ") ?? "none")", type: "Stream")
-                                    }
-                                }
-                            } else {
-                                Logger.shared.log("Using legacy source format", type: "Stream")
-                                for (index, source) in sources.enumerated() {
-                                    if let urlString = source["url"] as? String {
-                                        let headers = safeConvertToHeaders(source["headers"])
-                                        availableStreams.append(StreamOption(name: "Stream \(index + 1)", url: urlString, headers: headers))
-                                    }
-                                }
-                            }
-                        }
-                        else if let streams = streams, streams.count > 1 {
-                            var streamNames: [String] = []
-                            var streamURLs: [String] = []
-                            
-                            for (_, stream) in streams.enumerated() {
-                                if stream.hasPrefix("http") {
-                                    streamURLs.append(stream)
-                                } else {
-                                    streamNames.append(stream)
-                                }
-                            }
-                            
-                            if !streamNames.isEmpty && !streamURLs.isEmpty {
-                                let maxPairs = min(streamNames.count, streamURLs.count)
-                                for i in 0..<maxPairs {
-                                    availableStreams.append(StreamOption(name: streamNames[i], url: streamURLs[i], headers: nil))
-                                }
-                                
-                                if streamURLs.count > streamNames.count {
-                                    for i in streamNames.count..<streamURLs.count {
-                                        availableStreams.append(StreamOption(name: "Stream \(i + 1)", url: streamURLs[i], headers: nil))
-                                    }
-                                }
-                            } else if streamURLs.count > 1 {
-                                for (index, url) in streamURLs.enumerated() {
-                                    availableStreams.append(StreamOption(name: "Stream \(index + 1)", url: url, headers: nil))
-                                }
-                            } else if streams.count > 1 {
-                                let urls = streams.filter { $0.hasPrefix("http") }
-                                if urls.count > 1 {
-                                    for (index, url) in urls.enumerated() {
-                                        availableStreams.append(StreamOption(name: "Stream \(index + 1)", url: url, headers: nil))
-                                    }
-                                }
-                            }
-                        }
-                        
-                        if availableStreams.count > 1 {
-                            Logger.shared.log("Found \(availableStreams.count) stream options, showing selection", type: "Stream")
-                            self.streamOptions = availableStreams
-                            self.pendingSubtitles = subtitles
-                            self.pendingService = service
-                            self.isFetchingStreams = false
-                            
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                self.showingStreamMenu = true
-                            }
-                            return
-                        }
-                        
-                        var streamURL: URL?
-                        var streamHeaders: [String: String]? = nil
-                        
-                        if let sources = sources, !sources.isEmpty {
-                            let firstSource = sources.first!
-                            
-                            if let streamUrl = firstSource["streamUrl"] as? String {
-                                Logger.shared.log("Found single stream URL from new format: \(streamUrl)", type: "Stream")
-                                streamURL = URL(string: streamUrl)
-                                streamHeaders = safeConvertToHeaders(firstSource["headers"])
-                            } else if let urlString = firstSource["url"] as? String {
-                                Logger.shared.log("Found single stream URL from legacy format: \(urlString)", type: "Stream")
-                                streamURL = URL(string: urlString)
-                                streamHeaders = safeConvertToHeaders(firstSource["headers"])
-                            }
-                        } else if let streams = streams, !streams.isEmpty {
-                            let urlCandidates = streams.filter { $0.hasPrefix("http") }
-                            if let firstURL = urlCandidates.first {
-                                Logger.shared.log("Found single stream URL: \(firstURL)", type: "Stream")
-                                streamURL = URL(string: firstURL)
-                            } else {
-                                Logger.shared.log("First stream URL: \(streams.first!)", type: "Stream")
-                                streamURL = URL(string: streams.first!)
-                            }
-                        } else {
-                            Logger.shared.log("No streams or sources found in result", type: "Error")
-                        }
-                        
-                        if let url = streamURL {
-                            self.playStreamURL(url.absoluteString, service: service, subtitles: subtitles, headers: streamHeaders)
-                        } else {
-                            Logger.shared.log("Failed to create URL from stream string", type: "Error")
-                            self.isFetchingStreams = false
-                        }
+                        self.processStreamResult(streams: streams, subtitles: subtitles, sources: sources, service: service)
                     }
                 }
             }
+        }
+    }
+    
+    private func processStreamResult(streams: [String]?, subtitles: [String]?, sources: [[String: Any]]?, service: Services) {
+        Logger.shared.log("Stream fetch result - Streams: \(streams?.count ?? 0), Sources: \(sources?.count ?? 0)", type: "Stream")
+        self.streamFetchProgress = "Processing stream data..."
+        
+        var availableStreams: [StreamOption] = []
+        
+        if let sources = sources, !sources.isEmpty {
+            Logger.shared.log("Processing \(sources.count) sources with potential headers", type: "Stream")
+            
+            var hasNewFormat = false
+            for source in sources {
+                if source["title"] is String && source["streamUrl"] is String {
+                    hasNewFormat = true
+                    break
+                }
+            }
+            
+            if hasNewFormat {
+                Logger.shared.log("Detected new stream format with titles and headers", type: "Stream")
+                for source in sources {
+                    if let title = source["title"] as? String,
+                       let streamUrl = source["streamUrl"] as? String {
+                        let headers = safeConvertToHeaders(source["headers"])
+                        availableStreams.append(StreamOption(name: title, url: streamUrl, headers: headers))
+                        Logger.shared.log("Added stream: \(title) with headers: \(headers?.keys.joined(separator: ", ") ?? "none")", type: "Stream")
+                    }
+                }
+            } else {
+                Logger.shared.log("Using legacy source format", type: "Stream")
+                for (index, source) in sources.enumerated() {
+                    if let urlString = source["url"] as? String {
+                        let headers = safeConvertToHeaders(source["headers"])
+                        availableStreams.append(StreamOption(name: "Stream \(index + 1)", url: urlString, headers: headers))
+                    }
+                }
+            }
+        }
+        else if let streams = streams, streams.count > 1 {
+            var streamNames: [String] = []
+            var streamURLs: [String] = []
+            
+            for (_, stream) in streams.enumerated() {
+                if stream.hasPrefix("http") {
+                    streamURLs.append(stream)
+                } else {
+                    streamNames.append(stream)
+                }
+            }
+            
+            if !streamNames.isEmpty && !streamURLs.isEmpty {
+                let maxPairs = min(streamNames.count, streamURLs.count)
+                for i in 0..<maxPairs {
+                    availableStreams.append(StreamOption(name: streamNames[i], url: streamURLs[i], headers: nil))
+                }
+                
+                if streamURLs.count > streamNames.count {
+                    for i in streamNames.count..<streamURLs.count {
+                        availableStreams.append(StreamOption(name: "Stream \(i + 1)", url: streamURLs[i], headers: nil))
+                    }
+                }
+            } else if streamURLs.count > 1 {
+                for (index, url) in streamURLs.enumerated() {
+                    availableStreams.append(StreamOption(name: "Stream \(index + 1)", url: url, headers: nil))
+                }
+            } else if streams.count > 1 {
+                let urls = streams.filter { $0.hasPrefix("http") }
+                if urls.count > 1 {
+                    for (index, url) in urls.enumerated() {
+                        availableStreams.append(StreamOption(name: "Stream \(index + 1)", url: url, headers: nil))
+                    }
+                }
+            }
+        }
+        
+        if availableStreams.count > 1 {
+            Logger.shared.log("Found \(availableStreams.count) stream options, showing selection", type: "Stream")
+            self.streamOptions = availableStreams
+            self.pendingSubtitles = subtitles
+            self.pendingService = service
+            self.isFetchingStreams = false
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.showingStreamMenu = true
+            }
+            return
+        }
+        
+        var streamURL: URL?
+        var streamHeaders: [String: String]? = nil
+        
+        if let sources = sources, !sources.isEmpty {
+            let firstSource = sources.first!
+            
+            if let streamUrl = firstSource["streamUrl"] as? String {
+                Logger.shared.log("Found single stream URL from new format: \(streamUrl)", type: "Stream")
+                streamURL = URL(string: streamUrl)
+                streamHeaders = safeConvertToHeaders(firstSource["headers"])
+            } else if let urlString = firstSource["url"] as? String {
+                Logger.shared.log("Found single stream URL from legacy format: \(urlString)", type: "Stream")
+                streamURL = URL(string: urlString)
+                streamHeaders = safeConvertToHeaders(firstSource["headers"])
+            }
+        } else if let streams = streams, !streams.isEmpty {
+            let urlCandidates = streams.filter { $0.hasPrefix("http") }
+            if let firstURL = urlCandidates.first {
+                Logger.shared.log("Found single stream URL: \(firstURL)", type: "Stream")
+                streamURL = URL(string: firstURL)
+            } else {
+                Logger.shared.log("First stream URL: \(streams.first!)", type: "Stream")
+                streamURL = URL(string: streams.first!)
+            }
+        } else {
+            Logger.shared.log("No streams or sources found in result", type: "Error")
+        }
+        
+        if let url = streamURL {
+            self.playStreamURL(url.absoluteString, service: service, subtitles: subtitles, headers: streamHeaders)
+        } else {
+            Logger.shared.log("Failed to create URL from stream string", type: "Error")
+            self.isFetchingStreams = false
         }
     }
     
@@ -1007,7 +1172,6 @@ struct ModulesSearchResultsSheet: View {
     }
 }
 
-// MARK: - Compact Media Result Row
 struct CompactMediaResultRow: View {
     let result: SearchItem
     let originalTitle: String
