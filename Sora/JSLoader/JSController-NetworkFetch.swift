@@ -5,10 +5,8 @@
 //  Created by Mac on 17/08/2025.
 //
 
-import SoraCore
-import JavaScriptCore
 import WebKit
-import SwiftUI
+import JavaScriptCore
 
 extension JSContext {
     func setupNetworkFetch() {

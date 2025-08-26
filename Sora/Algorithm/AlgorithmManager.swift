@@ -26,7 +26,7 @@ enum SimilarityAlgorithm: String, CaseIterable {
     var description: String {
         switch self {
         case .hybrid:
-            return "Combines both algorithms for optimal matching across different string types and lengths. (Jaro-Winkler + Levenshtein)"
+            return "Combines both algorithms for optimal matching across different string types and lengths."
         case .jaroWinkler:
             return "When matching names, titles, or short strings where prefix similarity are important."
         case .levenshtein:

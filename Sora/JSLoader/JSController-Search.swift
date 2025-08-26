@@ -14,7 +14,7 @@ struct SearchItem: Identifiable {
     let href: String
 }
 
-extension JSController {    
+extension JSController {
     func fetchJsSearchResults(keyword: String, module: Services, completion: @escaping ([SearchItem]) -> Void) {
         if let exception = context.exception {
             Logger.shared.log("JavaScript exception: \(exception)", type: "Error")
@@ -46,9 +46,9 @@ extension JSController {
                             guard let title = item["title"] as? String,
                                   let imageUrl = item["image"] as? String,
                                   let href = item["href"] as? String else {
-                                      Logger.shared.log("Invalid search result data format", type: "Error")
-                                      return nil
-                                  }
+                                Logger.shared.log("Invalid search result data format", type: "Error")
+                                return nil
+                            }
                             return SearchItem(title: title, imageUrl: imageUrl, href: href)
                         }
                         

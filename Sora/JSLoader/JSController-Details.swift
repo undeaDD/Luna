@@ -5,7 +5,6 @@
 //  Created by Francesco on 07/08/25.
 //
 
-import Foundation
 import JavaScriptCore
 
 struct MediaItem: Identifiable {
