@@ -113,7 +113,7 @@ struct HomeView: View {
                 contentSections
             }
         }
-        .ignoresSafeArea(edges: .top)
+        .ignoresSafeArea(edges: [.top, .leading, .trailing])
     }
     
     @ViewBuilder

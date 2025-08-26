@@ -150,7 +150,7 @@ struct MediaDetailView: View {
                 contentContainer
             }
         }
-        .ignoresSafeArea(edges: .top)
+        .ignoresSafeArea(edges: [.top, .leading, .trailing])
     }
     
     @ViewBuilder
