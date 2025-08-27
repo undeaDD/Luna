@@ -22,6 +22,7 @@ struct ModulesSearchResultsSheet: View {
     let originalTitle: String?
     let isMovie: Bool
     let selectedEpisode: TMDBEpisode?
+    let tmdbId: Int
     
     @Environment(\.presentationMode) var presentationMode
     @State private var moduleResults: [(service: Services, results: [SearchItem])] = []
@@ -1103,6 +1104,28 @@ struct ModulesSearchResultsSheet: View {
         playerVC.player = newPlayer
         self.playerViewController = playerVC
         
+        if let selectedResult = selectedResult {
+            let mediaInfo: MediaInfo
+            
+            if isMovie {
+                let movieId = extractMovieId(from: selectedResult)
+                mediaInfo = .movie(id: movieId, title: selectedResult.title)
+            } else if let episode = selectedEpisode {
+                let showId = extractShowId(from: selectedResult)
+                mediaInfo = .episode(showId: showId, seasonNumber: episode.seasonNumber, episodeNumber: episode.episodeNumber)
+            } else {
+                Logger.shared.log("No episode selected for TV show", type: "Warning")
+                self.presentPlayer(playerVC: playerVC, newPlayer: newPlayer)
+                return
+            }
+            
+            playerVC.setupProgressTracking(for: mediaInfo)
+        }
+        
+        presentPlayer(playerVC: playerVC, newPlayer: newPlayer)
+    }
+    
+    private func presentPlayer(playerVC: NormalPlayer, newPlayer: AVPlayer) {
         DispatchQueue.main.async {
             guard let windowScene = UIApplication.shared.connectedScenes
                 .compactMap({ $0 as? UIWindowScene })
@@ -1127,6 +1150,14 @@ struct ModulesSearchResultsSheet: View {
                 newPlayer.play()
             }
         }
+    }
+    
+    private func extractMovieId(from searchResult: SearchItem) -> Int {
+        return tmdbId
+    }
+    
+    private func extractShowId(from searchResult: SearchItem) -> Int {
+        return tmdbId
     }
     
     private func safeConvertToHeaders(_ value: Any?) -> [String: String]? {

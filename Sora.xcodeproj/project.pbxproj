@@ -10,6 +10,7 @@
 		046FB82D2E5218DC007A8EB6 /* JSController-NetworkFetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 046FB82C2E5218C7007A8EB6 /* JSController-NetworkFetch.swift */; };
 		131A62002E51CCE9009CE905 /* FeaturedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */; };
 		13631B322E4F1A200035C39F /* ServiceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13631B312E4F1A200035C39F /* ServiceSettingsView.swift */; };
+		1375466D2E5F059A00B29944 /* ProgressManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1375466C2E5F059A00B29944 /* ProgressManager.swift */; };
 		13830AEC2E55BD9200B3CDE4 /* AlgorithmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AEB2E55BD9200B3CDE4 /* AlgorithmManager.swift */; };
 		13830AEE2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AED2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift */; };
 		13830AF02E55C04F00B3CDE4 /* AlgorithmSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */; };
@@ -59,6 +60,7 @@
 		046FB82C2E5218C7007A8EB6 /* JSController-NetworkFetch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JSController-NetworkFetch.swift"; sourceTree = "<group>"; };
 		131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeaturedCard.swift; sourceTree = "<group>"; };
 		13631B312E4F1A200035C39F /* ServiceSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceSettingsView.swift; sourceTree = "<group>"; };
+		1375466C2E5F059A00B29944 /* ProgressManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProgressManager.swift; path = Sora/Tracking/Progress/ProgressManager.swift; sourceTree = SOURCE_ROOT; };
 		13830AEB2E55BD9200B3CDE4 /* AlgorithmManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlgorithmManager.swift; sourceTree = "<group>"; };
 		13830AED2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JaroWinklerSimilarity.swift; sourceTree = "<group>"; };
 		13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlgorithmSelectionView.swift; sourceTree = "<group>"; };
@@ -118,6 +120,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1375466E2E5F078B00B29944 /* Tracking */ = {
+			isa = PBXGroup;
+			children = (
+				1375466F2E5F079000B29944 /* Progress */,
+			);
+			path = Tracking;
+			sourceTree = "<group>";
+		};
+		1375466F2E5F079000B29944 /* Progress */ = {
+			isa = PBXGroup;
+			children = (
+				1375466C2E5F059A00B29944 /* ProgressManager.swift */,
+			);
+			path = Progress;
+			sourceTree = "<group>";
+		};
 		13F072522E4B2D3300EF90EB = {
 			isa = PBXGroup;
 			children = (
@@ -137,6 +155,7 @@
 		13F0725D2E4B2D3300EF90EB /* Sora */ = {
 			isa = PBXGroup;
 			children = (
+				1375466E2E5F078B00B29944 /* Tracking */,
 				13F072BB2E4B2DA900EF90EB /* Info.plist */,
 				13F072972E4B2D9200EF90EB /* TMDB */,
 				13F072952E4B2D9100EF90EB /* Algorithm */,
@@ -411,6 +430,7 @@
 				13F072AF2E4B2D9200EF90EB /* StretchyHeader.swift in Sources */,
 				13F0729D2E4B2D9200EF90EB /* JSController-Search.swift in Sources */,
 				13F072A02E4B2D9200EF90EB /* JSController-Streams.swift in Sources */,
+				1375466D2E5F059A00B29944 /* ProgressManager.swift in Sources */,
 				13F072AC2E4B2D9200EF90EB /* Shows-Details.swift in Sources */,
 				13830AF22E55F51300B3CDE4 /* AlternativeUIView.swift in Sources */,
 				13F072BA2E4B2D9200EF90EB /* TMDBService.swift in Sources */,
