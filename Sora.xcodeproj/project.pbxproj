@@ -54,6 +54,7 @@
 		13F072B92E4B2D9200EF90EB /* TMDBModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072992E4B2D9200EF90EB /* TMDBModels.swift */; };
 		13F072BA2E4B2D9200EF90EB /* TMDBService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F0729A2E4B2D9200EF90EB /* TMDBService.swift */; };
 		13F072C32E4B2F8500EF90EB /* SoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = 13F072C22E4B2F8500EF90EB /* SoraCore */; };
+		13F232B52E60E93A0090BC70 /* SoraDecryption in Frameworks */ = {isa = PBXBuildFile; productRef = 13F232B42E60E93A0090BC70 /* SoraDecryption */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -114,6 +115,7 @@
 			files = (
 				13E34D2A2E535CB500C7BF07 /* Kingfisher in Frameworks */,
 				13F072C32E4B2F8500EF90EB /* SoraCore in Frameworks */,
+				13F232B52E60E93A0090BC70 /* SoraDecryption in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -361,6 +363,7 @@
 			packageProductDependencies = (
 				13F072C22E4B2F8500EF90EB /* SoraCore */,
 				13E34D292E535CB500C7BF07 /* Kingfisher */,
+				13F232B42E60E93A0090BC70 /* SoraDecryption */,
 			);
 			productName = Sora;
 			productReference = 13F0725B2E4B2D3300EF90EB /* Sora.app */;
@@ -393,6 +396,7 @@
 			packageReferences = (
 				13F072C12E4B2F8500EF90EB /* XCRemoteSwiftPackageReference "SoraCore" */,
 				13E34D282E535CB500C7BF07 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				13F232B32E60E93A0090BC70 /* XCRemoteSwiftPackageReference "SoraDecryption" */,
 			);
 			productRefGroup = 13F0725C2E4B2D3300EF90EB /* Products */;
 			projectDirPath = "";
@@ -709,6 +713,14 @@
 				kind = branch;
 			};
 		};
+		13F232B32E60E93A0090BC70 /* XCRemoteSwiftPackageReference "SoraDecryption" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cranci1/SoraDecryption";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -721,6 +733,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 13F072C12E4B2F8500EF90EB /* XCRemoteSwiftPackageReference "SoraCore" */;
 			productName = SoraCore;
+		};
+		13F232B42E60E93A0090BC70 /* SoraDecryption */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 13F232B32E60E93A0090BC70 /* XCRemoteSwiftPackageReference "SoraDecryption" */;
+			productName = SoraDecryption;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
