@@ -5,10 +5,7 @@
 //  Created by Francesco on 07/08/25.
 //
 
-import AVKit
 import SwiftUI
-import Foundation
-import AVFoundation
 import JavaScriptCore
 
 class JSController: NSObject, ObservableObject {

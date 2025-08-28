@@ -59,15 +59,17 @@ struct FeaturedCard: View {
                                 Image(systemName: "star.fill")
                                     .font(.caption2)
                                     .foregroundColor(.yellow)
-                                Text(String(format: "%.1f", result.voteAverage))
+                                Text(String(format: "%.1f", result.voteAverage ?? 0.0))
                                     .font(.caption2)
                                     .fontWeight(.medium)
                                     .foregroundColor(.white)
                             }
                             .padding(.horizontal, 6)
                             .padding(.vertical, 3)
-                            .background(Color.black.opacity(0.6))
-                            .clipShape(Capsule())
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(.ultraThinMaterial.opacity(0.9))
+                            )
                         }
                         Spacer()
                     }
@@ -81,7 +83,7 @@ struct FeaturedCard: View {
                         .font(isLarge ? .subheadline : .caption)
                         .fontWeight(.medium)
                         .lineLimit(1)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.white)
                     
                     HStack(spacing: 4) {
                         Text(result.isMovie ? "Movie" : "TV Show")

@@ -21,6 +21,7 @@ struct TVShowSeasonsSection: View {
     @State private var romajiTitle: String?
     
     @StateObject private var serviceManager = ServiceManager.shared
+    @AppStorage("horizontalEpisodeList") private var horizontalEpisodeList: Bool = false
     
     private var isGroupedBySeasons: Bool {
         return tvShow?.seasons.filter { $0.seasonNumber > 0 }.count ?? 0 > 1
@@ -31,12 +32,13 @@ struct TVShowSeasonsSection: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 8) {
             if let tvShow = tvShow {
                 Text("Details")
                     .font(.title2)
                     .fontWeight(.bold)
                     .padding(.horizontal)
+                    .padding(.top)
                 
                 VStack(spacing: 12) {
                     if let numberOfSeasons = tvShow.numberOfSeasons, numberOfSeasons > 0 {
@@ -124,7 +126,8 @@ struct TVShowSeasonsSection: View {
                 mediaTitle: tvShow?.name ?? "Unknown Show",
                 originalTitle: romajiTitle,
                 isMovie: false,
-                selectedEpisode: selectedEpisodeForSearch
+                selectedEpisode: selectedEpisodeForSearch,
+                tmdbId: tvShow?.id ?? 0
             )
         }
         .alert("No Active Services", isPresented: $showingNoServicesAlert) {
@@ -174,10 +177,8 @@ struct TVShowSeasonsSection: View {
             } label: {
                 HStack(spacing: 4) {
                     Text(selectedSeason?.name ?? "Season 1")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
+                    
                     Image(systemName: "chevron.down")
-                        .font(.caption)
                 }
                 .foregroundColor(.primary)
             }
@@ -220,7 +221,7 @@ struct TVShowSeasonsSection: View {
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 8)
-                                                .stroke(selectedSeason?.id == season.id ? Color.blue : Color.clear, lineWidth: 2)
+                                                .stroke(selectedSeason?.id == season.id ? Color.accentColor : Color.clear, lineWidth: 2)
                                         )
                                     
                                     Text(season.name)
@@ -229,7 +230,7 @@ struct TVShowSeasonsSection: View {
                                         .lineLimit(2)
                                         .multilineTextAlignment(.center)
                                         .frame(width: 80)
-                                        .foregroundColor(selectedSeason?.id == season.id ? .blue : .primary)
+                                        .foregroundColor(selectedSeason?.id == season.id ? .accentColor : .primary)
                                 }
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -245,12 +246,23 @@ struct TVShowSeasonsSection: View {
     private var episodeListSection: some View {
         Group {
             if let seasonDetail = seasonDetail {
-                LazyVStack(spacing: 15) {
-                    ForEach(Array(seasonDetail.episodes.enumerated()), id: \.element.id) { index, episode in
-                        createEpisodeCell(episode: episode, index: index)
+                if horizontalEpisodeList {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHStack(alignment: .top, spacing: 15) {
+                            ForEach(Array(seasonDetail.episodes.enumerated()), id: \.element.id) { index, episode in
+                                createEpisodeCell(episode: episode, index: index)
+                            }
+                        }
                     }
+                    .padding(.horizontal)
+                } else {
+                    LazyVStack(spacing: 15) {
+                        ForEach(Array(seasonDetail.episodes.enumerated()), id: \.element.id) { index, episode in
+                            createEpisodeCell(episode: episode, index: index)
+                        }
+                    }
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
             } else if isLoadingSeason {
                 VStack(spacing: 12) {
                     ProgressView()
@@ -267,20 +279,26 @@ struct TVShowSeasonsSection: View {
     
     @ViewBuilder
     private func createEpisodeCell(episode: TMDBEpisode, index: Int) -> some View {
-        let episodeKey = "episode_\(episode.seasonNumber)_\(episode.episodeNumber)"
-        let lastPlayedTime = UserDefaults.standard.double(forKey: "lastPlayedTime_\(episodeKey)")
-        let totalTime = UserDefaults.standard.double(forKey: "totalTime_\(episodeKey)")
-        let progress = totalTime > 0 ? lastPlayedTime / totalTime : 0
-        let isSelected = selectedEpisodeForSearch?.id == episode.id
-        
-        EpisodeCell(
-            episode: episode,
-            progress: progress,
-            isSelected: isSelected,
-            onTap: { episodeTapAction(episode: episode) },
-            onMarkWatched: { markAsWatched(episode: episode) },
-            onResetProgress: { resetProgress(episode: episode) }
-        )
+        if let tvShow = tvShow {
+            let progress = ProgressManager.shared.getEpisodeProgress(
+                showId: tvShow.id,
+                seasonNumber: episode.seasonNumber,
+                episodeNumber: episode.episodeNumber
+            )
+            let isSelected = selectedEpisodeForSearch?.id == episode.id
+            
+            EpisodeCell(
+                episode: episode,
+                showId: tvShow.id,
+                progress: progress,
+                isSelected: isSelected,
+                onTap: { episodeTapAction(episode: episode) },
+                onMarkWatched: { markAsWatched(episode: episode) },
+                onResetProgress: { resetProgress(episode: episode) }
+            )
+        } else {
+            EmptyView()
+        }
     }
     
     private func episodeTapAction(episode: TMDBEpisode) {
@@ -300,15 +318,21 @@ struct TVShowSeasonsSection: View {
     }
     
     private func markAsWatched(episode: TMDBEpisode) {
-        let episodeKey = "episode_\(episode.seasonNumber)_\(episode.episodeNumber)"
-        UserDefaults.standard.set(1.0, forKey: "lastPlayedTime_\(episodeKey)")
-        UserDefaults.standard.set(1.0, forKey: "totalTime_\(episodeKey)")
+        guard let tvShow = tvShow else { return }
+        ProgressManager.shared.markEpisodeAsWatched(
+            showId: tvShow.id,
+            seasonNumber: episode.seasonNumber,
+            episodeNumber: episode.episodeNumber
+        )
     }
     
     private func resetProgress(episode: TMDBEpisode) {
-        let episodeKey = "episode_\(episode.seasonNumber)_\(episode.episodeNumber)"
-        UserDefaults.standard.set(0.0, forKey: "lastPlayedTime_\(episodeKey)")
-        UserDefaults.standard.set(0.0, forKey: "totalTime_\(episodeKey)")
+        guard let tvShow = tvShow else { return }
+        ProgressManager.shared.resetEpisodeProgress(
+            showId: tvShow.id,
+            seasonNumber: episode.seasonNumber,
+            episodeNumber: episode.episodeNumber
+        )
     }
     
     private func loadSeasonDetails(tvShowId: Int, season: TMDBSeason) {

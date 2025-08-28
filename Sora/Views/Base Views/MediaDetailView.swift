@@ -74,7 +74,8 @@ struct MediaDetailView: View {
                 mediaTitle: searchResult.displayTitle,
                 originalTitle: romajiTitle,
                 isMovie: searchResult.isMovie,
-                selectedEpisode: selectedEpisodeForSearch
+                selectedEpisode: selectedEpisodeForSearch,
+                tmdbId: searchResult.id
             )
         }
     }
@@ -113,7 +114,6 @@ struct MediaDetailView: View {
                 loadMediaDetails()
             }
             .padding(.top)
-            .foregroundColor(.blue)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -127,24 +127,15 @@ struct MediaDetailView: View {
                 }) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                         .frame(width: 32, height: 32)
-                        .background(Color.black.opacity(0.3))
-                        .clipShape(Circle())
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(.ultraThinMaterial.opacity(0.9))
+                        )
                 }
                 
                 Spacer()
-                
-                Button(action: {
-                    // TODO: Add menu functionality
-                }) {
-                    Image(systemName: "ellipsis")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
-                        .frame(width: 32, height: 32)
-                        .background(Color.black.opacity(0.3))
-                        .clipShape(Circle())
-                }
             }
             .padding(.horizontal)
             
@@ -160,7 +151,7 @@ struct MediaDetailView: View {
                 contentContainer
             }
         }
-        .ignoresSafeArea(edges: .top)
+        .ignoresSafeArea(edges: [.top, .leading, .trailing])
     }
     
     @ViewBuilder
@@ -178,9 +169,7 @@ struct MediaDetailView: View {
                 headerHeight: headerHeight,
                 minHeaderHeight: minHeaderHeight,
                 onAmbientColorExtracted: { color in
-                    withAnimation(.easeInOut(duration: 0.8)) {
-                        ambientColor = color
-                    }
+                    ambientColor = color
                 }
             )
             
@@ -192,7 +181,7 @@ struct MediaDetailView: View {
     @ViewBuilder
     private var contentContainer: some View {
         VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 16) {
                 synopsisSection
                 playAndBookmarkSection
                 
@@ -222,7 +211,6 @@ struct MediaDetailView: View {
         )
         .frame(height: 120)
         .clipShape(RoundedRectangle(cornerRadius: 0))
-        .animation(.easeInOut(duration: 0.8), value: ambientColor)
     }
     
     @ViewBuilder
@@ -231,7 +219,7 @@ struct MediaDetailView: View {
             Text(searchResult.displayTitle)
                 .font(.largeTitle)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
                 .lineLimit(3)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity, alignment: .center)

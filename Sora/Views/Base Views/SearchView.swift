@@ -194,7 +194,6 @@ struct SearchView: View {
                         performSearchOrDownloadService()
                     }
                     .padding(.top)
-                    .foregroundColor(.blue)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if searchText.isEmpty {
@@ -224,7 +223,6 @@ struct SearchView: View {
                                 clearSearchHistory()
                             }
                             .font(.caption)
-                            .foregroundColor(.blue)
                         }
                         .padding(.horizontal)
                         .padding(.top)
@@ -312,15 +310,13 @@ struct SearchView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                ScrollView {
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: columnsCount), spacing: 16) {
-                        ForEach(filteredResults) { result in
-                            SearchResultCard(result: result)
-                        }
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: columnsCount), spacing: 16) {
+                    ForEach(filteredResults) { result in
+                        SearchResultCard(result: result)
                     }
-                    .padding(.horizontal)
-                    .padding(.top)
                 }
+                .padding(.horizontal)
+                .padding(.top)
             }
         }
         .navigationTitle("Search")

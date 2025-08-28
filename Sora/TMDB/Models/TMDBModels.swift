@@ -32,7 +32,7 @@ struct TMDBSearchResult: Codable, Identifiable {
     let backdropPath: String?
     let releaseDate: String?
     let firstAirDate: String?
-    let voteAverage: Double
+    let voteAverage: Double?
     let popularity: Double
     
     enum CodingKeys: String, CodingKey {

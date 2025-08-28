@@ -161,7 +161,6 @@ struct LogEntryRow: View {
                         }) {
                             Text(isExpanded ? "Show Less" : "Show More")
                                 .font(.caption)
-                                .foregroundColor(.blue)
                         }
                     }
                 }
@@ -174,6 +173,13 @@ struct LogEntryRow: View {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     isExpanded.toggle()
                 }
+            }
+        }
+        .contextMenu {
+            Button(action: {
+                UIPasteboard.general.string = log.message
+            }) {
+                Label("Copy Log Message", systemImage: "doc.on.doc")
             }
         }
     }

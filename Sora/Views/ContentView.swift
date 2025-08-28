@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var accentColorManager = AccentColorManager.shared
+    
     var body: some View {
         TabView {
             HomeView()
@@ -34,6 +36,7 @@ struct ContentView: View {
                     Text("Settings")
                 }
         }
+        .accentColor(accentColorManager.currentAccentColor)
     }
 }
 

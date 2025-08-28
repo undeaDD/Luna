@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @AppStorage("tmdbLanguage") private var selectedLanguage = "en-US"
+    @StateObject private var algorithmManager = AlgorithmManager.shared
     
     let languages = [
         ("en-US", "English (US)"),
@@ -54,10 +55,6 @@ struct SettingsView: View {
             Section {
                 NavigationLink(destination: LanguageSelectionView(selectedLanguage: $selectedLanguage, languages: languages)) {
                     HStack {
-                        Image(systemName: "globe")
-                            .foregroundColor(.blue)
-                            .frame(width: 24, height: 24)
-                        
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Informations Language")
                         }
@@ -75,8 +72,31 @@ struct SettingsView: View {
             }
             
             Section {
+                NavigationLink(destination: AlgorithmSelectionView()) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Matching Algorithm")
+                        }
+                        
+                        Spacer()
+                        
+                        Text(algorithmManager.selectedAlgorithm.displayName)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            } header: {
+                Text("SEARCH SETTINGS")
+            } footer: {
+                Text("Choose the algorithm used to match and rank search results.")
+            }
+            
+            Section {
                 NavigationLink(destination: ServicesView()) {
                     Text("Services")
+                }
+                
+                NavigationLink(destination: AlternativeUIView()) {
+                    Text("Alternative UI")
                 }
                 
                 NavigationLink(destination: LoggerView()) {

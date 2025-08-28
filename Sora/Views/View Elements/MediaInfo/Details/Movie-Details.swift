@@ -11,12 +11,13 @@ struct MovieDetailsSection: View {
     let movie: TMDBMovieDetail?
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 8) {
             if let movie = movie {
                 Text("Details")
                     .font(.title2)
                     .fontWeight(.bold)
                     .padding(.horizontal)
+                    .padding(.top)
                 
                 VStack(spacing: 12) {
                     if let runtime = movie.runtime, runtime > 0 {
