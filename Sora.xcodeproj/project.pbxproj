@@ -701,8 +701,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/cranci1/SoraDecryption";
 			requirement = {
-				kind = revision;
-				revision = 4162fbb39102a2fca39e72c3fbe54b25f67045a8;
+				kind = exactVersion;
+				version = 1.0.0;
 			};
 		};
 		13E34D282E535CB500C7BF07 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
