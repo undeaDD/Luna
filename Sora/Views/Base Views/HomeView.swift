@@ -14,6 +14,7 @@ struct HomeView: View {
     @State private var popularMovies: [TMDBMovie] = []
     @State private var popularTVShows: [TMDBTVShow] = []
     @State private var popularAnime: [TMDBTVShow] = []
+    @State private var nowPlayingMovies: [TMDBMovie] = []
     @State private var topRatedMovies: [TMDBMovie] = []
     @State private var topRatedTVShows: [TMDBTVShow] = []
     @State private var topRatedAnime: [TMDBTVShow] = []
@@ -258,6 +259,13 @@ struct HomeView: View {
                 )
             }
             
+            if !nowPlayingMovies.isEmpty {
+                MediaSection(
+                    title: "Now Playing",
+                    items: nowPlayingMovies.prefix(15).map { $0.asSearchResult }
+                )
+            }
+            
             if !popularMovies.isEmpty {
                 MediaSection(
                     title: "Popular Movies",
@@ -344,11 +352,12 @@ struct HomeView: View {
                 async let popularM = tmdbService.getPopularMovies()
                 async let popularTV = tmdbService.getPopularTVShows()
                 async let popularA = tmdbService.getPopularAnime()
+                async let nowPlaying = tmdbService.getNowPlayingMovies()
                 async let topRatedM = tmdbService.getTopRatedMovies()
                 async let topRatedTV = tmdbService.getTopRatedTVShows()
                 async let topRatedA = tmdbService.getTopRatedAnime()
                 
-                let (trendingResult, popularMoviesResult, popularTVResult, popularAnimeResult, topRatedMoviesResult, topRatedTVResult, topRatedAnimeResult) = try await (trending, popularM, popularTV, popularA, topRatedM, topRatedTV, topRatedA)
+                let (trendingResult, popularMoviesResult, popularTVResult, popularAnimeResult, nowPlayingResult, topRatedMoviesResult, topRatedTVResult, topRatedAnimeResult) = try await (trending, popularM, popularTV, popularA, nowPlaying, topRatedM, topRatedTV, topRatedA)
                 
                 await MainActor.run {
                     withAnimation(.easeInOut(duration: 0.5)) {
@@ -356,6 +365,7 @@ struct HomeView: View {
                         self.popularMovies = popularMoviesResult
                         self.popularTVShows = popularTVResult
                         self.popularAnime = popularAnimeResult
+                        self.nowPlayingMovies = nowPlayingResult
                         self.topRatedMovies = topRatedMoviesResult
                         self.topRatedTVShows = topRatedTVResult
                         self.topRatedAnime = topRatedAnimeResult
