@@ -23,8 +23,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/cranci1/SoraDecryption",
       "state" : {
-        "revision" : "9a6d45b6d5d7d0974e1ae5404517c340c0b6db32",
-        "version" : "1.0.0"
+        "revision" : "4162fbb39102a2fca39e72c3fbe54b25f67045a8"
       }
     }
   ],
