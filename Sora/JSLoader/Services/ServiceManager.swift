@@ -77,9 +77,6 @@ class ServiceManager: ObservableObject {
     
     private func migrateServiceStatesIfNeeded() {
         let hasLegacyStates = UserDefaults.standard.object(forKey: "ServiceActiveStates") != nil
-        if hasLegacyStates {
-            Logger.shared.log("Found existing service states, will preserve user preferences", type: "ServiceManager")
-        }
     }
     
     // MARK: - Public Methods

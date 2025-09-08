@@ -54,6 +54,12 @@
 		13F072B92E4B2D9200EF90EB /* TMDBModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072992E4B2D9200EF90EB /* TMDBModels.swift */; };
 		13F072BA2E4B2D9200EF90EB /* TMDBService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F0729A2E4B2D9200EF90EB /* TMDBService.swift */; };
 		13F072C32E4B2F8500EF90EB /* SoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = 13F072C22E4B2F8500EF90EB /* SoraCore */; };
+		13F187AC2E6F38CE00747F7E /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187A42E6F38CE00747F7E /* LibraryManager.swift */; };
+		13F187AD2E6F38CE00747F7E /* LibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187A62E6F38CE00747F7E /* LibraryItem.swift */; };
+		13F187AE2E6F38CE00747F7E /* LibraryCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187A72E6F38CE00747F7E /* LibraryCollection.swift */; };
+		13F187AF2E6F38CE00747F7E /* AddToCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187A92E6F38CE00747F7E /* AddToCollectionView.swift */; };
+		13F187B02E6F38CE00747F7E /* CreateCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187AA2E6F38CE00747F7E /* CreateCollectionView.swift */; };
+		13F187B12E6F38CE00747F7E /* CollectionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187AB2E6F38CE00747F7E /* CollectionDetailView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -105,6 +111,12 @@
 		13F072992E4B2D9200EF90EB /* TMDBModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TMDBModels.swift; sourceTree = "<group>"; };
 		13F0729A2E4B2D9200EF90EB /* TMDBService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TMDBService.swift; sourceTree = "<group>"; };
 		13F072BB2E4B2DA900EF90EB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		13F187A42E6F38CE00747F7E /* LibraryManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
+		13F187A62E6F38CE00747F7E /* LibraryItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryItem.swift; sourceTree = "<group>"; };
+		13F187A72E6F38CE00747F7E /* LibraryCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryCollection.swift; sourceTree = "<group>"; };
+		13F187A92E6F38CE00747F7E /* AddToCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToCollectionView.swift; sourceTree = "<group>"; };
+		13F187AA2E6F38CE00747F7E /* CreateCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateCollectionView.swift; sourceTree = "<group>"; };
+		13F187AB2E6F38CE00747F7E /* CollectionDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionDetailView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -164,6 +176,7 @@
 				13F072932E4B2D9100EF90EB /* Logger */,
 				13F072752E4B2D9000EF90EB /* Views */,
 				13F0725E2E4B2D3300EF90EB /* SoraApp.swift */,
+				13F0727C2E4B2D9000EF90EB /* MediaDetailView.swift */,
 				13F072622E4B2D3700EF90EB /* Assets.xcassets */,
 				13F072642E4B2D3700EF90EB /* Sora.entitlements */,
 				13F072652E4B2D3700EF90EB /* Preview Content */,
@@ -196,29 +209,21 @@
 		13F072752E4B2D9000EF90EB /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				13F072772E4B2D9000EF90EB /* SettingsView.swift */,
+				13F072782E4B2D9000EF90EB /* SearchView.swift */,
+				13F0727A2E4B2D9000EF90EB /* HomeView.swift */,
+				13F0727B2E4B2D9000EF90EB /* LibraryView.swift */,
 				13F0727D2E4B2D9000EF90EB /* ContentView.swift */,
 				13F072C42E4B364B00EF90EB /* SettingsView */,
-				13F072762E4B2D9000EF90EB /* Base Views */,
 				13F0727F2E4B2D9000EF90EB /* View Elements */,
 			);
 			path = Views;
 			sourceTree = "<group>";
 		};
-		13F072762E4B2D9000EF90EB /* Base Views */ = {
-			isa = PBXGroup;
-			children = (
-				13F072772E4B2D9000EF90EB /* SettingsView.swift */,
-				13F072782E4B2D9000EF90EB /* SearchView.swift */,
-				13F0727A2E4B2D9000EF90EB /* HomeView.swift */,
-				13F0727B2E4B2D9000EF90EB /* LibraryView.swift */,
-				13F0727C2E4B2D9000EF90EB /* MediaDetailView.swift */,
-			);
-			path = "Base Views";
-			sourceTree = "<group>";
-		};
 		13F0727F2E4B2D9000EF90EB /* View Elements */ = {
 			isa = PBXGroup;
 			children = (
+				13F187A32E6F38CE00747F7E /* Library */,
 				13F072802E4B2D9000EF90EB /* MediaInfo */,
 				131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */,
 				13F072882E4B2D9000EF90EB /* SearchResultCard.swift */,
@@ -342,6 +347,35 @@
 			path = SettingsView;
 			sourceTree = "<group>";
 		};
+		13F187A32E6F38CE00747F7E /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				13F187A42E6F38CE00747F7E /* LibraryManager.swift */,
+				13F187A52E6F38CE00747F7E /* Models */,
+				13F187A82E6F38CE00747F7E /* Views */,
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+		13F187A52E6F38CE00747F7E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				13F187A62E6F38CE00747F7E /* LibraryItem.swift */,
+				13F187A72E6F38CE00747F7E /* LibraryCollection.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		13F187A82E6F38CE00747F7E /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				13F187A92E6F38CE00747F7E /* AddToCollectionView.swift */,
+				13F187AA2E6F38CE00747F7E /* CreateCollectionView.swift */,
+				13F187AB2E6F38CE00747F7E /* CollectionDetailView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -435,6 +469,8 @@
 				13830AF22E55F51300B3CDE4 /* AlternativeUIView.swift in Sources */,
 				13F072BA2E4B2D9200EF90EB /* TMDBService.swift in Sources */,
 				13F0725F2E4B2D3300EF90EB /* SoraApp.swift in Sources */,
+				13F187AD2E6F38CE00747F7E /* LibraryItem.swift in Sources */,
+				13F187B02E6F38CE00747F7E /* CreateCollectionView.swift in Sources */,
 				13F072A42E4B2D9200EF90EB /* ServicesView.swift in Sources */,
 				13F072A62E4B2D9200EF90EB /* LibraryView.swift in Sources */,
 				13F072A92E4B2D9200EF90EB /* LoggerView.swift in Sources */,
@@ -446,8 +482,10 @@
 				13F0729C2E4B2D9200EF90EB /* JavaScriptCore+Extensions.swift in Sources */,
 				13F072B22E4B2D9200EF90EB /* FallbackImageView.swift in Sources */,
 				13F072B62E4B2D9200EF90EB /* AmbientColor.swift in Sources */,
+				13F187AE2E6F38CE00747F7E /* LibraryCollection.swift in Sources */,
 				13830AF02E55C04F00B3CDE4 /* AlgorithmSelectionView.swift in Sources */,
 				13F0729E2E4B2D9200EF90EB /* JSController-Details.swift in Sources */,
+				13F187AF2E6F38CE00747F7E /* AddToCollectionView.swift in Sources */,
 				13830AEE2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift in Sources */,
 				13F072B92E4B2D9200EF90EB /* TMDBModels.swift in Sources */,
 				13F072AA2E4B2D9200EF90EB /* CircularProgressBar.swift in Sources */,
@@ -460,9 +498,11 @@
 				13631B322E4F1A200035C39F /* ServiceSettingsView.swift in Sources */,
 				13F072B32E4B2D9200EF90EB /* ServicesResultsSheet.swift in Sources */,
 				13F072A52E4B2D9200EF90EB /* HomeView.swift in Sources */,
+				13F187B12E6F38CE00747F7E /* CollectionDetailView.swift in Sources */,
 				13830AF42E55F5FF00B3CDE4 /* AccentColorManager.swift in Sources */,
 				13F072A12E4B2D9200EF90EB /* JSController.swift in Sources */,
 				13F0729F2E4B2D9200EF90EB /* ServiceManager.swift in Sources */,
+				13F187AC2E6F38CE00747F7E /* LibraryManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

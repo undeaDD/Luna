@@ -25,10 +25,12 @@ struct MediaDetailView: View {
     @State private var synopsis: String = ""
     @State private var isBookmarked: Bool = false
     @State private var showingSearchResults = false
+    @State private var showingAddToCollection = false
     @State private var selectedEpisodeForSearch: TMDBEpisode?
     @State private var romajiTitle: String?
     
     @StateObject private var serviceManager = ServiceManager.shared
+    @ObservedObject private var libraryManager = LibraryManager.shared
     
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -68,6 +70,10 @@ struct MediaDetailView: View {
         .navigationBarHidden(true)
         .onAppear {
             loadMediaDetails()
+            updateBookmarkStatus()
+        }
+        .onChange(of: libraryManager.collections) { _ in
+            updateBookmarkStatus()
         }
         .sheet(isPresented: $showingSearchResults) {
             ModulesSearchResultsSheet(
@@ -77,6 +83,9 @@ struct MediaDetailView: View {
                 selectedEpisode: selectedEpisodeForSearch,
                 tmdbId: searchResult.id
             )
+        }
+        .sheet(isPresented: $showingAddToCollection) {
+            AddToCollectionView(searchResult: searchResult)
         }
     }
     
@@ -304,6 +313,24 @@ struct MediaDetailView: View {
                     .foregroundColor(isBookmarked ? .yellow : .primary)
                     .cornerRadius(8)
             }
+            
+            Button(action: {
+                showingAddToCollection = true
+            }) {
+                Image(systemName: "plus")
+                    .font(.title2)
+                    .frame(width: 42, height: 42)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.black.opacity(0.2))
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(.ultraThinMaterial)
+                            )
+                    )
+                    .foregroundColor(.primary)
+                    .cornerRadius(8)
+            }
         }
         .padding(.horizontal)
     }
@@ -323,9 +350,13 @@ struct MediaDetailView: View {
     
     private func toggleBookmark() {
         withAnimation(.easeInOut(duration: 0.2)) {
-            isBookmarked.toggle()
+            libraryManager.toggleBookmark(for: searchResult)
+            updateBookmarkStatus()
         }
-        // TODO: Implement actual bookmark functionality
+    }
+    
+    private func updateBookmarkStatus() {
+        isBookmarked = libraryManager.isBookmarked(searchResult)
     }
     
     private func searchInServices() {
