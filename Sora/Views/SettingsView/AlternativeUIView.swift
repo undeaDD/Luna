@@ -18,6 +18,28 @@ struct AlternativeUIView: View {
             Section {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
+                        Text("Accent Color")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        
+                        Text("This affects buttons, links, and other interactive elements.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
+                    }
+                    
+                    ColorPicker("", selection: $accentColorManager.currentAccentColor)
+                        .onChange(of: accentColorManager.currentAccentColor) { newColor in
+                            accentColorManager.saveAccentColor(newColor)
+                        }
+                }
+            } header: {
+                Text("Interface")
+            }
+            
+            Section {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
                         Text("Alternative Season Menu")
                             .font(.subheadline)
                             .fontWeight(.medium)
@@ -56,30 +78,8 @@ struct AlternativeUIView: View {
             } footer: {
                 Text("The alternative season menu uses a dropdown instead of a horizontal scroll for selecting seasons.")
             }
-            
-            Section {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Accent Color")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                        
-                        Text("This affects buttons, links, and other interactive elements.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.leading)
-                    }
-                    
-                    ColorPicker("", selection: $accentColorManager.currentAccentColor)
-                        .onChange(of: accentColorManager.currentAccentColor) { newColor in
-                            accentColorManager.saveAccentColor(newColor)
-                        }
-                }
-            } header: {
-                Text("APPEARANCE")
-            }
         }
-        .navigationTitle("Alternative UI")
+        .navigationTitle("Appearance")
     }
 }
 

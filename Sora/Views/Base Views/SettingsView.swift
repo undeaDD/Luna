@@ -91,12 +91,12 @@ struct SettingsView: View {
             }
             
             Section {
-                NavigationLink(destination: ServicesView()) {
-                    Text("Services")
+                NavigationLink(destination: AlternativeUIView()) {
+                    Text("Appearance")
                 }
                 
-                NavigationLink(destination: AlternativeUIView()) {
-                    Text("Alternative UI")
+                NavigationLink(destination: ServicesView()) {
+                    Text("Services")
                 }
                 
                 NavigationLink(destination: LoggerView()) {

@@ -227,7 +227,7 @@ struct TVShowSeasonsSection: View {
                                     Text(season.name)
                                         .font(.caption)
                                         .fontWeight(.medium)
-                                        .lineLimit(2)
+                                        .lineLimit(1)
                                         .multilineTextAlignment(.center)
                                         .frame(width: 80)
                                         .foregroundColor(selectedSeason?.id == season.id ? .accentColor : .primary)
