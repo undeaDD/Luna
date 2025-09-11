@@ -109,6 +109,7 @@ struct SettingsView: View {
 }
 
 struct LanguageSelectionView: View {
+    @StateObject private var accentColorManager = AccentColorManager.shared
     @Binding var selectedLanguage: String
     let languages: [(String, String)]
     
@@ -120,6 +121,7 @@ struct LanguageSelectionView: View {
                     Spacer()
                     if selectedLanguage == language.0 {
                         Image(systemName: "checkmark")
+                            .foregroundColor(accentColorManager.currentAccentColor)
                     }
                 }
                 .contentShape(Rectangle())

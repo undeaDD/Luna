@@ -60,6 +60,7 @@
 		13F187AF2E6F38CE00747F7E /* AddToCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187A92E6F38CE00747F7E /* AddToCollectionView.swift */; };
 		13F187B02E6F38CE00747F7E /* CreateCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187AA2E6F38CE00747F7E /* CreateCollectionView.swift */; };
 		13F187B12E6F38CE00747F7E /* CollectionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187AB2E6F38CE00747F7E /* CollectionDetailView.swift */; };
+		13F5B58D2E72FE9100565E75 /* CustomTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B58C2E72FE9100565E75 /* CustomTabBar.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -117,6 +118,7 @@
 		13F187A92E6F38CE00747F7E /* AddToCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToCollectionView.swift; sourceTree = "<group>"; };
 		13F187AA2E6F38CE00747F7E /* CreateCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateCollectionView.swift; sourceTree = "<group>"; };
 		13F187AB2E6F38CE00747F7E /* CollectionDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionDetailView.swift; sourceTree = "<group>"; };
+		13F5B58C2E72FE9100565E75 /* CustomTabBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTabBar.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -223,6 +225,7 @@
 		13F0727F2E4B2D9000EF90EB /* View Elements */ = {
 			isa = PBXGroup;
 			children = (
+				13F5B58C2E72FE9100565E75 /* CustomTabBar.swift */,
 				13F187A32E6F38CE00747F7E /* Library */,
 				13F072802E4B2D9000EF90EB /* MediaInfo */,
 				131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */,
@@ -500,6 +503,7 @@
 				13F072A52E4B2D9200EF90EB /* HomeView.swift in Sources */,
 				13F187B12E6F38CE00747F7E /* CollectionDetailView.swift in Sources */,
 				13830AF42E55F5FF00B3CDE4 /* AccentColorManager.swift in Sources */,
+				13F5B58D2E72FE9100565E75 /* CustomTabBar.swift in Sources */,
 				13F072A12E4B2D9200EF90EB /* JSController.swift in Sources */,
 				13F0729F2E4B2D9200EF90EB /* ServiceManager.swift in Sources */,
 				13F187AC2E6F38CE00747F7E /* LibraryManager.swift in Sources */,

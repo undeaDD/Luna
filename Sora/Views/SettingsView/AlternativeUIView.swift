@@ -10,6 +10,9 @@ import SwiftUI
 struct AlternativeUIView: View {
     @AppStorage("seasonMenu") private var useSeasonMenu = false
     @AppStorage("horizontalEpisodeList") private var horizontalEpisodeList = false
+    #if !os(tvOS)
+    @AppStorage("useCustomTabBar") private var useCustomTabBar = true
+    #endif
     
     @StateObject private var accentColorManager = AccentColorManager.shared
     
@@ -38,6 +41,26 @@ struct AlternativeUIView: View {
             }
             
             Section {
+                #if !os(tvOS)
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Custom Tab Bar")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        
+                        Text("Use custom tab bar instead of native iOS tab bar")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
+                    }
+                    
+                    Spacer()
+                    
+                    Toggle("", isOn: $useCustomTabBar)
+                        .tint(accentColorManager.currentAccentColor)
+                }
+                #endif
+                
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Alternative Season Menu")
@@ -53,7 +76,7 @@ struct AlternativeUIView: View {
                     Spacer()
                     
                     Toggle("", isOn: $useSeasonMenu)
-                        .tint(Color.accentColor)
+                        .tint(accentColorManager.currentAccentColor)
                 }
                 
                 HStack {
@@ -62,7 +85,7 @@ struct AlternativeUIView: View {
                             .font(.subheadline)
                             .fontWeight(.medium)
                         
-                        Text("Use dropdown menu instead of horizontal scroll for seasons")
+                        Text("Use Horizontal list instead of vertical episode list")
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.leading)
@@ -71,7 +94,7 @@ struct AlternativeUIView: View {
                     Spacer()
                     
                     Toggle("", isOn: $horizontalEpisodeList)
-                        .tint(Color.accentColor)
+                        .tint(accentColorManager.currentAccentColor)
                 }
             } header: {
                 Text("DISPLAY OPTIONS")
