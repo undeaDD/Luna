@@ -34,9 +34,11 @@ struct TMDBSearchResult: Codable, Identifiable {
     let firstAirDate: String?
     let voteAverage: Double?
     let popularity: Double
+    let adult: Bool?
+    let genreIds: [Int]?
     
     enum CodingKeys: String, CodingKey {
-        case id, overview, popularity
+        case id, overview, popularity, adult
         case mediaType = "media_type"
         case title, name
         case posterPath = "poster_path"
@@ -44,6 +46,7 @@ struct TMDBSearchResult: Codable, Identifiable {
         case releaseDate = "release_date"
         case firstAirDate = "first_air_date"
         case voteAverage = "vote_average"
+        case genreIds = "genre_ids"
     }
     
     var displayTitle: String {
@@ -111,13 +114,16 @@ struct TMDBMovie: Codable, Identifiable {
     let releaseDate: String?
     let voteAverage: Double
     let popularity: Double
+    let adult: Bool?
+    let genreIds: [Int]?
     
     enum CodingKeys: String, CodingKey {
-        case id, title, overview, popularity
+        case id, title, overview, popularity, adult
         case posterPath = "poster_path"
         case backdropPath = "backdrop_path"
         case releaseDate = "release_date"
         case voteAverage = "vote_average"
+        case genreIds = "genre_ids"
     }
     
     var fullPosterURL: String? {
@@ -142,7 +148,9 @@ struct TMDBMovie: Codable, Identifiable {
             releaseDate: releaseDate,
             firstAirDate: nil,
             voteAverage: voteAverage,
-            popularity: popularity
+            popularity: popularity,
+            adult: adult,
+            genreIds: genreIds
         )
     }
 }
@@ -157,6 +165,7 @@ struct TMDBTVShow: Codable, Identifiable {
     let firstAirDate: String?
     let voteAverage: Double
     let popularity: Double
+    let genreIds: [Int]?
     
     enum CodingKeys: String, CodingKey {
         case id, name, overview, popularity
@@ -164,6 +173,7 @@ struct TMDBTVShow: Codable, Identifiable {
         case backdropPath = "backdrop_path"
         case firstAirDate = "first_air_date"
         case voteAverage = "vote_average"
+        case genreIds = "genre_ids"
     }
     
     var fullPosterURL: String? {
@@ -188,7 +198,9 @@ struct TMDBTVShow: Codable, Identifiable {
             releaseDate: nil,
             firstAirDate: firstAirDate,
             voteAverage: voteAverage,
-            popularity: popularity
+            popularity: popularity,
+            adult: nil,
+            genreIds: genreIds
         )
     }
 }
@@ -214,6 +226,7 @@ struct TMDBMovieDetail: Codable, Identifiable {
     let originalTitle: String?
     let adult: Bool
     let voteCount: Int
+    let releaseDates: TMDBReleaseDates?
     
     enum CodingKeys: String, CodingKey {
         case id, title, overview, popularity, runtime, genres, tagline, status, budget, revenue, adult
@@ -225,6 +238,7 @@ struct TMDBMovieDetail: Codable, Identifiable {
         case originalLanguage = "original_language"
         case originalTitle = "original_title"
         case voteCount = "vote_count"
+        case releaseDates = "release_dates"
     }
     
     var fullPosterURL: String? {
@@ -279,6 +293,7 @@ struct TMDBTVShowDetail: Codable, Identifiable {
     let languages: [String]?
     let originCountry: [String]?
     let type: String?
+    let contentRatings: TMDBContentRatings?
     
     enum CodingKeys: String, CodingKey {
         case id, name, overview, popularity, genres, tagline, status, adult, languages, type
@@ -295,6 +310,7 @@ struct TMDBTVShowDetail: Codable, Identifiable {
         case episodeRunTime = "episode_run_time"
         case inProduction = "in_production"
         case originCountry = "origin_country"
+        case contentRatings = "content_ratings"
     }
     
     var fullPosterURL: String? {
@@ -431,6 +447,7 @@ struct TMDBTVShowWithSeasons: Codable, Identifiable {
     let originCountry: [String]?
     let type: String?
     let seasons: [TMDBSeason]
+    let contentRatings: TMDBContentRatings?
     
     enum CodingKeys: String, CodingKey {
         case id, name, overview, popularity, genres, tagline, status, adult, languages, type, seasons
@@ -447,6 +464,7 @@ struct TMDBTVShowWithSeasons: Codable, Identifiable {
         case episodeRunTime = "episode_run_time"
         case inProduction = "in_production"
         case originCountry = "origin_country"
+        case contentRatings = "content_ratings"
     }
     
     var fullPosterURL: String? {
@@ -503,3 +521,48 @@ struct TMDBTVAlternativeTitle: Codable {
         case iso31661 = "iso_3166_1"
     }
 }
+
+// MARK: - Content Ratings Models
+struct TMDBReleaseDates: Codable {
+    let results: [TMDBReleaseDateResult]
+}
+
+struct TMDBReleaseDateResult: Codable {
+    let iso31661: String
+    let releaseDates: [TMDBReleaseDate]
+    
+    enum CodingKeys: String, CodingKey {
+        case iso31661 = "iso_3166_1"
+        case releaseDates = "release_dates"
+    }
+}
+
+struct TMDBReleaseDate: Codable {
+    let certification: String
+    let iso6391: String?
+    let note: String?
+    let releaseDate: String
+    let type: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case certification, note, type
+        case iso6391 = "iso_639_1"
+        case releaseDate = "release_date"
+    }
+}
+
+struct TMDBContentRatings: Codable {
+    let results: [TMDBContentRating]
+}
+
+struct TMDBContentRating: Codable {
+    let descriptors: [String]?
+    let iso31661: String
+    let rating: String
+    
+    enum CodingKeys: String, CodingKey {
+        case descriptors, rating
+        case iso31661 = "iso_3166_1"
+    }
+}
+

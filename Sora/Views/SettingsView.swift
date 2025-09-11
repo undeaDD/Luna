@@ -65,10 +65,14 @@ struct SettingsView: View {
                             .foregroundColor(.secondary)
                     }
                 }
+                
+                NavigationLink(destination: TMDBFiltersView()) {
+                    Text("Content Filters")
+                }
             } header: {
                 Text("TMDB Settings")
             } footer: {
-                Text("This setting affects the language of movie titles, descriptions, and other content from TMDB.")
+                Text("Configure language preferences and content filtering options for TMDB data.")
             }
             
             Section {

@@ -39,7 +39,6 @@ class ServiceManager: ObservableObject {
         servicesDirectory = documentsDirectory.appendingPathComponent("Services")
         
         createServicesDirectoryIfNeeded()
-        migrateServiceStatesIfNeeded()
         loadExistingServices()
         loadDefaultServicesIfNeeded()
         
@@ -73,10 +72,6 @@ class ServiceManager: ObservableObject {
         let state = serviceStates?[serviceId.uuidString] ?? false
         Logger.shared.log("Loading state for \(serviceId.uuidString): \(state)", type: "ServiceManager")
         return state
-    }
-    
-    private func migrateServiceStatesIfNeeded() {
-        let hasLegacyStates = UserDefaults.standard.object(forKey: "ServiceActiveStates") != nil
     }
     
     // MARK: - Public Methods

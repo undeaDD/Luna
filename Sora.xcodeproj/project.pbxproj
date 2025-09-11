@@ -61,6 +61,10 @@
 		13F187B02E6F38CE00747F7E /* CreateCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187AA2E6F38CE00747F7E /* CreateCollectionView.swift */; };
 		13F187B12E6F38CE00747F7E /* CollectionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187AB2E6F38CE00747F7E /* CollectionDetailView.swift */; };
 		13F5B58D2E72FE9100565E75 /* CustomTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B58C2E72FE9100565E75 /* CustomTabBar.swift */; };
+		13F5B58F2E7308F300565E75 /* HomeSectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B58E2E7308F300565E75 /* HomeSectionsView.swift */; };
+		13F5B5922E73090000565E75 /* HomeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B5912E73090000565E75 /* HomeSection.swift */; };
+		13F5B5952E730CB200565E75 /* TMDBContentFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B5942E730CB200565E75 /* TMDBContentFilter.swift */; };
+		13F5B5972E730CDB00565E75 /* TMDBFiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B5962E730CDB00565E75 /* TMDBFiltersView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -119,6 +123,10 @@
 		13F187AA2E6F38CE00747F7E /* CreateCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateCollectionView.swift; sourceTree = "<group>"; };
 		13F187AB2E6F38CE00747F7E /* CollectionDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionDetailView.swift; sourceTree = "<group>"; };
 		13F5B58C2E72FE9100565E75 /* CustomTabBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTabBar.swift; sourceTree = "<group>"; };
+		13F5B58E2E7308F300565E75 /* HomeSectionsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeSectionsView.swift; sourceTree = "<group>"; };
+		13F5B5912E73090000565E75 /* HomeSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeSection.swift; sourceTree = "<group>"; };
+		13F5B5942E730CB200565E75 /* TMDBContentFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TMDBContentFilter.swift; sourceTree = "<group>"; };
+		13F5B5962E730CDB00565E75 /* TMDBFiltersView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TMDBFiltersView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -169,6 +177,7 @@
 		13F0725D2E4B2D3300EF90EB /* Sora */ = {
 			isa = PBXGroup;
 			children = (
+				13F5B5902E73090000565E75 /* Models */,
 				1375466E2E5F078B00B29944 /* Tracking */,
 				13F072BB2E4B2DA900EF90EB /* Info.plist */,
 				13F072972E4B2D9200EF90EB /* TMDB */,
@@ -241,8 +250,8 @@
 			isa = PBXGroup;
 			children = (
 				13F072822E4B2D9000EF90EB /* Details */,
-				13F072812E4B2D9000EF90EB /* CircularProgressBar.swift */,
 				13F072862E4B2D9000EF90EB /* EpisodeCell.swift */,
+				13F072812E4B2D9000EF90EB /* CircularProgressBar.swift */,
 				13F072872E4B2D9000EF90EB /* StretchyHeader.swift */,
 			);
 			path = MediaInfo;
@@ -317,6 +326,7 @@
 			children = (
 				13F072982E4B2D9200EF90EB /* Models */,
 				13F0729A2E4B2D9200EF90EB /* TMDBService.swift */,
+				13F5B5942E730CB200565E75 /* TMDBContentFilter.swift */,
 			);
 			path = TMDB;
 			sourceTree = "<group>";
@@ -343,7 +353,9 @@
 			children = (
 				13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */,
 				13631B312E4F1A200035C39F /* ServiceSettingsView.swift */,
+				13F5B58E2E7308F300565E75 /* HomeSectionsView.swift */,
 				13830AF12E55F51300B3CDE4 /* AlternativeUIView.swift */,
+				13F5B5962E730CDB00565E75 /* TMDBFiltersView.swift */,
 				13F072792E4B2D9000EF90EB /* ServicesView.swift */,
 				13F0727E2E4B2D9000EF90EB /* LoggerView.swift */,
 			);
@@ -354,19 +366,9 @@
 			isa = PBXGroup;
 			children = (
 				13F187A42E6F38CE00747F7E /* LibraryManager.swift */,
-				13F187A52E6F38CE00747F7E /* Models */,
 				13F187A82E6F38CE00747F7E /* Views */,
 			);
 			path = Library;
-			sourceTree = "<group>";
-		};
-		13F187A52E6F38CE00747F7E /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				13F187A62E6F38CE00747F7E /* LibraryItem.swift */,
-				13F187A72E6F38CE00747F7E /* LibraryCollection.swift */,
-			);
-			path = Models;
 			sourceTree = "<group>";
 		};
 		13F187A82E6F38CE00747F7E /* Views */ = {
@@ -377,6 +379,24 @@
 				13F187AB2E6F38CE00747F7E /* CollectionDetailView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		13F5B5902E73090000565E75 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				13F5B5932E730B0200565E75 /* Library */,
+				13F5B5912E73090000565E75 /* HomeSection.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		13F5B5932E730B0200565E75 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				13F187A62E6F38CE00747F7E /* LibraryItem.swift */,
+				13F187A72E6F38CE00747F7E /* LibraryCollection.swift */,
+			);
+			path = Library;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -463,6 +483,7 @@
 				13F072AD2E4B2D9200EF90EB /* DetailRow.swift in Sources */,
 				13F072B02E4B2D9200EF90EB /* SearchResultCard.swift in Sources */,
 				13F072B42E4B2D9200EF90EB /* resized.swift in Sources */,
+				13F5B5952E730CB200565E75 /* TMDBContentFilter.swift in Sources */,
 				13F072B12E4B2D9200EF90EB /* NormalPlayer.swift in Sources */,
 				13F072AF2E4B2D9200EF90EB /* StretchyHeader.swift in Sources */,
 				13F0729D2E4B2D9200EF90EB /* JSController-Search.swift in Sources */,
@@ -481,7 +502,9 @@
 				13F072A22E4B2D9200EF90EB /* SettingsView.swift in Sources */,
 				13F072AE2E4B2D9200EF90EB /* EpisodeCell.swift in Sources */,
 				13F072AB2E4B2D9200EF90EB /* Movie-Details.swift in Sources */,
+				13F5B58F2E7308F300565E75 /* HomeSectionsView.swift in Sources */,
 				13F0729B2E4B2D9200EF90EB /* Services.swift in Sources */,
+				13F5B5922E73090000565E75 /* HomeSection.swift in Sources */,
 				13F0729C2E4B2D9200EF90EB /* JavaScriptCore+Extensions.swift in Sources */,
 				13F072B22E4B2D9200EF90EB /* FallbackImageView.swift in Sources */,
 				13F072B62E4B2D9200EF90EB /* AmbientColor.swift in Sources */,
@@ -491,6 +514,7 @@
 				13F187AF2E6F38CE00747F7E /* AddToCollectionView.swift in Sources */,
 				13830AEE2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift in Sources */,
 				13F072B92E4B2D9200EF90EB /* TMDBModels.swift in Sources */,
+				13F5B5972E730CDB00565E75 /* TMDBFiltersView.swift in Sources */,
 				13F072AA2E4B2D9200EF90EB /* CircularProgressBar.swift in Sources */,
 				046FB82D2E5218DC007A8EB6 /* JSController-NetworkFetch.swift in Sources */,
 				13F072B52E4B2D9200EF90EB /* URLSession.swift in Sources */,

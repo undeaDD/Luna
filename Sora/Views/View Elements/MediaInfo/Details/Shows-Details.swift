@@ -57,6 +57,10 @@ struct TVShowSeasonsSection: View {
                         DetailRow(title: "Rating", value: String(format: "%.1f/10", tvShow.voteAverage))
                     }
                     
+                    if let ageRating = getAgeRating(from: tvShow.contentRatings) {
+                        DetailRow(title: "Age Rating", value: ageRating)
+                    }
+                    
                     if let firstAirDate = tvShow.firstAirDate, !firstAirDate.isEmpty {
                         DetailRow(title: "First aired", value: "\(firstAirDate)")
                     }
@@ -351,5 +355,23 @@ struct TVShowSeasonsSection: View {
                 }
             }
         }
+    }
+    
+    private func getAgeRating(from contentRatings: TMDBContentRatings?) -> String? {
+        guard let contentRatings = contentRatings else { return nil }
+        
+        for rating in contentRatings.results {
+            if rating.iso31661 == "US" && !rating.rating.isEmpty {
+                return rating.rating
+            }
+        }
+        
+        for rating in contentRatings.results {
+            if !rating.rating.isEmpty {
+                return rating.rating
+            }
+        }
+        
+        return nil
     }
 }
