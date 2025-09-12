@@ -93,7 +93,9 @@ class LibraryManager: ObservableObject {
             if isItemInCollection(bookmarksCollection.id, item: item) {
                 removeItem(from: bookmarksCollection.id, item: item)
             } else {
-                addItem(to: bookmarksCollection.id, item: item)
+                var newItem = item
+                newItem.dateAdded = Date()
+                addItem(to: bookmarksCollection.id, item: newItem)
             }
         }
     }

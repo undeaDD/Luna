@@ -10,6 +10,8 @@ import SwiftUI
 struct AddToCollectionView: View {
     let searchResult: TMDBSearchResult
     @Environment(\.dismiss) var dismiss
+    
+    @StateObject private var accentColorManager = AccentColorManager.shared
     @ObservedObject private var libraryManager = LibraryManager.shared
     @State private var showingCreateSheet = false
     
@@ -35,7 +37,7 @@ struct AddToCollectionView: View {
                             Spacer()
                             if libraryManager.isItemInCollection(collection.id, item: item) {
                                 Image(systemName: "checkmark")
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(accentColorManager.currentAccentColor)
                             }
                         }
                         .contentShape(Rectangle())
