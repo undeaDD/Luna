@@ -10,9 +10,15 @@ import SwiftUI
 struct AlternativeUIView: View {
     @AppStorage("seasonMenu") private var useSeasonMenu = false
     @AppStorage("horizontalEpisodeList") private var horizontalEpisodeList = false
-    #if !os(tvOS)
-    @AppStorage("useCustomTabBar") private var useCustomTabBar = true
-    #endif
+#if !os(tvOS)
+    @AppStorage("useCustomTabBar") private var useCustomTabBar: Bool = {
+        if #available(iOS 26, *) {
+            return false
+        } else {
+            return true
+        }
+    }()
+#endif
     
     @StateObject private var accentColorManager = AccentColorManager.shared
     

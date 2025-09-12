@@ -14,7 +14,15 @@ struct ContentView: View {
     #if os(tvOS)
     private let useCustomTabBar = false
     #else
-    @AppStorage("useCustomTabBar") private var useCustomTabBar = true
+    @AppStorage("useCustomTabBar") private var useCustomTabBarValue: Bool?
+    
+    private var useCustomTabBar: Bool {
+        if #available(iOS 26.0, *) {
+            return useCustomTabBarValue ?? false
+        } else {
+            return useCustomTabBarValue ?? true
+        }
+    }
     #endif
     
     var body: some View {
