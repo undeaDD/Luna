@@ -187,7 +187,7 @@
 				13F072932E4B2D9100EF90EB /* Logger */,
 				13F072752E4B2D9000EF90EB /* Views */,
 				13F0725E2E4B2D3300EF90EB /* SoraApp.swift */,
-				13F0727C2E4B2D9000EF90EB /* MediaDetailView.swift */,
+				13F0727D2E4B2D9000EF90EB /* ContentView.swift */,
 				13F072622E4B2D3700EF90EB /* Assets.xcassets */,
 				13F072642E4B2D3700EF90EB /* Sora.entitlements */,
 				13F072652E4B2D3700EF90EB /* Preview Content */,
@@ -224,7 +224,7 @@
 				13F072782E4B2D9000EF90EB /* SearchView.swift */,
 				13F0727A2E4B2D9000EF90EB /* HomeView.swift */,
 				13F0727B2E4B2D9000EF90EB /* LibraryView.swift */,
-				13F0727D2E4B2D9000EF90EB /* ContentView.swift */,
+				13F0727C2E4B2D9000EF90EB /* MediaDetailView.swift */,
 				13F072C42E4B364B00EF90EB /* SettingsView */,
 				13F0727F2E4B2D9000EF90EB /* View Elements */,
 			);
