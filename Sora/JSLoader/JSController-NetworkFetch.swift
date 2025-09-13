@@ -497,16 +497,16 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
                     });
                     
                     const startTime = Date.now();
-                    const checkInterval = 100;
+                    const checkInterval = 100; 
                     
                     const checkAndClick = function() {
                         const elapsed = (Date.now() - startTime) / 1000;
                         
-                        let allFound = waitSelectors.length === 0;
+                        let allFound = waitSelectors.length === 0; 
                         
                         waitSelectors.forEach(function(selector) {
                             const element = document.querySelector(selector);
-                            if (element && element.offsetParent !== null) {
+                            if (element && element.offsetParent !== null) { 
                                 results.waitResults[selector] = true;
                                 console.log('Element found and visible:', selector);
                             }
@@ -711,7 +711,7 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
                 const text = el.textContent || el.innerText || '';
                 const classes = el.className || '';
                 const id = el.id || '';
-                return text.toLowerCase().includes('play') ||
+                return text.toLowerCase().includes('play') || 
                        classes.toLowerCase().includes('play') ||
                        id.toLowerCase().includes('play') ||
                        el.getAttribute('aria-label')?.toLowerCase().includes('play');

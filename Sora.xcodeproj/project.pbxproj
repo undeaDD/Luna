@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		046FB82D2E5218DC007A8EB6 /* JSController-NetworkFetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 046FB82C2E5218C7007A8EB6 /* JSController-NetworkFetch.swift */; };
 		131A62002E51CCE9009CE905 /* FeaturedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */; };
 		13631B322E4F1A200035C39F /* ServiceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13631B312E4F1A200035C39F /* ServiceSettingsView.swift */; };
 		1375466D2E5F059A00B29944 /* ProgressManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1375466C2E5F059A00B29944 /* ProgressManager.swift */; };
@@ -16,6 +15,7 @@
 		13830AF02E55C04F00B3CDE4 /* AlgorithmSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */; };
 		13830AF22E55F51300B3CDE4 /* AlternativeUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AF12E55F51300B3CDE4 /* AlternativeUIView.swift */; };
 		13830AF42E55F5FF00B3CDE4 /* AccentColorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AF32E55F5FF00B3CDE4 /* AccentColorManager.swift */; };
+		13B2E5742E7597B9009F3271 /* JSController-NetworkFetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B2E5732E7597B9009F3271 /* JSController-NetworkFetch.swift */; };
 		13DCC4F62E58B40F0028AE91 /* HybridSimilarity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13DCC4F52E58B40F0028AE91 /* HybridSimilarity.swift */; };
 		13E34D2A2E535CB500C7BF07 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 13E34D292E535CB500C7BF07 /* Kingfisher */; };
 		13F0725F2E4B2D3300EF90EB /* SoraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F0725E2E4B2D3300EF90EB /* SoraApp.swift */; };
@@ -60,7 +60,6 @@
 		13F187AF2E6F38CE00747F7E /* AddToCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187A92E6F38CE00747F7E /* AddToCollectionView.swift */; };
 		13F187B02E6F38CE00747F7E /* CreateCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187AA2E6F38CE00747F7E /* CreateCollectionView.swift */; };
 		13F187B12E6F38CE00747F7E /* CollectionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187AB2E6F38CE00747F7E /* CollectionDetailView.swift */; };
-		13F5B58D2E72FE9100565E75 /* CustomTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B58C2E72FE9100565E75 /* CustomTabBar.swift */; };
 		13F5B58F2E7308F300565E75 /* HomeSectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B58E2E7308F300565E75 /* HomeSectionsView.swift */; };
 		13F5B5922E73090000565E75 /* HomeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B5912E73090000565E75 /* HomeSection.swift */; };
 		13F5B5952E730CB200565E75 /* TMDBContentFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B5942E730CB200565E75 /* TMDBContentFilter.swift */; };
@@ -68,7 +67,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		046FB82C2E5218C7007A8EB6 /* JSController-NetworkFetch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JSController-NetworkFetch.swift"; sourceTree = "<group>"; };
 		131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeaturedCard.swift; sourceTree = "<group>"; };
 		13631B312E4F1A200035C39F /* ServiceSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceSettingsView.swift; sourceTree = "<group>"; };
 		1375466C2E5F059A00B29944 /* ProgressManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProgressManager.swift; path = Sora/Tracking/Progress/ProgressManager.swift; sourceTree = SOURCE_ROOT; };
@@ -77,6 +75,7 @@
 		13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlgorithmSelectionView.swift; sourceTree = "<group>"; };
 		13830AF12E55F51300B3CDE4 /* AlternativeUIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlternativeUIView.swift; sourceTree = "<group>"; };
 		13830AF32E55F5FF00B3CDE4 /* AccentColorManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccentColorManager.swift; sourceTree = "<group>"; };
+		13B2E5732E7597B9009F3271 /* JSController-NetworkFetch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSController-NetworkFetch.swift"; sourceTree = "<group>"; };
 		13DCC4F52E58B40F0028AE91 /* HybridSimilarity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridSimilarity.swift; sourceTree = "<group>"; };
 		13F0725B2E4B2D3300EF90EB /* Sora.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sora.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13F0725E2E4B2D3300EF90EB /* SoraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraApp.swift; sourceTree = "<group>"; };
@@ -122,7 +121,6 @@
 		13F187A92E6F38CE00747F7E /* AddToCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToCollectionView.swift; sourceTree = "<group>"; };
 		13F187AA2E6F38CE00747F7E /* CreateCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateCollectionView.swift; sourceTree = "<group>"; };
 		13F187AB2E6F38CE00747F7E /* CollectionDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionDetailView.swift; sourceTree = "<group>"; };
-		13F5B58C2E72FE9100565E75 /* CustomTabBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTabBar.swift; sourceTree = "<group>"; };
 		13F5B58E2E7308F300565E75 /* HomeSectionsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeSectionsView.swift; sourceTree = "<group>"; };
 		13F5B5912E73090000565E75 /* HomeSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeSection.swift; sourceTree = "<group>"; };
 		13F5B5942E730CB200565E75 /* TMDBContentFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TMDBContentFilter.swift; sourceTree = "<group>"; };
@@ -207,8 +205,8 @@
 			isa = PBXGroup;
 			children = (
 				13F072BD2E4B2ED600EF90EB /* Services */,
-				046FB82C2E5218C7007A8EB6 /* JSController-NetworkFetch.swift */,
 				13F0726F2E4B2D9000EF90EB /* JavaScriptCore+Extensions.swift */,
+				13B2E5732E7597B9009F3271 /* JSController-NetworkFetch.swift */,
 				13F072702E4B2D9000EF90EB /* JSController-Search.swift */,
 				13F072712E4B2D9000EF90EB /* JSController-Details.swift */,
 				13F072732E4B2D9000EF90EB /* JSController-Streams.swift */,
@@ -234,7 +232,6 @@
 		13F0727F2E4B2D9000EF90EB /* View Elements */ = {
 			isa = PBXGroup;
 			children = (
-				13F5B58C2E72FE9100565E75 /* CustomTabBar.swift */,
 				13F187A32E6F38CE00747F7E /* Library */,
 				13F072802E4B2D9000EF90EB /* MediaInfo */,
 				131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */,
@@ -516,18 +513,17 @@
 				13F072B92E4B2D9200EF90EB /* TMDBModels.swift in Sources */,
 				13F5B5972E730CDB00565E75 /* TMDBFiltersView.swift in Sources */,
 				13F072AA2E4B2D9200EF90EB /* CircularProgressBar.swift in Sources */,
-				046FB82D2E5218DC007A8EB6 /* JSController-NetworkFetch.swift in Sources */,
 				13F072B52E4B2D9200EF90EB /* URLSession.swift in Sources */,
 				131A62002E51CCE9009CE905 /* FeaturedCard.swift in Sources */,
 				13F072A82E4B2D9200EF90EB /* ContentView.swift in Sources */,
 				13F072B72E4B2D9200EF90EB /* Logger.swift in Sources */,
+				13B2E5742E7597B9009F3271 /* JSController-NetworkFetch.swift in Sources */,
 				13F072B82E4B2D9200EF90EB /* LevenshteinDistance.swift in Sources */,
 				13631B322E4F1A200035C39F /* ServiceSettingsView.swift in Sources */,
 				13F072B32E4B2D9200EF90EB /* ServicesResultsSheet.swift in Sources */,
 				13F072A52E4B2D9200EF90EB /* HomeView.swift in Sources */,
 				13F187B12E6F38CE00747F7E /* CollectionDetailView.swift in Sources */,
 				13830AF42E55F5FF00B3CDE4 /* AccentColorManager.swift in Sources */,
-				13F5B58D2E72FE9100565E75 /* CustomTabBar.swift in Sources */,
 				13F072A12E4B2D9200EF90EB /* JSController.swift in Sources */,
 				13F0729F2E4B2D9200EF90EB /* ServiceManager.swift in Sources */,
 				13F187AC2E6F38CE00747F7E /* LibraryManager.swift in Sources */,

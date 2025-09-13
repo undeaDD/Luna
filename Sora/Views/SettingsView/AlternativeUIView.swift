@@ -10,15 +10,6 @@ import SwiftUI
 struct AlternativeUIView: View {
     @AppStorage("seasonMenu") private var useSeasonMenu = false
     @AppStorage("horizontalEpisodeList") private var horizontalEpisodeList = false
-#if !os(tvOS)
-    @AppStorage("useCustomTabBar") private var useCustomTabBar: Bool = {
-        if #available(iOS 26, *) {
-            return false
-        } else {
-            return true
-        }
-    }()
-#endif
     
     @StateObject private var accentColorManager = AccentColorManager.shared
     
@@ -59,26 +50,6 @@ struct AlternativeUIView: View {
                             .multilineTextAlignment(.leading)
                     }
                 }
-                
-                #if !os(tvOS)
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Custom Tab Bar")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                        
-                        Text("Use custom tab bar instead of native iOS tab bar")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.leading)
-                    }
-                    
-                    Spacer()
-                    
-                    Toggle("", isOn: $useCustomTabBar)
-                        .tint(accentColorManager.currentAccentColor)
-                }
-                #endif
                 
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
