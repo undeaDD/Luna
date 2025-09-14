@@ -134,8 +134,6 @@ extension JSContext {
             var request = URLRequest(url: url)
             request.httpMethod = httpMethod
             
-            Logger.shared.log("FetchV2 Request: URL=\(url), Method=\(httpMethod), Body=\(body ?? "nil"), Encoding=\(encoding ?? "utf-8")", type: "Debug")
-            
             func getEncoding(from encodingString: String?) -> String.Encoding {
                 guard let encodingString = encodingString?.lowercased() else {
                     return .utf8
