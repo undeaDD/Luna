@@ -11,7 +11,7 @@ struct ContentView: View {
     @StateObject private var accentColorManager = AccentColorManager.shared
     
     var body: some View {
-        TabView {
+        TabView() {
             HomeView()
                 .tabItem {
                     Image(systemName: "house.fill")

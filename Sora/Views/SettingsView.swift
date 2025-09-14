@@ -65,10 +65,14 @@ struct SettingsView: View {
                             .foregroundColor(.secondary)
                     }
                 }
+                
+                NavigationLink(destination: TMDBFiltersView()) {
+                    Text("Content Filters")
+                }
             } header: {
                 Text("TMDB Settings")
             } footer: {
-                Text("This setting affects the language of movie titles, descriptions, and other content from TMDB.")
+                Text("Configure language preferences and content filtering options for TMDB data.")
             }
             
             Section {
@@ -91,12 +95,12 @@ struct SettingsView: View {
             }
             
             Section {
-                NavigationLink(destination: ServicesView()) {
-                    Text("Services")
+                NavigationLink(destination: AlternativeUIView()) {
+                    Text("Appearance")
                 }
                 
-                NavigationLink(destination: AlternativeUIView()) {
-                    Text("Alternative UI")
+                NavigationLink(destination: ServicesView()) {
+                    Text("Services")
                 }
                 
                 NavigationLink(destination: LoggerView()) {
@@ -109,6 +113,7 @@ struct SettingsView: View {
 }
 
 struct LanguageSelectionView: View {
+    @StateObject private var accentColorManager = AccentColorManager.shared
     @Binding var selectedLanguage: String
     let languages: [(String, String)]
     
@@ -120,6 +125,7 @@ struct LanguageSelectionView: View {
                     Spacer()
                     if selectedLanguage == language.0 {
                         Image(systemName: "checkmark")
+                            .foregroundColor(accentColorManager.currentAccentColor)
                     }
                 }
                 .contentShape(Rectangle())

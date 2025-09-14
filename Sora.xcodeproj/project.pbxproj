@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		046FB82D2E5218DC007A8EB6 /* JSController-NetworkFetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 046FB82C2E5218C7007A8EB6 /* JSController-NetworkFetch.swift */; };
 		131A62002E51CCE9009CE905 /* FeaturedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */; };
 		13631B322E4F1A200035C39F /* ServiceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13631B312E4F1A200035C39F /* ServiceSettingsView.swift */; };
 		1375466D2E5F059A00B29944 /* ProgressManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1375466C2E5F059A00B29944 /* ProgressManager.swift */; };
@@ -16,6 +15,7 @@
 		13830AF02E55C04F00B3CDE4 /* AlgorithmSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */; };
 		13830AF22E55F51300B3CDE4 /* AlternativeUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AF12E55F51300B3CDE4 /* AlternativeUIView.swift */; };
 		13830AF42E55F5FF00B3CDE4 /* AccentColorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AF32E55F5FF00B3CDE4 /* AccentColorManager.swift */; };
+		13B2E5742E7597B9009F3271 /* JSController-NetworkFetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B2E5732E7597B9009F3271 /* JSController-NetworkFetch.swift */; };
 		13DCC4F62E58B40F0028AE91 /* HybridSimilarity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13DCC4F52E58B40F0028AE91 /* HybridSimilarity.swift */; };
 		13E34D2A2E535CB500C7BF07 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 13E34D292E535CB500C7BF07 /* Kingfisher */; };
 		13F0725F2E4B2D3300EF90EB /* SoraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F0725E2E4B2D3300EF90EB /* SoraApp.swift */; };
@@ -54,11 +54,19 @@
 		13F072B92E4B2D9200EF90EB /* TMDBModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072992E4B2D9200EF90EB /* TMDBModels.swift */; };
 		13F072BA2E4B2D9200EF90EB /* TMDBService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F0729A2E4B2D9200EF90EB /* TMDBService.swift */; };
 		13F072C32E4B2F8500EF90EB /* SoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = 13F072C22E4B2F8500EF90EB /* SoraCore */; };
-		13F232B52E60E93A0090BC70 /* SoraDecryption in Frameworks */ = {isa = PBXBuildFile; productRef = 13F232B42E60E93A0090BC70 /* SoraDecryption */; };
+		13F187AC2E6F38CE00747F7E /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187A42E6F38CE00747F7E /* LibraryManager.swift */; };
+		13F187AD2E6F38CE00747F7E /* LibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187A62E6F38CE00747F7E /* LibraryItem.swift */; };
+		13F187AE2E6F38CE00747F7E /* LibraryCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187A72E6F38CE00747F7E /* LibraryCollection.swift */; };
+		13F187AF2E6F38CE00747F7E /* AddToCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187A92E6F38CE00747F7E /* AddToCollectionView.swift */; };
+		13F187B02E6F38CE00747F7E /* CreateCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187AA2E6F38CE00747F7E /* CreateCollectionView.swift */; };
+		13F187B12E6F38CE00747F7E /* CollectionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187AB2E6F38CE00747F7E /* CollectionDetailView.swift */; };
+		13F5B58F2E7308F300565E75 /* HomeSectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B58E2E7308F300565E75 /* HomeSectionsView.swift */; };
+		13F5B5922E73090000565E75 /* HomeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B5912E73090000565E75 /* HomeSection.swift */; };
+		13F5B5952E730CB200565E75 /* TMDBContentFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B5942E730CB200565E75 /* TMDBContentFilter.swift */; };
+		13F5B5972E730CDB00565E75 /* TMDBFiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B5962E730CDB00565E75 /* TMDBFiltersView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		046FB82C2E5218C7007A8EB6 /* JSController-NetworkFetch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JSController-NetworkFetch.swift"; sourceTree = "<group>"; };
 		131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeaturedCard.swift; sourceTree = "<group>"; };
 		13631B312E4F1A200035C39F /* ServiceSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceSettingsView.swift; sourceTree = "<group>"; };
 		1375466C2E5F059A00B29944 /* ProgressManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProgressManager.swift; path = Sora/Tracking/Progress/ProgressManager.swift; sourceTree = SOURCE_ROOT; };
@@ -67,6 +75,7 @@
 		13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlgorithmSelectionView.swift; sourceTree = "<group>"; };
 		13830AF12E55F51300B3CDE4 /* AlternativeUIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlternativeUIView.swift; sourceTree = "<group>"; };
 		13830AF32E55F5FF00B3CDE4 /* AccentColorManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccentColorManager.swift; sourceTree = "<group>"; };
+		13B2E5732E7597B9009F3271 /* JSController-NetworkFetch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSController-NetworkFetch.swift"; sourceTree = "<group>"; };
 		13DCC4F52E58B40F0028AE91 /* HybridSimilarity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridSimilarity.swift; sourceTree = "<group>"; };
 		13F0725B2E4B2D3300EF90EB /* Sora.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sora.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13F0725E2E4B2D3300EF90EB /* SoraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraApp.swift; sourceTree = "<group>"; };
@@ -106,6 +115,16 @@
 		13F072992E4B2D9200EF90EB /* TMDBModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TMDBModels.swift; sourceTree = "<group>"; };
 		13F0729A2E4B2D9200EF90EB /* TMDBService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TMDBService.swift; sourceTree = "<group>"; };
 		13F072BB2E4B2DA900EF90EB /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		13F187A42E6F38CE00747F7E /* LibraryManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
+		13F187A62E6F38CE00747F7E /* LibraryItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryItem.swift; sourceTree = "<group>"; };
+		13F187A72E6F38CE00747F7E /* LibraryCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryCollection.swift; sourceTree = "<group>"; };
+		13F187A92E6F38CE00747F7E /* AddToCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToCollectionView.swift; sourceTree = "<group>"; };
+		13F187AA2E6F38CE00747F7E /* CreateCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateCollectionView.swift; sourceTree = "<group>"; };
+		13F187AB2E6F38CE00747F7E /* CollectionDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionDetailView.swift; sourceTree = "<group>"; };
+		13F5B58E2E7308F300565E75 /* HomeSectionsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeSectionsView.swift; sourceTree = "<group>"; };
+		13F5B5912E73090000565E75 /* HomeSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeSection.swift; sourceTree = "<group>"; };
+		13F5B5942E730CB200565E75 /* TMDBContentFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TMDBContentFilter.swift; sourceTree = "<group>"; };
+		13F5B5962E730CDB00565E75 /* TMDBFiltersView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TMDBFiltersView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,7 +134,6 @@
 			files = (
 				13E34D2A2E535CB500C7BF07 /* Kingfisher in Frameworks */,
 				13F072C32E4B2F8500EF90EB /* SoraCore in Frameworks */,
-				13F232B52E60E93A0090BC70 /* SoraDecryption in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -157,6 +175,7 @@
 		13F0725D2E4B2D3300EF90EB /* Sora */ = {
 			isa = PBXGroup;
 			children = (
+				13F5B5902E73090000565E75 /* Models */,
 				1375466E2E5F078B00B29944 /* Tracking */,
 				13F072BB2E4B2DA900EF90EB /* Info.plist */,
 				13F072972E4B2D9200EF90EB /* TMDB */,
@@ -166,6 +185,7 @@
 				13F072932E4B2D9100EF90EB /* Logger */,
 				13F072752E4B2D9000EF90EB /* Views */,
 				13F0725E2E4B2D3300EF90EB /* SoraApp.swift */,
+				13F0727D2E4B2D9000EF90EB /* ContentView.swift */,
 				13F072622E4B2D3700EF90EB /* Assets.xcassets */,
 				13F072642E4B2D3700EF90EB /* Sora.entitlements */,
 				13F072652E4B2D3700EF90EB /* Preview Content */,
@@ -185,8 +205,8 @@
 			isa = PBXGroup;
 			children = (
 				13F072BD2E4B2ED600EF90EB /* Services */,
-				046FB82C2E5218C7007A8EB6 /* JSController-NetworkFetch.swift */,
 				13F0726F2E4B2D9000EF90EB /* JavaScriptCore+Extensions.swift */,
+				13B2E5732E7597B9009F3271 /* JSController-NetworkFetch.swift */,
 				13F072702E4B2D9000EF90EB /* JSController-Search.swift */,
 				13F072712E4B2D9000EF90EB /* JSController-Details.swift */,
 				13F072732E4B2D9000EF90EB /* JSController-Streams.swift */,
@@ -198,29 +218,21 @@
 		13F072752E4B2D9000EF90EB /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				13F0727D2E4B2D9000EF90EB /* ContentView.swift */,
-				13F072C42E4B364B00EF90EB /* SettingsView */,
-				13F072762E4B2D9000EF90EB /* Base Views */,
-				13F0727F2E4B2D9000EF90EB /* View Elements */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
-		13F072762E4B2D9000EF90EB /* Base Views */ = {
-			isa = PBXGroup;
-			children = (
 				13F072772E4B2D9000EF90EB /* SettingsView.swift */,
 				13F072782E4B2D9000EF90EB /* SearchView.swift */,
 				13F0727A2E4B2D9000EF90EB /* HomeView.swift */,
 				13F0727B2E4B2D9000EF90EB /* LibraryView.swift */,
 				13F0727C2E4B2D9000EF90EB /* MediaDetailView.swift */,
+				13F072C42E4B364B00EF90EB /* SettingsView */,
+				13F0727F2E4B2D9000EF90EB /* View Elements */,
 			);
-			path = "Base Views";
+			path = Views;
 			sourceTree = "<group>";
 		};
 		13F0727F2E4B2D9000EF90EB /* View Elements */ = {
 			isa = PBXGroup;
 			children = (
+				13F187A32E6F38CE00747F7E /* Library */,
 				13F072802E4B2D9000EF90EB /* MediaInfo */,
 				131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */,
 				13F072882E4B2D9000EF90EB /* SearchResultCard.swift */,
@@ -235,8 +247,8 @@
 			isa = PBXGroup;
 			children = (
 				13F072822E4B2D9000EF90EB /* Details */,
-				13F072812E4B2D9000EF90EB /* CircularProgressBar.swift */,
 				13F072862E4B2D9000EF90EB /* EpisodeCell.swift */,
+				13F072812E4B2D9000EF90EB /* CircularProgressBar.swift */,
 				13F072872E4B2D9000EF90EB /* StretchyHeader.swift */,
 			);
 			path = MediaInfo;
@@ -311,6 +323,7 @@
 			children = (
 				13F072982E4B2D9200EF90EB /* Models */,
 				13F0729A2E4B2D9200EF90EB /* TMDBService.swift */,
+				13F5B5942E730CB200565E75 /* TMDBContentFilter.swift */,
 			);
 			path = TMDB;
 			sourceTree = "<group>";
@@ -337,11 +350,50 @@
 			children = (
 				13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */,
 				13631B312E4F1A200035C39F /* ServiceSettingsView.swift */,
+				13F5B58E2E7308F300565E75 /* HomeSectionsView.swift */,
 				13830AF12E55F51300B3CDE4 /* AlternativeUIView.swift */,
+				13F5B5962E730CDB00565E75 /* TMDBFiltersView.swift */,
 				13F072792E4B2D9000EF90EB /* ServicesView.swift */,
 				13F0727E2E4B2D9000EF90EB /* LoggerView.swift */,
 			);
 			path = SettingsView;
+			sourceTree = "<group>";
+		};
+		13F187A32E6F38CE00747F7E /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				13F187A42E6F38CE00747F7E /* LibraryManager.swift */,
+				13F187A82E6F38CE00747F7E /* Views */,
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+		13F187A82E6F38CE00747F7E /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				13F187A92E6F38CE00747F7E /* AddToCollectionView.swift */,
+				13F187AA2E6F38CE00747F7E /* CreateCollectionView.swift */,
+				13F187AB2E6F38CE00747F7E /* CollectionDetailView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		13F5B5902E73090000565E75 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				13F5B5932E730B0200565E75 /* Library */,
+				13F5B5912E73090000565E75 /* HomeSection.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		13F5B5932E730B0200565E75 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				13F187A62E6F38CE00747F7E /* LibraryItem.swift */,
+				13F187A72E6F38CE00747F7E /* LibraryCollection.swift */,
+			);
+			path = Library;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -363,7 +415,6 @@
 			packageProductDependencies = (
 				13F072C22E4B2F8500EF90EB /* SoraCore */,
 				13E34D292E535CB500C7BF07 /* Kingfisher */,
-				13F232B42E60E93A0090BC70 /* SoraDecryption */,
 			);
 			productName = Sora;
 			productReference = 13F0725B2E4B2D3300EF90EB /* Sora.app */;
@@ -396,7 +447,6 @@
 			packageReferences = (
 				13F072C12E4B2F8500EF90EB /* XCRemoteSwiftPackageReference "SoraCore" */,
 				13E34D282E535CB500C7BF07 /* XCRemoteSwiftPackageReference "Kingfisher" */,
-				13F232B32E60E93A0090BC70 /* XCRemoteSwiftPackageReference "SoraDecryption" */,
 			);
 			productRefGroup = 13F0725C2E4B2D3300EF90EB /* Products */;
 			projectDirPath = "";
@@ -430,6 +480,7 @@
 				13F072AD2E4B2D9200EF90EB /* DetailRow.swift in Sources */,
 				13F072B02E4B2D9200EF90EB /* SearchResultCard.swift in Sources */,
 				13F072B42E4B2D9200EF90EB /* resized.swift in Sources */,
+				13F5B5952E730CB200565E75 /* TMDBContentFilter.swift in Sources */,
 				13F072B12E4B2D9200EF90EB /* NormalPlayer.swift in Sources */,
 				13F072AF2E4B2D9200EF90EB /* StretchyHeader.swift in Sources */,
 				13F0729D2E4B2D9200EF90EB /* JSController-Search.swift in Sources */,
@@ -439,6 +490,8 @@
 				13830AF22E55F51300B3CDE4 /* AlternativeUIView.swift in Sources */,
 				13F072BA2E4B2D9200EF90EB /* TMDBService.swift in Sources */,
 				13F0725F2E4B2D3300EF90EB /* SoraApp.swift in Sources */,
+				13F187AD2E6F38CE00747F7E /* LibraryItem.swift in Sources */,
+				13F187B02E6F38CE00747F7E /* CreateCollectionView.swift in Sources */,
 				13F072A42E4B2D9200EF90EB /* ServicesView.swift in Sources */,
 				13F072A62E4B2D9200EF90EB /* LibraryView.swift in Sources */,
 				13F072A92E4B2D9200EF90EB /* LoggerView.swift in Sources */,
@@ -446,27 +499,34 @@
 				13F072A22E4B2D9200EF90EB /* SettingsView.swift in Sources */,
 				13F072AE2E4B2D9200EF90EB /* EpisodeCell.swift in Sources */,
 				13F072AB2E4B2D9200EF90EB /* Movie-Details.swift in Sources */,
+				13F5B58F2E7308F300565E75 /* HomeSectionsView.swift in Sources */,
 				13F0729B2E4B2D9200EF90EB /* Services.swift in Sources */,
+				13F5B5922E73090000565E75 /* HomeSection.swift in Sources */,
 				13F0729C2E4B2D9200EF90EB /* JavaScriptCore+Extensions.swift in Sources */,
 				13F072B22E4B2D9200EF90EB /* FallbackImageView.swift in Sources */,
 				13F072B62E4B2D9200EF90EB /* AmbientColor.swift in Sources */,
+				13F187AE2E6F38CE00747F7E /* LibraryCollection.swift in Sources */,
 				13830AF02E55C04F00B3CDE4 /* AlgorithmSelectionView.swift in Sources */,
 				13F0729E2E4B2D9200EF90EB /* JSController-Details.swift in Sources */,
+				13F187AF2E6F38CE00747F7E /* AddToCollectionView.swift in Sources */,
 				13830AEE2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift in Sources */,
 				13F072B92E4B2D9200EF90EB /* TMDBModels.swift in Sources */,
+				13F5B5972E730CDB00565E75 /* TMDBFiltersView.swift in Sources */,
 				13F072AA2E4B2D9200EF90EB /* CircularProgressBar.swift in Sources */,
-				046FB82D2E5218DC007A8EB6 /* JSController-NetworkFetch.swift in Sources */,
 				13F072B52E4B2D9200EF90EB /* URLSession.swift in Sources */,
 				131A62002E51CCE9009CE905 /* FeaturedCard.swift in Sources */,
 				13F072A82E4B2D9200EF90EB /* ContentView.swift in Sources */,
 				13F072B72E4B2D9200EF90EB /* Logger.swift in Sources */,
+				13B2E5742E7597B9009F3271 /* JSController-NetworkFetch.swift in Sources */,
 				13F072B82E4B2D9200EF90EB /* LevenshteinDistance.swift in Sources */,
 				13631B322E4F1A200035C39F /* ServiceSettingsView.swift in Sources */,
 				13F072B32E4B2D9200EF90EB /* ServicesResultsSheet.swift in Sources */,
 				13F072A52E4B2D9200EF90EB /* HomeView.swift in Sources */,
+				13F187B12E6F38CE00747F7E /* CollectionDetailView.swift in Sources */,
 				13830AF42E55F5FF00B3CDE4 /* AccentColorManager.swift in Sources */,
 				13F072A12E4B2D9200EF90EB /* JSController.swift in Sources */,
 				13F0729F2E4B2D9200EF90EB /* ServiceManager.swift in Sources */,
+				13F187AC2E6F38CE00747F7E /* LibraryManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -713,14 +773,6 @@
 				kind = branch;
 			};
 		};
-		13F232B32E60E93A0090BC70 /* XCRemoteSwiftPackageReference "SoraDecryption" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/cranci1/SoraDecryption";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -733,11 +785,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 13F072C12E4B2F8500EF90EB /* XCRemoteSwiftPackageReference "SoraCore" */;
 			productName = SoraCore;
-		};
-		13F232B42E60E93A0090BC70 /* SoraDecryption */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 13F232B32E60E93A0090BC70 /* XCRemoteSwiftPackageReference "SoraDecryption" */;
-			productName = SoraDecryption;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

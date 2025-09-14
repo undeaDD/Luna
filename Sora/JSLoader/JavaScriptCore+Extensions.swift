@@ -80,7 +80,7 @@ extension JSContext {
             guard let url = URL(string: urlString) else {
                 Logger.shared.log("Invalid URL", type: "Error")
                 DispatchQueue.main.async {
-                    reject.call(withArguments: ["Invalid URL"])
+                    resolve.call(withArguments: ["Invalid URL"])
                 }
                 return
             }
@@ -167,7 +167,7 @@ extension JSContext {
             if httpMethod == "GET" && !bodyIsEmpty {
                 Logger.shared.log("GET request must not have a body", type: "Error")
                 DispatchQueue.main.async {
-                    reject.call(withArguments: ["GET request must not have a body"])
+                    resolve.call(withArguments: ["GET request must not have a body"])
                 }
                 return
             }

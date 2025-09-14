@@ -24,6 +24,7 @@ struct SearchView: View {
     
     @StateObject private var tmdbService = TMDBService.shared
     @StateObject private var serviceManager = ServiceManager.shared
+    @StateObject private var contentFilter = TMDBContentFilter.shared
     @Environment(\.verticalSizeClass) var verticalSizeClass
     
     enum SearchFilter: String, CaseIterable {
@@ -337,6 +338,11 @@ struct SearchView: View {
                 performSearch()
             }
         }
+        .onChange(of: contentFilter.filterHorror) { _ in
+            if !searchText.isEmpty && !searchResults.isEmpty {
+                performSearch()
+            }
+        }
         .onAppear {
             loadSearchHistory()
         }
@@ -431,9 +437,10 @@ struct SearchView: View {
                 let results = try await tmdbService.searchMulti(query: searchText)
                 
                 await MainActor.run {
-                    self.searchResults = results
+                    let filteredResults = contentFilter.filterSearchResults(results)
+                    self.searchResults = filteredResults
                     self.isLoading = false
-                    if !results.isEmpty {
+                    if !filteredResults.isEmpty {
                         self.addToSearchHistory(self.searchText)
                     }
                 }

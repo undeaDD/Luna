@@ -40,24 +40,3 @@ struct SearchResultCard: View {
         .buttonStyle(PlainButtonStyle())
     }
 }
-
-#Preview {
-    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3), spacing: 16) {
-        ForEach(0..<6) { index in
-            SearchResultCard(result: TMDBSearchResult(
-                id: index,
-                mediaType: index % 2 == 0 ? "movie" : "tv",
-                title: index % 2 == 0 ? "Sample Movie \(index)" : nil,
-                name: index % 2 == 1 ? "Sample TV Show \(index)" : nil,
-                overview: "This is a sample overview.",
-                posterPath: nil,
-                backdropPath: nil,
-                releaseDate: "2024-01-15",
-                firstAirDate: nil,
-                voteAverage: 8.5,
-                popularity: 100.0
-            ))
-        }
-    }
-    .padding()
-}

@@ -84,7 +84,7 @@ class TMDBService: ObservableObject {
     
     // MARK: - Get Movie Details
     func getMovieDetails(id: Int) async throws -> TMDBMovieDetail {
-        let urlString = "\(baseURL)/movie/\(id)?api_key=\(apiKey)&language=\(currentLanguage)"
+        let urlString = "\(baseURL)/movie/\(id)?api_key=\(apiKey)&language=\(currentLanguage)&append_to_response=release_dates"
         
         guard let url = URL(string: urlString) else {
             throw TMDBError.invalidURL
@@ -101,7 +101,7 @@ class TMDBService: ObservableObject {
     
     // MARK: - Get TV Show Details
     func getTVShowDetails(id: Int) async throws -> TMDBTVShowDetail {
-        let urlString = "\(baseURL)/tv/\(id)?api_key=\(apiKey)&language=\(currentLanguage)"
+        let urlString = "\(baseURL)/tv/\(id)?api_key=\(apiKey)&language=\(currentLanguage)&append_to_response=content_ratings"
         
         guard let url = URL(string: urlString) else {
             throw TMDBError.invalidURL
@@ -118,7 +118,7 @@ class TMDBService: ObservableObject {
     
     // MARK: - Get TV Show with Seasons
     func getTVShowWithSeasons(id: Int) async throws -> TMDBTVShowWithSeasons {
-        let urlString = "\(baseURL)/tv/\(id)?api_key=\(apiKey)&language=\(currentLanguage)"
+        let urlString = "\(baseURL)/tv/\(id)?api_key=\(apiKey)&language=\(currentLanguage)&append_to_response=content_ratings"
         
         guard let url = URL(string: urlString) else {
             throw TMDBError.invalidURL
@@ -229,23 +229,6 @@ class TMDBService: ObservableObject {
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
             let response = try JSONDecoder().decode(TMDBTVSearchResponse.self, from: data)
-            return response.results
-        } catch {
-            throw TMDBError.networkError(error)
-        }
-    }
-    
-    // MARK: - Get Now Playing Movies
-    func getNowPlayingMovies(page: Int = 1) async throws -> [TMDBMovie] {
-        let urlString = "\(baseURL)/movie/now_playing?api_key=\(apiKey)&language=\(currentLanguage)&page=\(page)"
-        
-        guard let url = URL(string: urlString) else {
-            throw TMDBError.invalidURL
-        }
-        
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            let response = try JSONDecoder().decode(TMDBMovieSearchResponse.self, from: data)
             return response.results
         } catch {
             throw TMDBError.networkError(error)
