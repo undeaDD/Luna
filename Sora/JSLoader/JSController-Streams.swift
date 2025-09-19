@@ -62,17 +62,16 @@ extension JSController {
                     
                     if let streamSources = json["streams"] as? [[String:Any]] {
                         streamUrlsAndHeaders = streamSources
-                        Logger.shared.log("Found \(streamSources.count) streams with structured format", type: "Stream")
+                        Logger.shared.log("Found \(streamSources.count) streams and headers", type: "Stream")
                     } else if let streamSource = json["stream"] as? [String:Any] {
                         streamUrlsAndHeaders = [streamSource]
-                        Logger.shared.log("Found single stream with structured format", type: "Stream")
-                    }
-                    else if let streamsArray = json["streams"] as? [String] {
+                        Logger.shared.log("Found single stream with headers", type: "Stream")
+                    } else if let streamsArray = json["streams"] as? [String] {
                         streamUrls = streamsArray
-                        Logger.shared.log("Found \(streamsArray.count) streams (legacy format)", type: "Stream")
+                        Logger.shared.log("Found \(streamsArray.count) streams", type: "Stream")
                     } else if let streamUrl = json["stream"] as? String {
                         streamUrls = [streamUrl]
-                        Logger.shared.log("Found single stream (legacy format)", type: "Stream")
+                        Logger.shared.log("Found single stream", type: "Stream")
                     }
                     
                     if let subsArray = json["subtitles"] as? [String] {

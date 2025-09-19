@@ -63,7 +63,7 @@ class ServiceManager: ObservableObject {
             result[service.id.uuidString] = service.isActive
         }
         UserDefaults.standard.set(serviceStates, forKey: "ServiceActiveStates")
-        UserDefaults.standard.synchronize() // Force immediate save
+        UserDefaults.standard.synchronize()
         Logger.shared.log("Saved service states: \(serviceStates)", type: "ServiceManager")
     }
     
