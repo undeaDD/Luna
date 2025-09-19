@@ -10,7 +10,7 @@ import AVKit
 class NormalPlayer: AVPlayerViewController, AVPlayerViewControllerDelegate {
     private var originalRate: Float = 1.0
     private var timeObserverToken: Any?
-    private var currentMediaInfo: MediaInfo?
+    var mediaInfo: MediaInfo?
     
 #if os(iOS)
     private var holdGesture: UILongPressGestureRecognizer?
@@ -23,7 +23,9 @@ class NormalPlayer: AVPlayerViewController, AVPlayerViewControllerDelegate {
         setupHoldGesture()
         setupPictureInPictureHandling()
 #endif
-        
+        if let info = mediaInfo {
+            setupProgressTracking(for: info)
+        }
         setupAudioSession()
     }
     
@@ -134,9 +136,6 @@ class NormalPlayer: AVPlayerViewController, AVPlayerViewControllerDelegate {
         if let token = timeObserverToken {
             player?.removeTimeObserver(token)
         }
-        
-        self.currentMediaInfo = mediaInfo
-        
         guard let player = player else {
             Logger.shared.log("No player available for progress tracking", type: "Warning")
             return

@@ -95,6 +95,10 @@ struct SettingsView: View {
             }
             
             Section {
+                NavigationLink(destination: PlayerSettingsView()) {
+                    Text("Media Player")
+                }
+                
                 NavigationLink(destination: AlternativeUIView()) {
                     Text("Appearance")
                 }
