@@ -42,36 +42,38 @@ enum ExternalPlayer: String, CaseIterable, Identifiable {
     }
 }
 
-private enum DefaultsKeys {
-    static let holdSpeedPlayer = "holdSpeedPlayer"
-    static let externalPlayer = "externalPlayer"
-}
-
 final class PlayerSettingsStore: ObservableObject {
     @Published var holdSpeed: Double {
-        didSet { UserDefaults.standard.set(holdSpeed, forKey: DefaultsKeys.holdSpeedPlayer) }
+        didSet { UserDefaults.standard.set(holdSpeed, forKey: "holdSpeedPlayer") }
     }
     
     @Published var externalPlayer: ExternalPlayer {
-        didSet { UserDefaults.standard.set(externalPlayer.rawValue, forKey: DefaultsKeys.externalPlayer) }
+        didSet { UserDefaults.standard.set(externalPlayer.rawValue, forKey: "externalPlayer") }
+    }
+    
+    @Published var landscapeOnly: Bool {
+        didSet { UserDefaults.standard.set(landscapeOnly, forKey: "alwaysLandscape") }
     }
     
     init() {
-        let savedSpeed = UserDefaults.standard.double(forKey: DefaultsKeys.holdSpeedPlayer)
+        let savedSpeed = UserDefaults.standard.double(forKey: "holdSpeedPlayer")
         self.holdSpeed = savedSpeed > 0 ? savedSpeed : 2.0
         
-        let raw = UserDefaults.standard.string(forKey: DefaultsKeys.externalPlayer) ?? ExternalPlayer.none.rawValue
+        let raw = UserDefaults.standard.string(forKey: "externalPlayer") ?? ExternalPlayer.none.rawValue
         self.externalPlayer = ExternalPlayer(rawValue: raw) ?? .none
+        
+        self.landscapeOnly = UserDefaults.standard.bool(forKey: "alwaysLandscape")
     }
 }
 
 struct PlayerSettingsView: View {
+    @StateObject private var accentColorManager = AccentColorManager.shared
     @StateObject private var store = PlayerSettingsStore()
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         List {
-            Section(header: Text("Hold Speed")) {
+            Section(header: Text("Default Player"), footer: Text("This settings work exclusively with the Default media player.")) {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(String(format: "Hold Speed: %.1fx", store.holdSpeed))
@@ -86,7 +88,26 @@ struct PlayerSettingsView: View {
                     
                     Stepper(value: $store.holdSpeed, in: 0.1...3, step: 0.1) {}
                 }
+                
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Force Landscape")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        
+                        Text("Force landscape orientation in the video player.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
+                    }
+                    
+                    Spacer()
+                    
+                    Toggle("", isOn: $store.landscapeOnly)
+                        .tint(accentColorManager.currentAccentColor)
+                }
             }
+            .disabled(store.externalPlayer != .none)
             
             Section(header: Text("Media Player")) {
                 HStack {
