@@ -15,7 +15,7 @@ enum ExternalPlayer: String, CaseIterable, Identifiable {
     case nPlayer = "nPlayer"
     case senPlayer = "SenPlayer"
     case tracy = "TracyPlayer"
-    case iina = "IINA"
+    case vidHub = "VidHub"
     
     var id: String { rawValue }
     
@@ -34,8 +34,8 @@ enum ExternalPlayer: String, CaseIterable, Identifiable {
             return URL(string: "senplayer://x-callback-url/play?url=\(url)")
         case .tracy:
             return URL(string: "tracy://open?url=\(url)")
-        case .iina:
-            return URL(string: "iina://weblink?url=\(url)")
+        case .vidHub:
+            return URL(string: "open-vidhub://x-callback-url/open?url=\(url)")
         case .none:
             return nil
         }

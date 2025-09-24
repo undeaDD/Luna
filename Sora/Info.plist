@@ -5,7 +5,7 @@
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>tracy</string>
-		<string>iina</string>
+		<string>open-vidhub</string>
 		<string>outplayer</string>
 		<string>infuse</string>
 		<string>vlc</string>
