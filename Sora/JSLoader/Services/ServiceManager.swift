@@ -35,7 +35,7 @@ class ServiceManager: ObservableObject {
     ]
     
     private init() {
-#elseif os(tvOS)
+#if os(tvOS)
         documentsDirectory = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
 #else
         documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
