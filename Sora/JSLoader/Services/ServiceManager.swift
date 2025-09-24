@@ -35,7 +35,11 @@ class ServiceManager: ObservableObject {
     ]
     
     private init() {
+#elseif os(tvOS)
+        documentsDirectory = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+#else
         documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+#endif
         servicesDirectory = documentsDirectory.appendingPathComponent("Services")
         
         createServicesDirectoryIfNeeded()
@@ -248,12 +252,18 @@ class ServiceManager: ObservableObject {
         
         let serviceId = generateServiceUUID(from: metadata, folderName: serviceFolderName)
         
+#if os(tvOS)
+        let activeOnAdd = true
+#else
+        let activeOnAdd = false
+#endif
+        
         return Services(
             id: serviceId,
             metadata: metadata,
             localPath: serviceFolderName,
             metadataUrl: metadataUrl,
-            isActive: false
+            isActive: activeOnAdd
         )
     }
     

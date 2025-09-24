@@ -50,8 +50,10 @@ struct HomeSectionsView: View {
                 HStack {
                     Text("Content Sections")
                     Spacer()
+#if !os(tvOS)
                     EditButton()
                         .foregroundColor(accentColorManager.currentAccentColor)
+#endif
                 }
             } footer: {
                 Text("Toggle sections on/off and reorder them by tapping Edit.")

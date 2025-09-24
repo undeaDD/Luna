@@ -74,6 +74,5 @@ struct CollectionDetailView: View {
             }
         }
         .navigationTitle(collection?.name ?? "Collection")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }

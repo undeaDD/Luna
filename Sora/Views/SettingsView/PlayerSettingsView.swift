@@ -74,6 +74,7 @@ struct PlayerSettingsView: View {
     var body: some View {
         List {
             Section(header: Text("Default Player"), footer: Text("This settings work exclusively with the Default media player.")) {
+#if !os(tvOS)
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(String(format: "Hold Speed: %.1fx", store.holdSpeed))
@@ -88,6 +89,7 @@ struct PlayerSettingsView: View {
                     
                     Stepper(value: $store.holdSpeed, in: 0.1...3, step: 0.1) {}
                 }
+#endif
                 
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {

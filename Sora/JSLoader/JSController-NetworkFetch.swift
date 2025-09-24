@@ -5,7 +5,9 @@
 //  Created by paul on 17/08/2025.
 //
 
+#if !os(tvOS)
 import WebKit
+#endif
 import JavaScriptCore
 
 struct NetworkFetchOptions {
@@ -42,6 +44,7 @@ struct NetworkFetchOptions {
     }
 }
 
+#if !os(tvOS)
 extension JSContext {
     func setupNetworkFetch() {
         let networkFetchNativeFunction: @convention(block) (String, JSValue?, JSValue, JSValue) -> Void = { urlString, optionsValue, resolve, reject in
@@ -1447,3 +1450,8 @@ extension NetworkFetchMonitor: WKScriptMessageHandler {
         }
     }
 }
+#else
+extension JSContext {
+    func setupNetworkFetch() {}
+}
+#endif

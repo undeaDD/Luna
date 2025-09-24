@@ -108,7 +108,6 @@ struct ServiceSettingsView: View {
                 serviceHeaderView
             }
             .listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
             
             Section {
                 ForEach(Array(settings.enumerated()), id: \.element.key) { index, setting in
@@ -124,7 +123,6 @@ struct ServiceSettingsView: View {
                 Text("Configuration")
             }
         }
-        .listStyle(InsetGroupedListStyle())
     }
     
     @ViewBuilder
