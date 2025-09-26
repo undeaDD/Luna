@@ -68,6 +68,7 @@ struct MediaDetailView: View {
             navigationOverlay
         }
         .navigationBarHidden(true)
+#if !os(tvOS)
         .gesture(
             DragGesture()
                 .onEnded { value in
@@ -76,6 +77,7 @@ struct MediaDetailView: View {
                     }
                 }
         )
+#endif
         .onAppear {
             loadMediaDetails()
             updateBookmarkStatus()

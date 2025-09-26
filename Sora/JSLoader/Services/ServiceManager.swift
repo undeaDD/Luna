@@ -35,7 +35,11 @@ class ServiceManager: ObservableObject {
     ]
     
     private init() {
+#if os(tvOS)
+        documentsDirectory = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+#else
         documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+#endif
         servicesDirectory = documentsDirectory.appendingPathComponent("Services")
         
         createServicesDirectoryIfNeeded()
@@ -63,7 +67,7 @@ class ServiceManager: ObservableObject {
             result[service.id.uuidString] = service.isActive
         }
         UserDefaults.standard.set(serviceStates, forKey: "ServiceActiveStates")
-        UserDefaults.standard.synchronize() // Force immediate save
+        UserDefaults.standard.synchronize()
         Logger.shared.log("Saved service states: \(serviceStates)", type: "ServiceManager")
     }
     
@@ -93,10 +97,12 @@ class ServiceManager: ObservableObject {
             let jsContent = try await downloadJavaScript(from: metadata.scriptUrl)
             
             await updateProgress(0.8, "Saving files...")
-            let service = try await saveService(metadata: metadata, jsContent: jsContent, metadataUrl: jsonURL)
+            let service = try await saveuPdateService(metadata: metadata, jsContent: jsContent, metadataUrl: jsonURL)
             
             await MainActor.run {
-                self.services.append(service)
+                if !self.services.contains(where: { $0.id == service.id }) {
+                    self.services.append(service)
+                }
                 self.saveServiceStates()
                 self.downloadProgress = 1.0
                 self.downloadMessage = "Service downloaded successfully!"
@@ -248,13 +254,58 @@ class ServiceManager: ObservableObject {
         
         let serviceId = generateServiceUUID(from: metadata, folderName: serviceFolderName)
         
+#if os(tvOS)
+        let activeOnAdd = true
+#else
+        let activeOnAdd = false
+#endif
+        
         return Services(
             id: serviceId,
             metadata: metadata,
             localPath: serviceFolderName,
             metadataUrl: metadataUrl,
-            isActive: false
+            isActive: activeOnAdd
         )
+    }
+    
+    private func saveuPdateService(metadata: ServicesMetadata, jsContent: String, metadataUrl: String) async throws -> Services {
+        if let existingIndex = services.firstIndex(where: { $0.metadata.sourceName == metadata.sourceName && $0.metadata.author.name == metadata.author.name }) {
+            let existingService = services[existingIndex]
+            
+            if existingService.metadata.version == metadata.version {
+                return existingService
+            }
+            
+            let cmp = comparVersions(metadata.version, existingService.metadata.version)
+            if cmp == 1 {
+                let servicePath = servicesDirectory.appendingPathComponent(existingService.localPath)
+                let jsonData = try JSONEncoder().encode(metadata)
+                try jsonData.write(to: servicePath.appendingPathComponent("metadata.json"))
+                try jsContent.write(to: servicePath.appendingPathComponent("script.js"), atomically: true, encoding: .utf8)
+                
+                let updatedService = Services(
+                    id: existingService.id,
+                    metadata: metadata,
+                    localPath: existingService.localPath,
+                    metadataUrl: metadataUrl,
+                    isActive: existingService.isActive
+                )
+                
+                await MainActor.run {
+                    self.services[existingIndex] = updatedService
+                }
+                
+                Logger.shared.log("Updated service to version: \(metadata.sourceName) v\(metadata.version)", type: "ServiceManager")
+                return updatedService
+            } else {
+                return existingService
+            }
+        }
+        
+        let newService = try await saveService(metadata: metadata, jsContent: jsContent, metadataUrl: metadataUrl)
+        await MainActor.run { self.services.append(newService) }
+        return newService
     }
     
     private func createServicesDirectoryIfNeeded() {
@@ -281,11 +332,6 @@ class ServiceManager: ObservableObject {
             return nil
         }
         
-        let serviceIdPath = folderURL.appendingPathComponent("service_id.json")
-        if FileManager.default.fileExists(atPath: serviceIdPath.path) {
-            try? FileManager.default.removeItem(at: serviceIdPath)
-        }
-        
         let serviceId = generateServiceUUID(from: metadata, folderName: folderURL.lastPathComponent)
         let savedState = loadServiceState(for: serviceId)
         
@@ -298,6 +344,20 @@ class ServiceManager: ObservableObject {
             metadataUrl: "",
             isActive: savedState
         )
+    }
+    
+    private func comparVersions(_ a: String, _ b: String) -> Int {
+        let aParts = a.split(separator: ".").map { Int($0) ?? 0 }
+        let bParts = b.split(separator: ".").map { Int($0) ?? 0 }
+        let maxLen = max(aParts.count, bParts.count)
+        
+        for i in 0..<maxLen {
+            let ai = i < aParts.count ? aParts[i] : 0
+            let bi = i < bParts.count ? bParts[i] : 0
+            if ai < bi { return -1 }
+            if ai > bi { return 1 }
+        }
+        return 0
     }
     
     private func updateProgress(_ progress: Double, _ message: String) async {
@@ -327,21 +387,8 @@ class ServiceManager: ObservableObject {
         for serviceURL in defaultServiceURLs {
             do {
                 let metadata = try await downloadAndParseMetadata(from: serviceURL)
-                
-                let existingService = services.contains { service in
-                    service.metadata.sourceName == metadata.sourceName &&
-                    service.metadata.author.name == metadata.author.name &&
-                    service.metadata.version == metadata.version
-                }
-                
-                if existingService { continue }
-                
                 let jsContent = try await downloadJavaScript(from: metadata.scriptUrl)
-                let service = try await saveService(metadata: metadata, jsContent: jsContent, metadataUrl: serviceURL)
-                
-                await MainActor.run {
-                    self.services.append(service)
-                }
+                _ = try await saveuPdateService(metadata: metadata, jsContent: jsContent, metadataUrl: serviceURL)
                 
             } catch {
                 Logger.shared.log("Failed to load default service from \(serviceURL): \(error.localizedDescription)", type: "ServiceManager")

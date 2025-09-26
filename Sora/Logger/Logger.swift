@@ -19,13 +19,13 @@ class Logger {
     private let queue = DispatchQueue(label: "me.cranci.sora.logger", attributes: .concurrent)
     private var logs: [LogEntry] = []
     private let logFileURL: URL
-
+    
     private let maxFileSize = 1024 * 512
-    private let maxLogEntries = 1000 
+    private let maxLogEntries = 1000
     
     private init() {
-        let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        logFileURL = documentDirectory.appendingPathComponent("logs.txt")
+        let tmpDir = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        logFileURL = tmpDir.appendingPathComponent("logs.txt")
     }
     
     func log(_ message: String, type: String = "General") {
@@ -43,11 +43,11 @@ class Logger {
             
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: NSNotification.Name("LoggerNotification"), object: nil,
-                    userInfo: [
-                        "message": message,
-                        "type": type,
-                        "timestamp": entry.timestamp
-                    ]
+                                                userInfo: [
+                                                    "message": message,
+                                                    "type": type,
+                                                    "timestamp": entry.timestamp
+                                                ]
                 )
             }
         }
@@ -59,7 +59,7 @@ class Logger {
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "dd-MM HH:mm:ss"
             result = logs.map { "[\(dateFormatter.string(from: $0.timestamp))] [\($0.type)] \($0.message)" }
-            .joined(separator: "\n----\n")
+                .joined(separator: "\n----\n")
         }
         return result
     }
@@ -70,7 +70,7 @@ class Logger {
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat = "dd-MM HH:mm:ss"
                 let result = self.logs.map { "[\(dateFormatter.string(from: $0.timestamp))] [\($0.type)] \($0.message)" }
-                .joined(separator: "\n----\n")
+                    .joined(separator: "\n----\n")
                 continuation.resume(returning: result)
             }
         }

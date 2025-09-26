@@ -15,6 +15,7 @@
 		13830AF02E55C04F00B3CDE4 /* AlgorithmSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */; };
 		13830AF22E55F51300B3CDE4 /* AlternativeUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AF12E55F51300B3CDE4 /* AlternativeUIView.swift */; };
 		13830AF42E55F5FF00B3CDE4 /* AccentColorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AF32E55F5FF00B3CDE4 /* AccentColorManager.swift */; };
+		139509A22E7DDAE100CB60D4 /* PlayerSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 139509A12E7DDAE100CB60D4 /* PlayerSettingsView.swift */; };
 		13B2E5742E7597B9009F3271 /* JSController-NetworkFetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B2E5732E7597B9009F3271 /* JSController-NetworkFetch.swift */; };
 		13DCC4F62E58B40F0028AE91 /* HybridSimilarity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13DCC4F52E58B40F0028AE91 /* HybridSimilarity.swift */; };
 		13E34D2A2E535CB500C7BF07 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 13E34D292E535CB500C7BF07 /* Kingfisher */; };
@@ -75,6 +76,7 @@
 		13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlgorithmSelectionView.swift; sourceTree = "<group>"; };
 		13830AF12E55F51300B3CDE4 /* AlternativeUIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlternativeUIView.swift; sourceTree = "<group>"; };
 		13830AF32E55F5FF00B3CDE4 /* AccentColorManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccentColorManager.swift; sourceTree = "<group>"; };
+		139509A12E7DDAE100CB60D4 /* PlayerSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerSettingsView.swift; sourceTree = "<group>"; };
 		13B2E5732E7597B9009F3271 /* JSController-NetworkFetch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSController-NetworkFetch.swift"; sourceTree = "<group>"; };
 		13DCC4F52E58B40F0028AE91 /* HybridSimilarity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridSimilarity.swift; sourceTree = "<group>"; };
 		13F0725B2E4B2D3300EF90EB /* Sora.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sora.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -175,9 +177,9 @@
 		13F0725D2E4B2D3300EF90EB /* Sora */ = {
 			isa = PBXGroup;
 			children = (
+				13F072BB2E4B2DA900EF90EB /* Info.plist */,
 				13F5B5902E73090000565E75 /* Models */,
 				1375466E2E5F078B00B29944 /* Tracking */,
-				13F072BB2E4B2DA900EF90EB /* Info.plist */,
 				13F072972E4B2D9200EF90EB /* TMDB */,
 				13F072952E4B2D9100EF90EB /* Algorithm */,
 				13F0728C2E4B2D9100EF90EB /* Extensions */,
@@ -351,6 +353,7 @@
 				13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */,
 				13631B312E4F1A200035C39F /* ServiceSettingsView.swift */,
 				13F5B58E2E7308F300565E75 /* HomeSectionsView.swift */,
+				139509A12E7DDAE100CB60D4 /* PlayerSettingsView.swift */,
 				13830AF12E55F51300B3CDE4 /* AlternativeUIView.swift */,
 				13F5B5962E730CDB00565E75 /* TMDBFiltersView.swift */,
 				13F072792E4B2D9000EF90EB /* ServicesView.swift */,
@@ -478,6 +481,7 @@
 				13F072A32E4B2D9200EF90EB /* SearchView.swift in Sources */,
 				13830AEC2E55BD9200B3CDE4 /* AlgorithmManager.swift in Sources */,
 				13F072AD2E4B2D9200EF90EB /* DetailRow.swift in Sources */,
+				139509A22E7DDAE100CB60D4 /* PlayerSettingsView.swift in Sources */,
 				13F072B02E4B2D9200EF90EB /* SearchResultCard.swift in Sources */,
 				13F072B42E4B2D9200EF90EB /* resized.swift in Sources */,
 				13F5B5952E730CB200565E75 /* TMDBContentFilter.swift in Sources */,
@@ -676,7 +680,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = me.cranci.solar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -719,7 +723,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = me.cranci.solar;
 				PRODUCT_NAME = "$(TARGET_NAME)";

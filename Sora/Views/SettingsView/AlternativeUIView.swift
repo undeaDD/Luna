@@ -27,11 +27,12 @@ struct AlternativeUIView: View {
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.leading)
                     }
-                    
+#if !os(tvOS)
                     ColorPicker("", selection: $accentColorManager.currentAccentColor)
                         .onChange(of: accentColorManager.currentAccentColor) { newColor in
                             accentColorManager.saveAccentColor(newColor)
                         }
+#endif
                 }
             } header: {
                 Text("Interface")

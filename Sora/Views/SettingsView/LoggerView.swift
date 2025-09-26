@@ -177,7 +177,9 @@ struct LogEntryRow: View {
         }
         .contextMenu {
             Button(action: {
+#if !os(tvOS)
                 UIPasteboard.general.string = log.message
+#endif
             }) {
                 Label("Copy Log Message", systemImage: "doc.on.doc")
             }

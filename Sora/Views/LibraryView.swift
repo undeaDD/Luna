@@ -68,7 +68,8 @@ struct LibraryView: View {
                !bookmarksCollection.items.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack(spacing: 12) {
-                        ForEach(bookmarksCollection.items.sorted(by: { $0.dateAdded > $1.dateAdded })) { item in
+                        // Show oldest bookmarks first so order is predictable
+                        ForEach(bookmarksCollection.items.sorted(by: { $0.dateAdded < $1.dateAdded })) { item in
                             NavigationLink(destination: MediaDetailView(searchResult: item.searchResult)) {
                                 BookmarkItemCard(item: item)
                             }
@@ -115,7 +116,7 @@ struct LibraryView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack(spacing: 16) {
                         ForEach(nonBookmarkCollections) { collection in
-                            NavigationLink(destination: CollectionDetailView(collectionId: collection.id)) {
+                            NavigationLink(destination: CollectionDetailView(collection: collection)) {
                                 CollectionCard(collection: collection)
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -137,10 +138,6 @@ struct LibraryView: View {
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
-                    Button("Create Collection") {
-                        showingCreateSheet = true
-                    }
-                    .padding(.top, 12)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 40)
@@ -167,19 +164,21 @@ struct BookmarkItemCard: View {
                 .resizable()
                 .aspectRatio(2/3, contentMode: .fill)
                 .frame(width: 120, height: 180)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 1)
             
             Text(item.searchResult.displayTitle)
                 .font(.caption)
                 .fontWeight(.medium)
-                .lineLimit(2)
-                .multilineTextAlignment(.center)
+                .lineLimit(1)
+                .foregroundColor(.white)
         }
+        .frame(width: 120, alignment: .leading)
     }
 }
 
 struct CollectionCard: View {
-    let collection: LibraryCollection
+    @ObservedObject var collection: LibraryCollection
     
     var body: some View {
         VStack(spacing: 8) {
@@ -203,12 +202,21 @@ struct CollectionCard: View {
             }
             .frame(width: 160)
         }
+        .contextMenu {
+            if collection.name != "Bookmarks" {
+                Button(role: .destructive) {
+                    LibraryManager.shared.deleteCollection(collection)
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
+        }
     }
     
     @ViewBuilder
     @MainActor
     private var collectionPreview: some View {
-        let recentItems = Array(collection.items.sorted(by: { $0.dateAdded > $1.dateAdded }).prefix(4))
+        let recentItems = Array(collection.items.sorted(by: { $0.dateAdded < $1.dateAdded }).suffix(4))
         
         if recentItems.isEmpty {
             VStack {
@@ -220,12 +228,13 @@ struct CollectionCard: View {
                     .foregroundColor(.secondary)
             }
         } else if recentItems.count == 1 {
-            KFImage(URL(string: recentItems[0].searchResult.fullPosterURL ?? ""))
+            let single = recentItems[0]
+            KFImage(URL(string: single.searchResult.fullPosterURL ?? ""))
                 .placeholder {
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
                         .overlay(
-                            Image(systemName: recentItems[0].searchResult.isMovie ? "tv" : "tv.and.mediabox")
+                            Image(systemName: single.searchResult.isMovie ? "tv" : "tv.and.mediabox")
                                 .font(.title2)
                                 .foregroundColor(.white.opacity(0.7))
                         )
@@ -233,15 +242,16 @@ struct CollectionCard: View {
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 160, height: 160)
+                .id(single.id)
         } else {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 2), count: 2), spacing: 2) {
-                ForEach(recentItems.indices, id: \.self) { index in
-                    KFImage(URL(string: recentItems[index].searchResult.fullPosterURL ?? ""))
+                ForEach(recentItems) { item in
+                    KFImage(URL(string: item.searchResult.fullPosterURL ?? ""))
                         .placeholder {
                             Rectangle()
                                 .fill(Color.gray.opacity(0.3))
                                 .overlay(
-                                    Image(systemName: recentItems[index].searchResult.isMovie ? "tv" : "tv.and.mediabox")
+                                    Image(systemName: item.searchResult.isMovie ? "tv" : "tv.and.mediabox")
                                         .font(.caption)
                                         .foregroundColor(.white.opacity(0.7))
                                 )
@@ -250,6 +260,7 @@ struct CollectionCard: View {
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 78, height: 78)
                         .clipped()
+                        .id(item.id)
                 }
                 
                 ForEach(recentItems.count..<4, id: \.self) { _ in
