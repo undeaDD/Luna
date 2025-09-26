@@ -60,18 +60,46 @@ extension JSController {
                     var subtitleUrls: [String]? = nil
                     var streamUrlsAndHeaders : [[String:Any]]? = nil
                     
+                    func normalizeSourceresut(_ source: [String: Any]) -> [String: Any] {
+                        var s = source
+                        
+                        if let url = source["streamUrl"] as? String {
+                            s["stream"] = url
+                            s["url"] = url
+                        } else if let url = source["stream"] as? String {
+                            s["streamUrl"] = url
+                            s["url"] = url
+                        } else if let url = source["url"] as? String {
+                            s["stream"] = url
+                            s["streamUrl"] = url
+                        }
+                        
+                        if let headersAny = source["headers"] as? [String: Any] {
+                            var headers: [String: String] = [:]
+                            for (k, v) in headersAny {
+                                headers[k] = String(describing: v)
+                            }
+                            s["headers"] = headers
+                        } else if let headersStr = source["headers"] as? [String: String] {
+                            s["headers"] = headersStr
+                        }
+                        
+                        return s
+                    }
+                    
                     if let streamSources = json["streams"] as? [[String:Any]] {
-                        streamUrlsAndHeaders = streamSources
-                        Logger.shared.log("Found \(streamSources.count) streams and headers", type: "Stream")
+                        streamUrlsAndHeaders = streamSources.map { normalizeSourceresut($0) }
+                        Logger.shared.log("Found \(streamSources.count) streams with structured format", type: "Stream")
                     } else if let streamSource = json["stream"] as? [String:Any] {
-                        streamUrlsAndHeaders = [streamSource]
-                        Logger.shared.log("Found single stream with headers", type: "Stream")
-                    } else if let streamsArray = json["streams"] as? [String] {
+                        streamUrlsAndHeaders = [normalizeSourceresut(streamSource)]
+                        Logger.shared.log("Found single stream with structured format", type: "Stream")
+                    }
+                    else if let streamsArray = json["streams"] as? [String] {
                         streamUrls = streamsArray
-                        Logger.shared.log("Found \(streamsArray.count) streams", type: "Stream")
+                        Logger.shared.log("Found \(streamsArray.count) streams (legacy format)", type: "Stream")
                     } else if let streamUrl = json["stream"] as? String {
                         streamUrls = [streamUrl]
-                        Logger.shared.log("Found single stream", type: "Stream")
+                        Logger.shared.log("Found single stream (legacy format)", type: "Stream")
                     }
                     
                     if let subsArray = json["subtitles"] as? [String] {
@@ -92,6 +120,35 @@ extension JSController {
                 if let streamsArray = try JSONSerialization.jsonObject(with: data, options: []) as? [String] {
                     Logger.shared.log("Starting multi-stream with \(streamsArray.count) sources", type: "Stream")
                     DispatchQueue.main.async { completion((streamsArray, nil, nil)) }
+                    return
+                }
+                
+                if let dictsArray = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] {
+                    let normalized = dictsArray.map { dict -> [String: Any] in
+                        var s = dict
+                        if let url = dict["streamUrl"] as? String {
+                            s["stream"] = url
+                            s["url"] = url
+                        } else if let url = dict["stream"] as? String {
+                            s["streamUrl"] = url
+                            s["url"] = url
+                        } else if let url = dict["url"] as? String {
+                            s["stream"] = url
+                            s["streamUrl"] = url
+                        }
+                        if let headersAny = dict["headers"] as? [String: Any] {
+                            var headers: [String: String] = [:]
+                            for (k, v) in headersAny {
+                                headers[k] = String(describing: v)
+                            }
+                            s["headers"] = headers
+                        } else if let headersStr = dict["headers"] as? [String: String] {
+                            s["headers"] = headersStr
+                        }
+                        return s
+                    }
+                    Logger.shared.log("Found \(normalized.count) structured streams (top-level array)", type: "Stream")
+                    DispatchQueue.main.async { completion((nil, nil, normalized)) }
                     return
                 }
             } catch {
