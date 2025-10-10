@@ -8,6 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		131A62002E51CCE9009CE905 /* FeaturedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */; };
+		1324E7BB2E940BD70036B5F5 /* PlayerPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7B32E940BD70036B5F5 /* PlayerPreset.swift */; };
+		1324E7BC2E940BD70036B5F5 /* MPVSoftwareRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7B42E940BD70036B5F5 /* MPVSoftwareRenderer.swift */; };
+		1324E7BD2E940BD70036B5F5 /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7B52E940BD70036B5F5 /* PlayerViewController.swift */; };
+		1324E7BE2E940BD70036B5F5 /* SampleBufferDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7B62E940BD70036B5F5 /* SampleBufferDisplayView.swift */; };
+		1324E7BF2E940BD70036B5F5 /* MusicProgressSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7B82E940BD70036B5F5 /* MusicProgressSlider.swift */; };
+		1324E7C12E940BD70036B5F5 /* PiPController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7BA2E940BD70036B5F5 /* PiPController.swift */; };
+		1324E7C52E96EC0E0036B5F5 /* MPVKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1324E7C42E96EC0E0036B5F5 /* MPVKit */; };
 		13631B322E4F1A200035C39F /* ServiceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13631B312E4F1A200035C39F /* ServiceSettingsView.swift */; };
 		1375466D2E5F059A00B29944 /* ProgressManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1375466C2E5F059A00B29944 /* ProgressManager.swift */; };
 		13830AEC2E55BD9200B3CDE4 /* AlgorithmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AEB2E55BD9200B3CDE4 /* AlgorithmManager.swift */; };
@@ -69,6 +76,12 @@
 
 /* Begin PBXFileReference section */
 		131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeaturedCard.swift; sourceTree = "<group>"; };
+		1324E7B32E940BD70036B5F5 /* PlayerPreset.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerPreset.swift; sourceTree = "<group>"; };
+		1324E7B42E940BD70036B5F5 /* MPVSoftwareRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MPVSoftwareRenderer.swift; sourceTree = "<group>"; };
+		1324E7B52E940BD70036B5F5 /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
+		1324E7B62E940BD70036B5F5 /* SampleBufferDisplayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SampleBufferDisplayView.swift; sourceTree = "<group>"; };
+		1324E7B82E940BD70036B5F5 /* MusicProgressSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MusicProgressSlider.swift; sourceTree = "<group>"; };
+		1324E7BA2E940BD70036B5F5 /* PiPController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PiPController.swift; sourceTree = "<group>"; };
 		13631B312E4F1A200035C39F /* ServiceSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceSettingsView.swift; sourceTree = "<group>"; };
 		1375466C2E5F059A00B29944 /* ProgressManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProgressManager.swift; path = Sora/Tracking/Progress/ProgressManager.swift; sourceTree = SOURCE_ROOT; };
 		13830AEB2E55BD9200B3CDE4 /* AlgorithmManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlgorithmManager.swift; sourceTree = "<group>"; };
@@ -134,6 +147,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1324E7C52E96EC0E0036B5F5 /* MPVKit in Frameworks */,
 				13E34D2A2E535CB500C7BF07 /* Kingfisher in Frameworks */,
 				13F072C32E4B2F8500EF90EB /* SoraCore in Frameworks */,
 			);
@@ -142,6 +156,27 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1324E7B22E940BD70036B5F5 /* Player */ = {
+			isa = PBXGroup;
+			children = (
+				1324E7B72E940BD70036B5F5 /* Elements */,
+				1324E7B32E940BD70036B5F5 /* PlayerPreset.swift */,
+				1324E7B42E940BD70036B5F5 /* MPVSoftwareRenderer.swift */,
+				1324E7B52E940BD70036B5F5 /* PlayerViewController.swift */,
+				1324E7B62E940BD70036B5F5 /* SampleBufferDisplayView.swift */,
+				1324E7BA2E940BD70036B5F5 /* PiPController.swift */,
+			);
+			path = Player;
+			sourceTree = "<group>";
+		};
+		1324E7B72E940BD70036B5F5 /* Elements */ = {
+			isa = PBXGroup;
+			children = (
+				1324E7B82E940BD70036B5F5 /* MusicProgressSlider.swift */,
+			);
+			path = Elements;
+			sourceTree = "<group>";
+		};
 		1375466E2E5F078B00B29944 /* Tracking */ = {
 			isa = PBXGroup;
 			children = (
@@ -177,6 +212,7 @@
 		13F0725D2E4B2D3300EF90EB /* Sora */ = {
 			isa = PBXGroup;
 			children = (
+				1324E7B22E940BD70036B5F5 /* Player */,
 				13F072BB2E4B2DA900EF90EB /* Info.plist */,
 				13F5B5902E73090000565E75 /* Models */,
 				1375466E2E5F078B00B29944 /* Tracking */,
@@ -365,8 +401,8 @@
 		13F187A32E6F38CE00747F7E /* Library */ = {
 			isa = PBXGroup;
 			children = (
-				13F187A42E6F38CE00747F7E /* LibraryManager.swift */,
 				13F187A82E6F38CE00747F7E /* Views */,
+				13F187A42E6F38CE00747F7E /* LibraryManager.swift */,
 			);
 			path = Library;
 			sourceTree = "<group>";
@@ -418,6 +454,7 @@
 			packageProductDependencies = (
 				13F072C22E4B2F8500EF90EB /* SoraCore */,
 				13E34D292E535CB500C7BF07 /* Kingfisher */,
+				1324E7C42E96EC0E0036B5F5 /* MPVKit */,
 			);
 			productName = Sora;
 			productReference = 13F0725B2E4B2D3300EF90EB /* Sora.app */;
@@ -450,6 +487,7 @@
 			packageReferences = (
 				13F072C12E4B2F8500EF90EB /* XCRemoteSwiftPackageReference "SoraCore" */,
 				13E34D282E535CB500C7BF07 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				1324E7C32E96EC0E0036B5F5 /* XCRemoteSwiftPackageReference "MPVKit" */,
 			);
 			productRefGroup = 13F0725C2E4B2D3300EF90EB /* Products */;
 			projectDirPath = "";
@@ -502,7 +540,10 @@
 				13F072A72E4B2D9200EF90EB /* MediaDetailView.swift in Sources */,
 				13F072A22E4B2D9200EF90EB /* SettingsView.swift in Sources */,
 				13F072AE2E4B2D9200EF90EB /* EpisodeCell.swift in Sources */,
+				1324E7C12E940BD70036B5F5 /* PiPController.swift in Sources */,
 				13F072AB2E4B2D9200EF90EB /* Movie-Details.swift in Sources */,
+				1324E7BD2E940BD70036B5F5 /* PlayerViewController.swift in Sources */,
+				1324E7BE2E940BD70036B5F5 /* SampleBufferDisplayView.swift in Sources */,
 				13F5B58F2E7308F300565E75 /* HomeSectionsView.swift in Sources */,
 				13F0729B2E4B2D9200EF90EB /* Services.swift in Sources */,
 				13F5B5922E73090000565E75 /* HomeSection.swift in Sources */,
@@ -518,6 +559,9 @@
 				13F5B5972E730CDB00565E75 /* TMDBFiltersView.swift in Sources */,
 				13F072AA2E4B2D9200EF90EB /* CircularProgressBar.swift in Sources */,
 				13F072B52E4B2D9200EF90EB /* URLSession.swift in Sources */,
+				1324E7BC2E940BD70036B5F5 /* MPVSoftwareRenderer.swift in Sources */,
+				1324E7BF2E940BD70036B5F5 /* MusicProgressSlider.swift in Sources */,
+				1324E7BB2E940BD70036B5F5 /* PlayerPreset.swift in Sources */,
 				131A62002E51CCE9009CE905 /* FeaturedCard.swift in Sources */,
 				13F072A82E4B2D9200EF90EB /* ContentView.swift in Sources */,
 				13F072B72E4B2D9200EF90EB /* Logger.swift in Sources */,
@@ -761,12 +805,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		1324E7C32E96EC0E0036B5F5 /* XCRemoteSwiftPackageReference "MPVKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mpvkit/MPVKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.40.0;
+			};
+		};
 		13E34D282E535CB500C7BF07 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 8.5.0;
+				kind = exactVersion;
+				version = 8.6.0;
 			};
 		};
 		13F072C12E4B2F8500EF90EB /* XCRemoteSwiftPackageReference "SoraCore" */ = {
@@ -780,6 +832,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1324E7C42E96EC0E0036B5F5 /* MPVKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1324E7C32E96EC0E0036B5F5 /* XCRemoteSwiftPackageReference "MPVKit" */;
+			productName = MPVKit;
+		};
 		13E34D292E535CB500C7BF07 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 13E34D282E535CB500C7BF07 /* XCRemoteSwiftPackageReference "Kingfisher" */;

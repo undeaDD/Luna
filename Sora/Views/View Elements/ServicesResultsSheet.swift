@@ -1067,8 +1067,6 @@ struct ModulesSearchResultsSheet: View {
                 return
             }
             
-            let playerVC = NormalPlayer()
-            
             let serviceURL = service.metadata.baseUrl
             var finalHeaders: [String: String] = [
                 "Origin": serviceURL,
@@ -1089,24 +1087,42 @@ struct ModulesSearchResultsSheet: View {
             
             Logger.shared.log("Final headers: \(finalHeaders)", type: "Stream")
             
-            let asset = AVURLAsset(url: streamURL, options: ["AVURLAssetHTTPHeaderFieldsKey": finalHeaders])
-            let item = AVPlayerItem(asset: asset)
-            playerVC.player = AVPlayer(playerItem: item)
-            if isMovie {
-                playerVC.mediaInfo = .movie(id: tmdbId, title: mediaTitle)
-            } else if let episode = selectedEpisode {
-                playerVC.mediaInfo = .episode(showId: tmdbId, seasonNumber: episode.seasonNumber, episodeNumber: episode.episodeNumber)
-            }
-            playerVC.modalPresentationStyle = .fullScreen
+            let inAppRaw = UserDefaults.standard.string(forKey: "inAppPlayer") ?? "Normal"
+            let inAppPlayer = (inAppRaw == "MPV") ? "MPV" : "Normal"
             
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let rootVC = windowScene.windows.first?.rootViewController {
-                rootVC.topmostViewController().present(playerVC, animated: true) {
+            if inAppPlayer == "MPV" {
+                let preset = PlayerPreset.presets.first
+                let pvc = PlayerViewController(url: streamURL, preset: preset ?? PlayerPreset(id: .sdrRec709, title: "Default", summary: "", stream: nil, commands: []))
+                pvc.modalPresentationStyle = .fullScreen
+                
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let rootVC = windowScene.windows.first?.rootViewController {
+                    rootVC.topmostViewController().present(pvc, animated: true, completion: nil)
+                } else {
+                    Logger.shared.log("Failed to find root view controller to present MPV player", type: "Error")
+                }
+                return
+            } else {
+                let playerVC = NormalPlayer()
+                let asset = AVURLAsset(url: streamURL, options: ["AVURLAssetHTTPHeaderFieldsKey": finalHeaders])
+                let item = AVPlayerItem(asset: asset)
+                playerVC.player = AVPlayer(playerItem: item)
+                if isMovie {
+                    playerVC.mediaInfo = .movie(id: tmdbId, title: mediaTitle)
+                } else if let episode = selectedEpisode {
+                    playerVC.mediaInfo = .episode(showId: tmdbId, seasonNumber: episode.seasonNumber, episodeNumber: episode.episodeNumber)
+                }
+                playerVC.modalPresentationStyle = .fullScreen
+                
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let rootVC = windowScene.windows.first?.rootViewController {
+                    rootVC.topmostViewController().present(playerVC, animated: true) {
+                        playerVC.player?.play()
+                    }
+                } else {
+                    Logger.shared.log("Failed to find root view controller to present player", type: "Error")
                     playerVC.player?.play()
                 }
-            } else {
-                Logger.shared.log("Failed to find root view controller to present player", type: "Error")
-                playerVC.player?.play()
             }
         }
     }
