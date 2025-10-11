@@ -43,6 +43,7 @@ final class MPVSoftwareRenderer {
     
     private var currentPreset: PlayerPreset?
     private var currentURL: URL?
+    private var currentHeaders: [String: String]?
     
     private var disposeBag: [() -> Void] = []
     
@@ -149,9 +150,10 @@ final class MPVSoftwareRenderer {
         isStopping = false
     }
     
-    func load(url: URL, with preset: PlayerPreset) {
+    func load(url: URL, with preset: PlayerPreset, headers: [String: String]? = nil) {
         currentPreset = preset
         currentURL = url
+        currentHeaders = headers
         
         guard let handle = mpv else { return }
         
@@ -159,6 +161,7 @@ final class MPVSoftwareRenderer {
             guard let self else { return }
             self.apply(commands: preset.commands, on: handle)
             self.command(handle, ["stop"])
+            self.updateHTTPHeaders(headers)
             
             var finalURL = url
             if !url.isFileURL {
@@ -172,7 +175,7 @@ final class MPVSoftwareRenderer {
     
     func reloadCurrentItem() {
         guard let url = currentURL, let preset = currentPreset else { return }
-        load(url: url, with: preset)
+        load(url: url, with: preset, headers: currentHeaders)
     }
     
     func applyPreset(_ preset: PlayerPreset) {
@@ -185,19 +188,42 @@ final class MPVSoftwareRenderer {
     }
     
     private func setOption(name: String, value: String) {
+        guard let handle = mpv else { return }
         _ = value.withCString { valuePointer in
             name.withCString { namePointer in
-                mpv_set_option_string(mpv, namePointer, valuePointer)
+                mpv_set_option_string(handle, namePointer, valuePointer)
             }
         }
     }
     
     private func setProperty(name: String, value: String) {
+        guard let handle = mpv else { return }
         _ = value.withCString { valuePointer in
             name.withCString { namePointer in
-                mpv_set_property_string(mpv, namePointer, valuePointer)
+                mpv_set_property_string(handle, namePointer, valuePointer)
             }
         }
+    }
+    
+    private func clearProperty(name: String) {
+        guard let handle = mpv else { return }
+        name.withCString { namePointer in
+            mpv_set_property(handle, namePointer, MPV_FORMAT_NONE, nil)
+        }
+    }
+    
+    private func updateHTTPHeaders(_ headers: [String: String]?) {
+        guard let headers, !headers.isEmpty else {
+            clearProperty(name: "http-header-fields")
+            return
+        }
+        
+        let headerString = headers
+            .map { key, value in
+                "\(key): \(value)"
+            }
+            .joined(separator: "\r\n")
+        setProperty(name: "http-header-fields", value: headerString)
     }
     
     private func createRenderContext() throws {

@@ -1114,7 +1114,11 @@ struct ModulesSearchResultsSheet: View {
             
             if inAppPlayer == "MPV" {
                 let preset = PlayerPreset.presets.first
-                let pvc = PlayerViewController(url: streamURL, preset: preset ?? PlayerPreset(id: .sdrRec709, title: "Default", summary: "", stream: nil, commands: []))
+                let pvc = PlayerViewController(
+                    url: streamURL,
+                    preset: preset ?? PlayerPreset(id: .sdrRec709, title: "Default", summary: "", stream: nil, commands: []),
+                    headers: finalHeaders
+                )
                 pvc.modalPresentationStyle = .fullScreen
                 
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,

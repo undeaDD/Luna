@@ -87,6 +87,7 @@ final class PlayerViewController: UIViewController {
     private var pipController: PiPController?
     private var initialURL: URL?
     private var initialPreset: PlayerPreset?
+    private var initialHeaders: [String: String]?
     
     private var controlsHideWorkItem: DispatchWorkItem?
     private var controlsVisible: Bool = true
@@ -110,7 +111,7 @@ final class PlayerViewController: UIViewController {
         showControlsTemporarily()
         
         if let url = initialURL, let preset = initialPreset {
-            load(url: url, preset: preset)
+            load(url: url, preset: preset, headers: initialHeaders)
         }
         
         updateProgressHostingController()
@@ -135,14 +136,15 @@ final class PlayerViewController: UIViewController {
         NotificationCenter.default.removeObserver(self)
     }
     
-    convenience init(url: URL, preset: PlayerPreset) {
+    convenience init(url: URL, preset: PlayerPreset, headers: [String: String]? = nil) {
         self.init(nibName: nil, bundle: nil)
         self.initialURL = url
         self.initialPreset = preset
+        self.initialHeaders = headers
     }
     
-    func load(url: URL, preset: PlayerPreset) {
-        renderer.load(url: url, with: preset)
+    func load(url: URL, preset: PlayerPreset, headers: [String: String]? = nil) {
+        renderer.load(url: url, with: preset, headers: headers)
     }
     
     private func setupLayout() {
