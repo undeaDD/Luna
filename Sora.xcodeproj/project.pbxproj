@@ -286,8 +286,8 @@
 			children = (
 				13F072822E4B2D9000EF90EB /* Details */,
 				13F072862E4B2D9000EF90EB /* EpisodeCell.swift */,
-				13F072812E4B2D9000EF90EB /* CircularProgressBar.swift */,
 				13F072872E4B2D9000EF90EB /* StretchyHeader.swift */,
+				13F072812E4B2D9000EF90EB /* CircularProgressBar.swift */,
 			);
 			path = MediaInfo;
 			sourceTree = "<group>";

@@ -21,6 +21,7 @@ struct HomeView: View {
     @State private var errorMessage: String?
     @State private var heroContent: TMDBSearchResult?
     @State private var ambientColor: Color = Color.black
+    @AppStorage("useSolidBackgroundBehindHero") private var useSolidBackgroundBehindHero = false
     @State private var hasLoadedContent = false
     
     @AppStorage("homeSections") private var homeSectionsData: Data = {
@@ -57,8 +58,14 @@ struct HomeView: View {
     
     private var homeContent: some View {
         ZStack {
-            ambientColor
-                .ignoresSafeArea(.all)
+            Group {
+                if useSolidBackgroundBehindHero {
+                    Color(.systemBackground)
+                } else {
+                    ambientColor
+                }
+            }
+            .ignoresSafeArea(.all)
             
             if isLoading {
                 loadingView

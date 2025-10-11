@@ -10,6 +10,7 @@ import SwiftUI
 struct AlternativeUIView: View {
     @AppStorage("seasonMenu") private var useSeasonMenu = false
     @AppStorage("horizontalEpisodeList") private var horizontalEpisodeList = false
+    @AppStorage("useSolidBackgroundBehindHero") private var useSolidBackgroundBehindHero = false
     
     @StateObject private var accentColorManager = AccentColorManager.shared
     
@@ -85,6 +86,24 @@ struct AlternativeUIView: View {
                     Spacer()
                     
                     Toggle("", isOn: $horizontalEpisodeList)
+                        .tint(accentColorManager.currentAccentColor)
+                }
+                
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Solid Background")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        
+                        Text("This will replace the gradient with a solid background")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
+                    }
+                    
+                    Spacer()
+                    
+                    Toggle("", isOn: $useSolidBackgroundBehindHero)
                         .tint(accentColorManager.currentAccentColor)
                 }
             } header: {
