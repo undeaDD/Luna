@@ -44,6 +44,7 @@ class ServiceManager: ObservableObject {
         
         createServicesDirectoryIfNeeded()
         loadExistingServices()
+        loadServiceOrder()
         loadDefaultServicesIfNeeded()
         
         let activeCount = services.filter { $0.isActive }.count
@@ -125,6 +126,7 @@ class ServiceManager: ObservableObject {
             }
             
             services.removeAll { $0.id == service.id }
+            saveServiceOrder()
             
             var serviceStates = UserDefaults.standard.object(forKey: "ServiceActiveStates") as? [String: Bool] ?? [:]
             serviceStates.removeValue(forKey: service.id.uuidString)
@@ -145,12 +147,49 @@ class ServiceManager: ObservableObject {
         Logger.shared.log("Set service \(service.metadata.sourceName) (\(service.id.uuidString)) to \(isActive ? "active" : "inactive")", type: "ServiceManager")
     }
     
+    func moveServices(fromOffsets offsets: IndexSet, toOffset: Int) {
+        var mutable = services
+        mutable.move(fromOffsets: offsets, toOffset: toOffset)
+        services = mutable
+        saveServiceOrder()
+        Logger.shared.log("Moved services - new order: \(services.map { $0.localPath })", type: "ServiceManager")
+    }
+    
     func toggleServiceState(_ service: Services) {
         setServiceState(service, isActive: !service.isActive)
     }
     
     var activeServices: [Services] {
         services.filter(\.isActive)
+    }
+    
+    // MARK: - Service Order Persistence
+    
+    private func saveServiceOrder() {
+        let order = services.map { $0.localPath }
+        UserDefaults.standard.set(order, forKey: "ServiceOrder")
+        UserDefaults.standard.synchronize()
+        Logger.shared.log("Saved service order: \(order)", type: "ServiceManager")
+    }
+    
+    private func loadServiceOrder() {
+        guard let saved = UserDefaults.standard.stringArray(forKey: "ServiceOrder"), !saved.isEmpty else { return }
+        
+        var ordered: [Services] = []
+        var remaining = services
+        
+        for path in saved {
+            if let idx = remaining.firstIndex(where: { $0.localPath == path }) {
+                ordered.append(remaining.remove(at: idx))
+            }
+        }
+        
+        ordered.append(contentsOf: remaining)
+        
+        if ordered.map({ $0.localPath }) != services.map({ $0.localPath }) {
+            services = ordered
+            Logger.shared.log("Loaded and applied saved service order: \(saved)", type: "ServiceManager")
+        }
     }
     
     func refreshDefaultServices() async {
@@ -166,31 +205,58 @@ class ServiceManager: ObservableObject {
         
         await updateProgress(0.0, "Searching...")
         
-        var allResults: [(service: Services, results: [SearchItem])] = []
-        let totalServices = activeServicesList.count
+        var resultsMap: [UUID: [SearchItem]] = [:]
         
-        for (index, service) in activeServicesList.enumerated() {
-            let progress = Double(index) / Double(totalServices)
-            await updateProgress(progress, "Searching \(service.metadata.sourceName)...")
+        await withTaskGroup(of: (UUID, [SearchItem]).self) { group in
+            for service in activeServicesList {
+                group.addTask { [weak self] in
+                    guard let self = self else { return (service.id, []) }
+                    return await withTaskCancellationHandler(handler: {
+                    }, operation: {
+                        let timeoutSeconds: UInt64 = 10 // per-service timeout
+                        return await ServiceManager.withTimeout(seconds: timeoutSeconds) {
+                            let found = await self.searchInService(service: service, query: query)
+                            return (service.id, found)
+                        } ?? (service.id, [])
+                    })
+                }
+            }
             
-            let results = await searchInService(service: service, query: query)
-            allResults.append((service: service, results: results))
+            for await (serviceId, results) in group {
+                resultsMap[serviceId] = results
+            }
+        }
+        
+        let orderedResults = activeServicesList.map { service in
+            (service: service, results: resultsMap[service.id] ?? [])
         }
         
         await resetDownloadState()
-        return allResults
+        return orderedResults
     }
     
-    func searchInActiveServicesProgressively(query: String, onResult: @escaping @MainActor (Services, [SearchItem]) -> Void, onComplete: @escaping @MainActor () -> Void) async {
+    func searchInActiveServicesProgressively(query: String, onResult: @escaping @MainActor (Services, [SearchItem]?) -> Void, onComplete: @escaping @MainActor () -> Void) async {
         let activeServicesList = activeServices
         guard !activeServicesList.isEmpty else {
             await MainActor.run { onComplete() }
             return
         }
         
-        for service in activeServicesList {
-            let results = await searchInService(service: service, query: query)
-            await MainActor.run { onResult(service, results) }
+        await withTaskGroup(of: (Services, [SearchItem]?).self) { group in
+            for service in activeServicesList {
+                group.addTask { [weak self] in
+                    guard let self = self else { return (service, []) }
+                    let timeoutSeconds: UInt64 = 10
+                    let res = await ServiceManager.withTimeout(seconds: timeoutSeconds) {
+                        return await self.searchInService(service: service, query: query)
+                    }
+                    return (service, res)
+                }
+            }
+            
+            for await (service, results) in group {
+                await MainActor.run { onResult(service, results) }
+            }
         }
         
         await MainActor.run { onComplete() }
@@ -547,6 +613,27 @@ enum ServiceError: LocalizedError {
         case .scriptDownloadFailed: return "Failed to download JavaScript file"
         case .invalidJSON: return "Invalid JSON format"
         case .invalidScriptContent: return "Invalid JavaScript content"
+        }
+    }
+}
+
+// MARK: - Concurrency Helpers
+
+extension ServiceManager {
+    fileprivate static func withTimeout<T>(seconds: UInt64, operation: @escaping () async -> T) async -> T? {
+        await withTaskGroup(of: T?.self) { group in
+            group.addTask {
+                return await operation()
+            }
+            
+            group.addTask {
+                try? await Task.sleep(nanoseconds: seconds * 1_000_000_000)
+                return nil
+            }
+            
+            let result = await group.next() ?? nil
+            group.cancelAll()
+            return result
         }
     }
 }
