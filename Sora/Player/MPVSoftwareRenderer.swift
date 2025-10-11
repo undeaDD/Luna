@@ -23,11 +23,12 @@ final class MPVSoftwareRenderer {
         case renderContextCreation(Int32)
     }
     
-    private static let log = OSLog(subsystem: "com.github.mediaplayer", category: "MPVSoftwareRenderer")
+    private static let log = OSLog(subsystem: "me.cranci.mediaplayer", category: "MPVSoftwareRenderer")
     
     private let displayLayer: AVSampleBufferDisplayLayer
     private let renderQueue = DispatchQueue(label: "mpv.software.render", qos: .userInitiated)
     private let eventQueue = DispatchQueue(label: "mpv.software.events", qos: .utility)
+    private let eventQueueGroup = DispatchGroup()
     private let stateQueue = DispatchQueue(label: "mpv.software.state", attributes: .concurrent)
     private let renderQueueKey = DispatchSpecificKey<Void>()
     
@@ -46,6 +47,7 @@ final class MPVSoftwareRenderer {
     private var disposeBag: [() -> Void] = []
     
     private var isRunning = false
+    private var isStopping = false
     private var shouldClearPixelBuffer = false
     private let bgraFormatCString: [CChar] = Array("bgra\0".utf8CString)
     
@@ -99,33 +101,52 @@ final class MPVSoftwareRenderer {
     }
     
     func stop() {
-        guard isRunning else { return }
+        if isStopping { return }
+        if !isRunning, mpv == nil { return }
         isRunning = false
-        mpv_render_context_set_update_callback(renderContext, nil, nil)
-        mpv_render_context_free(renderContext)
-        renderContext = nil
+        isStopping = true
         
-        renderQueue.async { [weak self] in
+        var handleForShutdown: OpaquePointer?
+        
+        renderQueue.sync { [weak self] in
             guard let self else { return }
-            if let handle = self.mpv {
+            
+            if let ctx = self.renderContext {
+                mpv_render_context_set_update_callback(ctx, nil, nil)
+                mpv_render_context_free(ctx)
+                self.renderContext = nil
+            }
+            
+            handleForShutdown = self.mpv
+            if let handle = handleForShutdown {
                 mpv_set_wakeup_callback(handle, nil, nil)
-                self.command(handle, ["stop"])
+                self.command(handle, ["quit"])
+                mpv_wakeup(handle)
+            }
+            
+            self.formatDescription = nil
+        }
+        
+        eventQueueGroup.wait()
+        
+        renderQueue.sync { [weak self] in
+            guard let self else { return }
+            
+            if let handle = handleForShutdown {
                 mpv_destroy(handle)
             }
             self.mpv = nil
             
             self.disposeBag.forEach { $0() }
             self.disposeBag.removeAll()
-            
-            self.renderQueueSync {
-                self.formatDescription = nil
-            }
         }
         
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             self.displayLayer.flushAndRemoveImage()
         }
+        
+        isStopping = false
     }
     
     func load(url: URL, with preset: PlayerPreset) {
@@ -247,7 +268,7 @@ final class MPVSoftwareRenderer {
     
     private func scheduleRender() {
         renderQueue.async { [weak self] in
-            guard let self else { return }
+            guard let self, self.isRunning, !self.isStopping else { return }
             self.performRenderUpdate()
         }
     }
@@ -524,12 +545,18 @@ final class MPVSoftwareRenderer {
     }
     
     private func processEvents() {
+        eventQueueGroup.enter()
+        let group = eventQueueGroup
         eventQueue.async { [weak self] in
-            guard let self, let handle = self.mpv else { return }
-            while let eventPointer = mpv_wait_event(handle, 0) {
+            defer { group.leave() }
+            guard let self else { return }
+            while !self.isStopping {
+                guard let handle = self.mpv else { return }
+                guard let eventPointer = mpv_wait_event(handle, 0) else { return }
                 let event = eventPointer.pointee
-                if event.event_id == MPV_EVENT_NONE { break }
+                if event.event_id == MPV_EVENT_NONE { continue }
                 self.handleEvent(event)
+                if event.event_id == MPV_EVENT_SHUTDOWN { break }
             }
         }
     }

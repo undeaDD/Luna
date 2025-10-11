@@ -125,9 +125,14 @@ final class PlayerViewController: UIViewController {
     }
     
     deinit {
-        renderer.stop()
-        NotificationCenter.default.removeObserver(self)
+        pipController?.delegate = nil
+        if pipController?.isPictureInPictureActive == true {
+            pipController?.stopPictureInPicture()
+        }
         pipController?.invalidate()
+        renderer.stop()
+        displayLayer.removeFromSuperlayer()
+        NotificationCenter.default.removeObserver(self)
     }
     
     convenience init(url: URL, preset: PlayerPreset) {
@@ -172,7 +177,7 @@ final class PlayerViewController: UIViewController {
             centerPlayPauseButton.widthAnchor.constraint(equalToConstant: 72),
             centerPlayPauseButton.heightAnchor.constraint(equalToConstant: 72),
             
-            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
             closeButton.leadingAnchor.constraint(equalTo: progressContainer.leadingAnchor),
             closeButton.widthAnchor.constraint(equalToConstant: 24),
             closeButton.heightAnchor.constraint(equalToConstant: 24),
@@ -295,7 +300,18 @@ final class PlayerViewController: UIViewController {
     }
     
     @objc private func closeTapped() {
-        dismiss(animated: true, completion: nil)
+        pipController?.delegate = nil
+        if pipController?.isPictureInPictureActive == true {
+            pipController?.stopPictureInPicture()
+        }
+        
+        renderer.stop()
+        
+        if presentingViewController != nil {
+            dismiss(animated: true, completion: nil)
+        } else {
+            view.window?.rootViewController?.dismiss(animated: true, completion: nil)
+        }
     }
     
     @objc private func pipTapped() {
