@@ -34,6 +34,7 @@ struct MediaDetailView: View {
     
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.verticalSizeClass) private var verticalSizeClass
+    @AppStorage("useSolidBackgroundBehindHero") private var useSolidBackgroundBehindHero = false
     
     private let headerHeight: CGFloat = 550
     private let minHeaderHeight: CGFloat = 400
@@ -54,8 +55,14 @@ struct MediaDetailView: View {
     
     var body: some View {
         ZStack {
-            ambientColor
-                .ignoresSafeArea(.all)
+            Group {
+                if useSolidBackgroundBehindHero {
+                    Color(.systemBackground)
+                } else {
+                    ambientColor
+                }
+            }
+            .ignoresSafeArea(.all)
             
             if isLoading {
                 loadingView

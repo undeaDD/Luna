@@ -42,6 +42,13 @@ enum ExternalPlayer: String, CaseIterable, Identifiable {
     }
 }
 
+enum InAppPlayer: String, CaseIterable, Identifiable {
+    case normal = "Normal"
+    case mpv = "MPV"
+    
+    var id: String { rawValue }
+}
+
 final class PlayerSettingsStore: ObservableObject {
     @Published var holdSpeed: Double {
         didSet { UserDefaults.standard.set(holdSpeed, forKey: "holdSpeedPlayer") }
@@ -55,6 +62,10 @@ final class PlayerSettingsStore: ObservableObject {
         didSet { UserDefaults.standard.set(landscapeOnly, forKey: "alwaysLandscape") }
     }
     
+    @Published var inAppPlayer: InAppPlayer {
+        didSet { UserDefaults.standard.set(inAppPlayer.rawValue, forKey: "inAppPlayer") }
+    }
+    
     init() {
         let savedSpeed = UserDefaults.standard.double(forKey: "holdSpeedPlayer")
         self.holdSpeed = savedSpeed > 0 ? savedSpeed : 2.0
@@ -63,6 +74,9 @@ final class PlayerSettingsStore: ObservableObject {
         self.externalPlayer = ExternalPlayer(rawValue: raw) ?? .none
         
         self.landscapeOnly = UserDefaults.standard.bool(forKey: "alwaysLandscape")
+        
+        let inAppRaw = UserDefaults.standard.string(forKey: "inAppPlayer") ?? InAppPlayer.normal.rawValue
+        self.inAppPlayer = InAppPlayer(rawValue: inAppRaw) ?? .normal
     }
 }
 
@@ -127,6 +141,26 @@ struct PlayerSettingsView: View {
                     Picker("", selection: $store.externalPlayer) {
                         ForEach(ExternalPlayer.allCases) { player in
                             Text(player.rawValue).tag(player)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
+                
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("In-App Player")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        
+                        Text("Select the internal player software.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
+                    }
+                    
+                    Picker("", selection: $store.inAppPlayer) {
+                        ForEach(InAppPlayer.allCases) { p in
+                            Text(p.rawValue).tag(p)
                         }
                     }
                     .pickerStyle(.menu)

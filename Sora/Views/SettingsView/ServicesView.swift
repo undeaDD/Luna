@@ -20,6 +20,11 @@ struct ServicesView: View {
             }
         }
         .navigationTitle("Services")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                EditButton()
+            }
+        }
         .refreshable {
             await serviceManager.refreshDefaultServices()
         }
@@ -46,6 +51,9 @@ struct ServicesView: View {
                 ServiceRow(service: service, serviceManager: serviceManager)
             }
             .onDelete(perform: deleteServices)
+            .onMove { indices, newOffset in
+                serviceManager.moveServices(fromOffsets: indices, toOffset: newOffset)
+            }
         }
     }
     
@@ -90,14 +98,9 @@ struct ServiceRow: View {
                 .padding(.trailing, 10)
             
             VStack(alignment: .leading, spacing: 2) {
-                HStack(alignment: .bottom, spacing: 4) {
-                    Text(service.metadata.sourceName)
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                    Text("v\(service.metadata.version)")
-                        .font(.caption)
-                        .foregroundStyle(.gray)
-                }
+                Text(service.metadata.sourceName)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
                 
                 HStack(spacing: 8) {
                     Text(service.metadata.author.name)
@@ -109,6 +112,14 @@ struct ServiceRow: View {
                         .foregroundStyle(.gray)
                     
                     Text(service.metadata.language)
+                        .font(.caption)
+                        .foregroundStyle(.gray)
+                    
+                    Text("•")
+                        .font(.caption)
+                        .foregroundStyle(.gray)
+                    
+                    Text("v\(service.metadata.version)")
                         .font(.caption)
                         .foregroundStyle(.gray)
                 }

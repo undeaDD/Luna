@@ -30,6 +30,7 @@ struct ModulesSearchResultsSheet: View {
     @State private var expandedServices: Set<UUID> = []
     @State private var isSearching = true
     @State private var searchedServices: Set<UUID> = []
+    @State private var failedServices: Set<UUID> = []
     @State private var totalServicesCount = 0
     @State private var player: AVPlayer?
     @State private var playerViewController: NormalPlayer?
@@ -594,13 +595,19 @@ struct ModulesSearchResultsSheet: View {
                         var newModuleResults = moduleResults
                         
                         if let existingIndex = newModuleResults.firstIndex(where: { $0.service.id == service.id }) {
-                            newModuleResults[existingIndex] = (service: service, results: results)
+                            newModuleResults[existingIndex] = (service: service, results: results ?? [])
                         } else {
-                            newModuleResults.append((service: service, results: results))
+                            newModuleResults.append((service: service, results: results ?? []))
                         }
                         
                         moduleResults = newModuleResults
                         searchedServices.insert(service.id)
+                        
+                        if results == nil {
+                            failedServices.insert(service.id)
+                        } else {
+                            failedServices.remove(service.id)
+                        }
                     }
                 },
                 onComplete: {
@@ -613,14 +620,22 @@ struct ModulesSearchResultsSheet: View {
                                 query: originalTitle,
                                 onResult: { service, additionalResults in
                                     Task { @MainActor in
+                                        let additional = additionalResults ?? []
+                                        
                                         if let existingIndex = self.moduleResults.firstIndex(where: { $0.service.id == service.id }) {
                                             let existingResults = self.moduleResults[existingIndex].results
                                             let existingHrefs = Set(existingResults.map { $0.href })
-                                            let newResults = additionalResults.filter { !existingHrefs.contains($0.href) }
+                                            let newResults = additional.filter { !existingHrefs.contains($0.href) }
                                             let mergedResults = existingResults + newResults
                                             self.moduleResults[existingIndex] = (service: service, results: mergedResults)
                                         } else {
-                                            self.moduleResults.append((service: service, results: additionalResults))
+                                            self.moduleResults.append((service: service, results: additional))
+                                        }
+                                        
+                                        if additionalResults == nil {
+                                            failedServices.insert(service.id)
+                                        } else {
+                                            failedServices.remove(service.id)
                                         }
                                     }
                                 },
@@ -656,6 +671,13 @@ struct ModulesSearchResultsSheet: View {
             Text(service.metadata.sourceName)
                 .font(.subheadline)
                 .fontWeight(.medium)
+            
+            if failedServices.contains(service.id) {
+                Image(systemName: "exclamationmark.octagon.fill")
+                    .foregroundColor(.red)
+                    .font(.caption)
+                    .padding(.leading, 6)
+            }
             
             Spacer()
             
@@ -1067,8 +1089,6 @@ struct ModulesSearchResultsSheet: View {
                 return
             }
             
-            let playerVC = NormalPlayer()
-            
             let serviceURL = service.metadata.baseUrl
             var finalHeaders: [String: String] = [
                 "Origin": serviceURL,
@@ -1089,24 +1109,46 @@ struct ModulesSearchResultsSheet: View {
             
             Logger.shared.log("Final headers: \(finalHeaders)", type: "Stream")
             
-            let asset = AVURLAsset(url: streamURL, options: ["AVURLAssetHTTPHeaderFieldsKey": finalHeaders])
-            let item = AVPlayerItem(asset: asset)
-            playerVC.player = AVPlayer(playerItem: item)
-            if isMovie {
-                playerVC.mediaInfo = .movie(id: tmdbId, title: mediaTitle)
-            } else if let episode = selectedEpisode {
-                playerVC.mediaInfo = .episode(showId: tmdbId, seasonNumber: episode.seasonNumber, episodeNumber: episode.episodeNumber)
-            }
-            playerVC.modalPresentationStyle = .fullScreen
+            let inAppRaw = UserDefaults.standard.string(forKey: "inAppPlayer") ?? "Normal"
+            let inAppPlayer = (inAppRaw == "MPV") ? "MPV" : "Normal"
             
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let rootVC = windowScene.windows.first?.rootViewController {
-                rootVC.topmostViewController().present(playerVC, animated: true) {
+            if inAppPlayer == "MPV" {
+                let preset = PlayerPreset.presets.first
+                let pvc = PlayerViewController(
+                    url: streamURL,
+                    preset: preset ?? PlayerPreset(id: .sdrRec709, title: "Default", summary: "", stream: nil, commands: []),
+                    headers: finalHeaders
+                )
+                pvc.modalPresentationStyle = .fullScreen
+                
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let rootVC = windowScene.windows.first?.rootViewController {
+                    rootVC.topmostViewController().present(pvc, animated: true, completion: nil)
+                } else {
+                    Logger.shared.log("Failed to find root view controller to present MPV player", type: "Error")
+                }
+                return
+            } else {
+                let playerVC = NormalPlayer()
+                let asset = AVURLAsset(url: streamURL, options: ["AVURLAssetHTTPHeaderFieldsKey": finalHeaders])
+                let item = AVPlayerItem(asset: asset)
+                playerVC.player = AVPlayer(playerItem: item)
+                if isMovie {
+                    playerVC.mediaInfo = .movie(id: tmdbId, title: mediaTitle)
+                } else if let episode = selectedEpisode {
+                    playerVC.mediaInfo = .episode(showId: tmdbId, seasonNumber: episode.seasonNumber, episodeNumber: episode.episodeNumber)
+                }
+                playerVC.modalPresentationStyle = .fullScreen
+                
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let rootVC = windowScene.windows.first?.rootViewController {
+                    rootVC.topmostViewController().present(playerVC, animated: true) {
+                        playerVC.player?.play()
+                    }
+                } else {
+                    Logger.shared.log("Failed to find root view controller to present player", type: "Error")
                     playerVC.player?.play()
                 }
-            } else {
-                Logger.shared.log("Failed to find root view controller to present player", type: "Error")
-                playerVC.player?.play()
             }
         }
     }
