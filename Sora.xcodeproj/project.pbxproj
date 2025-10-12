@@ -807,7 +807,7 @@
 /* Begin XCRemoteSwiftPackageReference section */
 		1324E7C32E96EC0E0036B5F5 /* XCRemoteSwiftPackageReference "MPVKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/cranci1/MPVKit";
+			repositoryURL = "https://github.com/mpvkit/MPVKit";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 0.40.0;
