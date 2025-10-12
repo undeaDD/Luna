@@ -737,6 +737,10 @@ final class MPVSoftwareRenderer {
         let clamped = max(0, seconds)
         command(handle, ["seek", String(clamped), "absolute"])
     }
+    func seek(by seconds: Double) {
+        guard let handle = mpv else { return }
+        command(handle, ["seek", String(seconds), "relative"])
+    }
 }
 
 // MARK: - Color State

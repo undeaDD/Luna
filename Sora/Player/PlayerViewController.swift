@@ -60,6 +60,28 @@ final class PlayerViewController: UIViewController {
         return b
     }()
     
+    private let skipBackwardButton: UIButton = {
+        let b = UIButton(type: .system)
+        b.translatesAutoresizingMaskIntoConstraints = false
+        let cfg = UIImage.SymbolConfiguration(pointSize: 22, weight: .semibold)
+        let img = UIImage(systemName: "gobackward.15", withConfiguration: cfg)
+        b.setImage(img, for: .normal)
+        b.tintColor = .white
+        b.alpha = 0.0
+        return b
+    }()
+    
+    private let skipForwardButton: UIButton = {
+        let b = UIButton(type: .system)
+        b.translatesAutoresizingMaskIntoConstraints = false
+        let cfg = UIImage.SymbolConfiguration(pointSize: 22, weight: .semibold)
+        let img = UIImage(systemName: "goforward.15", withConfiguration: cfg)
+        b.setImage(img, for: .normal)
+        b.tintColor = .white
+        b.alpha = 0.0
+        return b
+    }()
+    
     private let progressContainer: UIView = {
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
@@ -95,6 +117,7 @@ final class PlayerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
+        modalPresentationCapturesStatusBarAppearance = true
         setupLayout()
         setupActions()
         
@@ -118,6 +141,19 @@ final class PlayerViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appWillEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+    }
+    
+    override var prefersStatusBarHidden: Bool { true }
+    override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation { .fade }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setNeedsStatusBarAppearanceUpdate()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        setNeedsStatusBarAppearanceUpdate()
     }
     
     override func viewDidLayoutSubviews() {
@@ -155,6 +191,8 @@ final class PlayerViewController: UIViewController {
         videoContainer.addSubview(progressContainer)
         videoContainer.addSubview(closeButton)
         videoContainer.addSubview(pipButton)
+        videoContainer.addSubview(skipBackwardButton)
+        videoContainer.addSubview(skipForwardButton)
         
         NSLayoutConstraint.activate([
             videoContainer.topAnchor.constraint(equalTo: view.topAnchor),
@@ -188,6 +226,16 @@ final class PlayerViewController: UIViewController {
             pipButton.leadingAnchor.constraint(equalTo: closeButton.trailingAnchor, constant: 12),
             pipButton.widthAnchor.constraint(equalToConstant: 36),
             pipButton.heightAnchor.constraint(equalToConstant: 30),
+            
+            skipBackwardButton.centerYAnchor.constraint(equalTo: centerPlayPauseButton.centerYAnchor),
+            skipBackwardButton.trailingAnchor.constraint(equalTo: centerPlayPauseButton.leadingAnchor, constant: -56),
+            skipBackwardButton.widthAnchor.constraint(equalToConstant: 48),
+            skipBackwardButton.heightAnchor.constraint(equalToConstant: 48),
+            
+            skipForwardButton.centerYAnchor.constraint(equalTo: centerPlayPauseButton.centerYAnchor),
+            skipForwardButton.leadingAnchor.constraint(equalTo: centerPlayPauseButton.trailingAnchor, constant: 56),
+            skipForwardButton.widthAnchor.constraint(equalToConstant: 48),
+            skipForwardButton.heightAnchor.constraint(equalToConstant: 48)
         ])
     }
     
@@ -195,6 +243,8 @@ final class PlayerViewController: UIViewController {
         centerPlayPauseButton.addTarget(self, action: #selector(centerPlayPauseTapped), for: .touchUpInside)
         closeButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
         pipButton.addTarget(self, action: #selector(pipTapped), for: .touchUpInside)
+        skipBackwardButton.addTarget(self, action: #selector(skipBackwardTapped), for: .touchUpInside)
+        skipForwardButton.addTarget(self, action: #selector(skipForwardTapped), for: .touchUpInside)
         let tap = UITapGestureRecognizer(target: self, action: #selector(containerTapped))
         videoContainer.addGestureRecognizer(tap)
     }
@@ -211,6 +261,16 @@ final class PlayerViewController: UIViewController {
     
     @objc private func centerPlayPauseTapped() {
         playPauseTapped()
+    }
+    
+    @objc private func skipBackwardTapped() {
+        renderer.seek(by: -15)
+        showControlsTemporarily()
+    }
+    
+    @objc private func skipForwardTapped() {
+        renderer.seek(by: 15)
+        showControlsTemporarily()
     }
     
     private func updateProgressHostingController() {
@@ -278,6 +338,8 @@ final class PlayerViewController: UIViewController {
                 self.progressContainer.alpha = 1.0
                 self.closeButton.alpha = 1.0
                 self.pipButton.alpha = 1.0
+                self.skipBackwardButton.alpha = 1.0
+                self.skipForwardButton.alpha = 1.0
             }
         }
         let work = DispatchWorkItem { [weak self] in
@@ -297,6 +359,8 @@ final class PlayerViewController: UIViewController {
                 self.progressContainer.alpha = 0.0
                 self.closeButton.alpha = 0.0
                 self.pipButton.alpha = 0.0
+                self.skipBackwardButton.alpha = 0.0
+                self.skipForwardButton.alpha = 0.0
             }
         }
     }
