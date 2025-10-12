@@ -367,10 +367,7 @@ final class MPVSoftwareRenderer {
                     let param0 = mpv_render_param(type: MPV_RENDER_PARAM_SW_SIZE, data: UnsafeMutableRawPointer(dimsPointer.baseAddress))
                     let param1 = mpv_render_param(type: MPV_RENDER_PARAM_SW_FORMAT, data: UnsafeMutableRawPointer(mutating: formatPointer.baseAddress))
                     let param2 = mpv_render_param(type: MPV_RENDER_PARAM_SW_STRIDE, data: UnsafeMutableRawPointer(mutating: stridePointer))
-                    var param3: mpv_render_param
-                    withUnsafePointer(to: pointerValue) { pointerPointer in
-                        param3 = mpv_render_param(type: MPV_RENDER_PARAM_SW_POINTER, data: UnsafeMutableRawPointer(mutating: pointerPointer))
-                    }
+                    let param3 = mpv_render_param(type: MPV_RENDER_PARAM_SW_POINTER, data: pointerValue)
                     let param4 = mpv_render_param(type: MPV_RENDER_PARAM_INVALID, data: nil)
                     var params = [param0, param1, param2, param3, param4]
                     
