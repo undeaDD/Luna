@@ -6,7 +6,6 @@
 //
 
 import Libmpv
-import os.log
 import CoreMedia
 import CoreVideo
 import AVFoundation
@@ -23,13 +22,11 @@ final class MPVSoftwareRenderer {
         case renderContextCreation(Int32)
     }
     
-    private static let log = OSLog(subsystem: "me.cranci.mediaplayer", category: "MPVSoftwareRenderer")
-    
     private let displayLayer: AVSampleBufferDisplayLayer
     private let renderQueue = DispatchQueue(label: "mpv.software.render", qos: .userInitiated)
     private let eventQueue = DispatchQueue(label: "mpv.software.events", qos: .utility)
-    private let eventQueueGroup = DispatchGroup()
     private let stateQueue = DispatchQueue(label: "mpv.software.state", attributes: .concurrent)
+    private let eventQueueGroup = DispatchGroup()
     private let renderQueueKey = DispatchSpecificKey<Void>()
     
     private var mpv: OpaquePointer?
@@ -358,7 +355,7 @@ final class MPVSoftwareRenderer {
         let stride = Int32(CVPixelBufferGetBytesPerRow(buffer))
         let expectedMinStride = Int32(width * 4)
         if stride < expectedMinStride {
-            os_log("Unexpected pixel buffer stride %d < expected %d — skipping render to avoid memory corruption", log: Self.log, type: .error, stride, expectedMinStride)
+            Logger.shared.log("Unexpected pixel buffer stride \(stride) < expected \(expectedMinStride) — skipping render to avoid memory corruption", type: "Error")
             CVPixelBufferUnlockBaseAddress(buffer, [])
             return
         }
@@ -377,7 +374,7 @@ final class MPVSoftwareRenderer {
                     _ = params.withUnsafeMutableBufferPointer { paramsPointer in
                         let rc = mpv_render_context_render(context, paramsPointer.baseAddress)
                         if rc < 0 {
-                            os_log("mpv_render_context_render returned error %d", log: Self.log, type: .error, rc)
+                            Logger.shared.log("mpv_render_context_render returned error \(rc)", type: "Error")
                         }
                         return rc
                     }
@@ -410,7 +407,7 @@ final class MPVSoftwareRenderer {
                 self.pixelBufferPoolAuxAttributes = poolAttrs as CFDictionary
             }
         } else {
-            os_log("Failed to create CVPixelBufferPool (%d)", log: Self.log, type: .error, status)
+            Logger.shared.log("Failed to create CVPixelBufferPool (\(status))", type: "Error")
         }
     }
     
@@ -422,7 +419,7 @@ final class MPVSoftwareRenderer {
         
         var sampleBuffer: CMSampleBuffer?
         guard let formatDescription = formatDescription else {
-            os_log("Missing formatDescription when creating sample buffer — skipping frame", log: Self.log, type: .error)
+            Logger.shared.log("Missing formatDescription when creating sample buffer — skipping frame", type: "Error")
             return
         }
         let result = CMSampleBufferCreateForImageBuffer(allocator: kCFAllocatorDefault, imageBuffer: buffer, dataReady: true, makeDataReadyCallback: nil, refcon: nil, formatDescription: formatDescription, sampleTiming: &timing, sampleBufferOut: &sampleBuffer)
@@ -446,7 +443,7 @@ final class MPVSoftwareRenderer {
                     CMTimebaseSetTime(timebase, time: presentationTime)
                     self.displayLayer.controlTimebase = timebase
                 } else {
-                    os_log("Failed to create control timebase", log: Self.log, type: .error)
+                    Logger.shared.log("Failed to create control timebase", type: "Error")
                 }
             }
             
@@ -456,8 +453,6 @@ final class MPVSoftwareRenderer {
             
             self.displayLayer.enqueue(sample)
         }
-        
-        os_log("Enqueued frame %dx%d", log: Self.log, type: .debug, Int(size.width), Int(size.height))
     }
     
     private func updateFormatDescriptionIfNeeded(for buffer: CVPixelBuffer) -> Bool {
@@ -597,12 +592,17 @@ final class MPVSoftwareRenderer {
                 refreshProperty(named: name)
             }
         case MPV_EVENT_SHUTDOWN:
-            os_log("mpv shutdown", log: Self.log, type: .info)
+            Logger.shared.log("mpv shutdown", type: "Warn")
         case MPV_EVENT_LOG_MESSAGE:
             if let logMessagePointer = event.data?.assumingMemoryBound(to: mpv_event_log_message.self) {
                 let component = String(cString: logMessagePointer.pointee.prefix)
                 let text = String(cString: logMessagePointer.pointee.text)
-                os_log("mpv[%{public}@] %{public}@", log: Self.log, type: .debug, component, text)
+                let lower = text.lowercased()
+                if lower.contains("error") {
+                    Logger.shared.log("mpv[\(component)] \(text)", type: "Error")
+                } else if lower.contains("warn") || lower.contains("warning") || lower.contains("deprecated") {
+                    Logger.shared.log("mpv[\(component)] \(text)", type: "Warn")
+                }
             }
         default:
             break

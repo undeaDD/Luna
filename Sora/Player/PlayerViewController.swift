@@ -38,6 +38,58 @@ final class PlayerViewController: UIViewController {
         return v
     }()
     
+    private lazy var errorBanner: UIView = {
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.backgroundColor = UIColor { trait -> UIColor in
+            return trait.userInterfaceStyle == .dark ? UIColor(red: 0.85, green: 0.15, blue: 0.15, alpha: 0.95) : UIColor(red: 0.9, green: 0.17, blue: 0.17, alpha: 0.98)
+        }
+        container.layer.cornerRadius = 10
+        container.clipsToBounds = true
+        container.alpha = 0.0
+        
+        let icon = UIImageView(image: UIImage(systemName: "exclamationmark.triangle.fill"))
+        icon.tintColor = .white
+        icon.translatesAutoresizingMaskIntoConstraints = false
+        
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .white
+        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.numberOfLines = 2
+        label.tag = 101
+        
+        let btn = UIButton(type: .system)
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setTitle("View Logs", for: .normal)
+        btn.setTitleColor(.white, for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
+        btn.backgroundColor = UIColor(white: 1.0, alpha: 0.12)
+        btn.layer.cornerRadius = 6
+        btn.contentEdgeInsets = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
+        btn.addTarget(self, action: #selector(viewLogsTapped), for: .touchUpInside)
+        
+        container.addSubview(icon)
+        container.addSubview(label)
+        container.addSubview(btn)
+        
+        NSLayoutConstraint.activate([
+            icon.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
+            icon.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            icon.widthAnchor.constraint(equalToConstant: 20),
+            icon.heightAnchor.constraint(equalToConstant: 20),
+            
+            label.leadingAnchor.constraint(equalTo: icon.trailingAnchor, constant: 8),
+            label.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            
+            btn.leadingAnchor.constraint(equalTo: label.trailingAnchor, constant: 12),
+            btn.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -10),
+            btn.centerYAnchor.constraint(equalTo: container.centerYAnchor)
+        ])
+        
+        return container
+    }()
+    
     private let closeButton: UIButton = {
         let b = UIButton(type: .system)
         b.translatesAutoresizingMaskIntoConstraints = false
@@ -121,10 +173,13 @@ final class PlayerViewController: UIViewController {
         setupLayout()
         setupActions()
         
+        NotificationCenter.default.addObserver(self, selector: #selector(handleLoggerNotification(_:)), name: NSNotification.Name("LoggerNotification"), object: nil)
+        
         do {
             try renderer.start()
         } catch {
-            print("Failed to start MPV renderer: \(error)")
+            Logger.shared.log("Failed to start MPV renderer: \(error)", type: "Error")
+            presentErrorAlert(title: "Playback Error", message: "Failed to start renderer: \(error)")
         }
         
         displayLayer.videoGravity = .resizeAspect
@@ -141,6 +196,11 @@ final class PlayerViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appWillEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        view.bringSubviewToFront(errorBanner)
     }
     
     override var prefersStatusBarHidden: Bool { true }
@@ -187,6 +247,7 @@ final class PlayerViewController: UIViewController {
         view.addSubview(videoContainer)
         videoContainer.layer.addSublayer(displayLayer)
         videoContainer.addSubview(controlsOverlayView)
+        view.addSubview(errorBanner)
         videoContainer.addSubview(centerPlayPauseButton)
         videoContainer.addSubview(progressContainer)
         videoContainer.addSubview(closeButton)
@@ -212,6 +273,11 @@ final class PlayerViewController: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
+            errorBanner.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
+            errorBanner.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            errorBanner.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.92),
+            errorBanner.heightAnchor.constraint(greaterThanOrEqualToConstant: 40),
+            
             centerPlayPauseButton.centerXAnchor.constraint(equalTo: videoContainer.centerXAnchor),
             centerPlayPauseButton.centerYAnchor.constraint(equalTo: videoContainer.centerYAnchor),
             centerPlayPauseButton.widthAnchor.constraint(equalToConstant: 72),
@@ -318,6 +384,90 @@ final class PlayerViewController: UIViewController {
             self.centerPlayPauseButton.isHidden = false
             self.showControlsTemporarily()
         }
+    }
+    
+    // MARK: - Error display helpers
+    private func presentErrorAlert(title: String, message: String) {
+        DispatchQueue.main.async {
+            let ac = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            ac.addAction(UIAlertAction(title: "View Logs", style: .default, handler: { _ in
+                self.viewLogsTapped()
+            }))
+            self.showErrorBanner(message)
+            if self.presentedViewController == nil {
+                self.present(ac, animated: true, completion: nil)
+            }
+        }
+    }
+    
+    private func showTransientErrorBanner(_ message: String, duration: TimeInterval = 4.0) {
+        DispatchQueue.main.async {
+            self.showErrorBanner(message)
+            NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.hideErrorBanner), object: nil)
+            self.perform(#selector(self.hideErrorBanner), with: nil, afterDelay: duration)
+        }
+    }
+    
+    @objc private func hideErrorBanner() {
+        DispatchQueue.main.async {
+            UIView.animate(withDuration: 0.25) {
+                self.errorBanner.alpha = 0.0
+            }
+        }
+    }
+    
+    @objc private func handleLoggerNotification(_ note: Notification) {
+        guard let info = note.userInfo,
+              let message = info["message"] as? String,
+              let type = info["type"] as? String else { return }
+        
+        let lower = type.lowercased()
+        if lower == "error" || lower == "warn" || message.lowercased().contains("error") || message.lowercased().contains("warn") {
+            showTransientErrorBanner(message)
+        }
+    }
+    
+    private func showErrorBanner(_ message: String) {
+        DispatchQueue.main.async {
+            guard let label = self.errorBanner.viewWithTag(101) as? UILabel else { return }
+            label.text = message
+            self.view.bringSubviewToFront(self.errorBanner)
+            UIView.animate(withDuration: 0.28, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.6, options: [.curveEaseOut], animations: {
+                self.errorBanner.alpha = 1.0
+                self.errorBanner.transform = CGAffineTransform(translationX: 0, y: 4)
+            }, completion: nil)
+        }
+    }
+    
+    @objc private func viewLogsTapped() {
+        Task { @MainActor in
+            let logs = await Logger.shared.getLogsAsync()
+            let vc = UIViewController()
+            vc.view.backgroundColor = .systemBackground
+            let tv = UITextView()
+            tv.translatesAutoresizingMaskIntoConstraints = false
+            tv.isEditable = false
+            tv.text = logs
+            tv.font = .monospacedSystemFont(ofSize: 12, weight: .regular)
+            vc.view.addSubview(tv)
+            NSLayoutConstraint.activate([
+                tv.topAnchor.constraint(equalTo: vc.view.safeAreaLayoutGuide.topAnchor, constant: 12),
+                tv.leadingAnchor.constraint(equalTo: vc.view.leadingAnchor, constant: 12),
+                tv.trailingAnchor.constraint(equalTo: vc.view.trailingAnchor, constant: -12),
+                tv.bottomAnchor.constraint(equalTo: vc.view.bottomAnchor, constant: -12),
+            ])
+            vc.navigationItem.title = "Logs"
+            let nav = UINavigationController(rootViewController: vc)
+            nav.modalPresentationStyle = .pageSheet
+            let close = UIBarButtonItem(title: "Close", style: .done, target: self, action: #selector(dismissLogs))
+            vc.navigationItem.rightBarButtonItem = close
+            self.present(nav, animated: true, completion: nil)
+        }
+    }
+    
+    @objc private func dismissLogs() {
+        dismiss(animated: true, completion: nil)
     }
     
     @objc private func containerTapped() {
