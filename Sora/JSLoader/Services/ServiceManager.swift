@@ -213,7 +213,7 @@ class ServiceManager: ObservableObject {
                     guard let self = self else { return (service.id, []) }
                     return await withTaskCancellationHandler(handler: {
                     }, operation: {
-                        let timeoutSeconds: UInt64 = 10 // per-service timeout
+                        let timeoutSeconds: UInt64 = 10
                         return await ServiceManager.withTimeout(seconds: timeoutSeconds) {
                             let found = await self.searchInService(service: service, query: query)
                             return (service.id, found)

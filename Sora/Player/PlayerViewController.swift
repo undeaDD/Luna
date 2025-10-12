@@ -80,7 +80,7 @@ final class PlayerViewController: UIViewController {
             icon.heightAnchor.constraint(equalToConstant: 20),
             
             label.leadingAnchor.constraint(equalTo: icon.trailingAnchor, constant: 8),
-            label.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            label.centerYAnchor.constraint(equalTo: icon.centerYAnchor),
             
             btn.leadingAnchor.constraint(equalTo: label.trailingAnchor, constant: 12),
             btn.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -10),
@@ -283,7 +283,7 @@ final class PlayerViewController: UIViewController {
             centerPlayPauseButton.widthAnchor.constraint(equalToConstant: 72),
             centerPlayPauseButton.heightAnchor.constraint(equalToConstant: 72),
             
-            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
             closeButton.leadingAnchor.constraint(equalTo: progressContainer.leadingAnchor),
             closeButton.widthAnchor.constraint(equalToConstant: 24),
             closeButton.heightAnchor.constraint(equalToConstant: 24),

@@ -14,7 +14,6 @@
 		1324E7BE2E940BD70036B5F5 /* SampleBufferDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7B62E940BD70036B5F5 /* SampleBufferDisplayView.swift */; };
 		1324E7BF2E940BD70036B5F5 /* MusicProgressSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7B82E940BD70036B5F5 /* MusicProgressSlider.swift */; };
 		1324E7C12E940BD70036B5F5 /* PiPController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7BA2E940BD70036B5F5 /* PiPController.swift */; };
-		1324E7C52E96EC0E0036B5F5 /* MPVKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1324E7C42E96EC0E0036B5F5 /* MPVKit */; };
 		13631B322E4F1A200035C39F /* ServiceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13631B312E4F1A200035C39F /* ServiceSettingsView.swift */; };
 		1375466D2E5F059A00B29944 /* ProgressManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1375466C2E5F059A00B29944 /* ProgressManager.swift */; };
 		13830AEC2E55BD9200B3CDE4 /* AlgorithmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AEB2E55BD9200B3CDE4 /* AlgorithmManager.swift */; };
@@ -23,6 +22,7 @@
 		13830AF22E55F51300B3CDE4 /* AlternativeUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AF12E55F51300B3CDE4 /* AlternativeUIView.swift */; };
 		13830AF42E55F5FF00B3CDE4 /* AccentColorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AF32E55F5FF00B3CDE4 /* AccentColorManager.swift */; };
 		139509A22E7DDAE100CB60D4 /* PlayerSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 139509A12E7DDAE100CB60D4 /* PlayerSettingsView.swift */; };
+		1396D5332E9C0715008DBB8B /* MPVKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1396D5322E9C0715008DBB8B /* MPVKit */; };
 		13B2E5742E7597B9009F3271 /* JSController-NetworkFetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B2E5732E7597B9009F3271 /* JSController-NetworkFetch.swift */; };
 		13DCC4F62E58B40F0028AE91 /* HybridSimilarity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13DCC4F52E58B40F0028AE91 /* HybridSimilarity.swift */; };
 		13E34D2A2E535CB500C7BF07 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 13E34D292E535CB500C7BF07 /* Kingfisher */; };
@@ -147,7 +147,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1324E7C52E96EC0E0036B5F5 /* MPVKit in Frameworks */,
+				1396D5332E9C0715008DBB8B /* MPVKit in Frameworks */,
 				13E34D2A2E535CB500C7BF07 /* Kingfisher in Frameworks */,
 				13F072C32E4B2F8500EF90EB /* SoraCore in Frameworks */,
 			);
@@ -161,8 +161,8 @@
 			children = (
 				1324E7B72E940BD70036B5F5 /* Elements */,
 				1324E7B32E940BD70036B5F5 /* PlayerPreset.swift */,
-				1324E7B42E940BD70036B5F5 /* MPVSoftwareRenderer.swift */,
 				1324E7B52E940BD70036B5F5 /* PlayerViewController.swift */,
+				1324E7B42E940BD70036B5F5 /* MPVSoftwareRenderer.swift */,
 				1324E7B62E940BD70036B5F5 /* SampleBufferDisplayView.swift */,
 				1324E7BA2E940BD70036B5F5 /* PiPController.swift */,
 			);
@@ -454,7 +454,7 @@
 			packageProductDependencies = (
 				13F072C22E4B2F8500EF90EB /* SoraCore */,
 				13E34D292E535CB500C7BF07 /* Kingfisher */,
-				1324E7C42E96EC0E0036B5F5 /* MPVKit */,
+				1396D5322E9C0715008DBB8B /* MPVKit */,
 			);
 			productName = Sora;
 			productReference = 13F0725B2E4B2D3300EF90EB /* Sora.app */;
@@ -487,7 +487,7 @@
 			packageReferences = (
 				13F072C12E4B2F8500EF90EB /* XCRemoteSwiftPackageReference "SoraCore" */,
 				13E34D282E535CB500C7BF07 /* XCRemoteSwiftPackageReference "Kingfisher" */,
-				1324E7C32E96EC0E0036B5F5 /* XCRemoteSwiftPackageReference "MPVKit" */,
+				1396D5312E9C0715008DBB8B /* XCRemoteSwiftPackageReference "MPVKit" */,
 			);
 			productRefGroup = 13F0725C2E4B2D3300EF90EB /* Products */;
 			projectDirPath = "";
@@ -805,12 +805,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		1324E7C32E96EC0E0036B5F5 /* XCRemoteSwiftPackageReference "MPVKit" */ = {
+		1396D5312E9C0715008DBB8B /* XCRemoteSwiftPackageReference "MPVKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/mpvkit/MPVKit";
+			repositoryURL = "https://github.com/cranci1/MPVKit/";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.40.0;
+				branch = main;
+				kind = branch;
 			};
 		};
 		13E34D282E535CB500C7BF07 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
@@ -832,9 +832,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		1324E7C42E96EC0E0036B5F5 /* MPVKit */ = {
+		1396D5322E9C0715008DBB8B /* MPVKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1324E7C32E96EC0E0036B5F5 /* XCRemoteSwiftPackageReference "MPVKit" */;
+			package = 1396D5312E9C0715008DBB8B /* XCRemoteSwiftPackageReference "MPVKit" */;
 			productName = MPVKit;
 		};
 		13E34D292E535CB500C7BF07 /* Kingfisher */ = {
