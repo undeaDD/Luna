@@ -29,6 +29,9 @@ final class MPVSoftwareRenderer {
     private let eventQueueGroup = DispatchGroup()
     private let renderQueueKey = DispatchSpecificKey<Void>()
     
+    private var dimensionsArray = [Int32](repeating: 0, count: 2)
+    private var renderParams = [mpv_render_param](repeating: mpv_render_param(type: MPV_RENDER_PARAM_INVALID, data: nil), count: 5)
+    
     private var mpv: OpaquePointer?
     private var renderContext: OpaquePointer?
     private var videoSize: CGSize = .zero
@@ -37,6 +40,10 @@ final class MPVSoftwareRenderer {
     private var colorState = ColorState()
     private var formatDescription: CMVideoFormatDescription?
     private var didFlushForFormatChange = false
+    private var poolWidth: Int = 0
+    private var poolHeight: Int = 0
+    private var preAllocatedBuffers: [CVPixelBuffer] = []
+    private let maxPreAllocatedBuffers = 6
     
     private var currentPreset: PlayerPreset?
     private var currentURL: URL?
@@ -54,6 +61,9 @@ final class MPVSoftwareRenderer {
     private var cachedPosition: Double = 0
     private var isPaused: Bool = true
     private var lastWantsExtendedDynamicRangeContent: Bool = false
+    private var isRenderScheduled = false
+    private var lastRenderTime: CFTimeInterval = 0
+    private let minRenderInterval: CFTimeInterval = 1.0 / 120.0
     
     var isPausedState: Bool {
         return isPaused
@@ -123,6 +133,10 @@ final class MPVSoftwareRenderer {
             }
             
             self.formatDescription = nil
+            self.preAllocatedBuffers.removeAll()
+            self.pixelBufferPool = nil
+            self.poolWidth = 0
+            self.poolHeight = 0
         }
         
         eventQueueGroup.wait()
@@ -292,7 +306,16 @@ final class MPVSoftwareRenderer {
     private func scheduleRender() {
         renderQueue.async { [weak self] in
             guard let self, self.isRunning, !self.isStopping else { return }
+            
+            let currentTime = CACurrentMediaTime()
+            if self.isRenderScheduled && (currentTime - self.lastRenderTime) < self.minRenderInterval {
+                return
+            }
+            
+            self.isRenderScheduled = true
+            self.lastRenderTime = currentTime
             self.performRenderUpdate()
+            self.isRenderScheduled = false
         }
     }
     
@@ -318,21 +341,27 @@ final class MPVSoftwareRenderer {
         
         let width = Int(size.width)
         let height = Int(size.height)
-        var pixelBuffer: CVPixelBuffer?
-        var pool = pixelBufferPool
-        if pool == nil {
-            createPixelBufferPool(width: width, height: height)
-            pool = pixelBufferPool
+        
+        if poolWidth != width || poolHeight != height {
+            recreatePixelBufferPool(width: width, height: height)
         }
         
-        var status: CVReturn = kCVReturnSuccess
-        if let pool = pool {
-            status = CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, pool, &pixelBuffer)
-        } else {
+        var pixelBuffer: CVPixelBuffer?
+        var status: CVReturn = kCVReturnError
+        
+        if !preAllocatedBuffers.isEmpty {
+            pixelBuffer = preAllocatedBuffers.removeFirst()
+            status = kCVReturnSuccess
+        } else if let pool = pixelBufferPool {
+            status = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(kCFAllocatorDefault, pool, pixelBufferPoolAuxAttributes, &pixelBuffer)
+        }
+        
+        if status != kCVReturnSuccess || pixelBuffer == nil {
             let attrs = [
                 kCVPixelBufferIOSurfacePropertiesKey: [:] as CFDictionary,
                 kCVPixelBufferCGImageCompatibilityKey: kCFBooleanTrue!,
-                kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue!
+                kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue!,
+                kCVPixelBufferMetalCompatibilityKey: kCFBooleanTrue!
             ] as CFDictionary
             status = CVPixelBufferCreate(kCFAllocatorDefault, width, height, kCVPixelFormatType_32BGRA, attrs, &pixelBuffer)
         }
@@ -344,14 +373,17 @@ final class MPVSoftwareRenderer {
             CVPixelBufferUnlockBaseAddress(buffer, [])
             return
         }
-        let bufferDataSize = CVPixelBufferGetDataSize(buffer)
+        
         if shouldClearPixelBuffer {
+            let bufferDataSize = CVPixelBufferGetDataSize(buffer)
             memset(baseAddress, 0, bufferDataSize)
+            shouldClearPixelBuffer = false
         }
         
         applyColorAttachments(to: buffer)
         
-        var dimensions = [Int32(width), Int32(height)]
+        dimensionsArray[0] = Int32(width)
+        dimensionsArray[1] = Int32(height)
         let stride = Int32(CVPixelBufferGetBytesPerRow(buffer))
         let expectedMinStride = Int32(width * 4)
         if stride < expectedMinStride {
@@ -361,22 +393,18 @@ final class MPVSoftwareRenderer {
         }
         
         let pointerValue = baseAddress
-        dimensions.withUnsafeMutableBufferPointer { dimsPointer in
+        dimensionsArray.withUnsafeMutableBufferPointer { dimsPointer in
             bgraFormatCString.withUnsafeBufferPointer { formatPointer in
                 withUnsafePointer(to: stride) { stridePointer in
-                    let param0 = mpv_render_param(type: MPV_RENDER_PARAM_SW_SIZE, data: UnsafeMutableRawPointer(dimsPointer.baseAddress))
-                    let param1 = mpv_render_param(type: MPV_RENDER_PARAM_SW_FORMAT, data: UnsafeMutableRawPointer(mutating: formatPointer.baseAddress))
-                    let param2 = mpv_render_param(type: MPV_RENDER_PARAM_SW_STRIDE, data: UnsafeMutableRawPointer(mutating: stridePointer))
-                    let param3 = mpv_render_param(type: MPV_RENDER_PARAM_SW_POINTER, data: pointerValue)
-                    let param4 = mpv_render_param(type: MPV_RENDER_PARAM_INVALID, data: nil)
-                    var params = [param0, param1, param2, param3, param4]
+                    renderParams[0] = mpv_render_param(type: MPV_RENDER_PARAM_SW_SIZE, data: UnsafeMutableRawPointer(dimsPointer.baseAddress))
+                    renderParams[1] = mpv_render_param(type: MPV_RENDER_PARAM_SW_FORMAT, data: UnsafeMutableRawPointer(mutating: formatPointer.baseAddress))
+                    renderParams[2] = mpv_render_param(type: MPV_RENDER_PARAM_SW_STRIDE, data: UnsafeMutableRawPointer(mutating: stridePointer))
+                    renderParams[3] = mpv_render_param(type: MPV_RENDER_PARAM_SW_POINTER, data: pointerValue)
+                    renderParams[4] = mpv_render_param(type: MPV_RENDER_PARAM_INVALID, data: nil)
                     
-                    _ = params.withUnsafeMutableBufferPointer { paramsPointer in
-                        let rc = mpv_render_context_render(context, paramsPointer.baseAddress)
-                        if rc < 0 {
-                            Logger.shared.log("mpv_render_context_render returned error \(rc)", type: "Error")
-                        }
-                        return rc
+                    let rc = mpv_render_context_render(context, &renderParams)
+                    if rc < 0 {
+                        Logger.shared.log("mpv_render_context_render returned error \(rc)", type: "Error")
                     }
                 }
             }
@@ -384,6 +412,12 @@ final class MPVSoftwareRenderer {
         
         CVPixelBufferUnlockBaseAddress(buffer, [])
         enqueue(buffer: buffer)
+        
+        if preAllocatedBuffers.count < 2 {
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                self?.preAllocateBuffers()
+            }
+        }
     }
     
     private func createPixelBufferPool(width: Int, height: Int) {
@@ -392,11 +426,19 @@ final class MPVSoftwareRenderer {
             kCVPixelBufferPixelFormatTypeKey: pixelFormat,
             kCVPixelBufferWidthKey: width,
             kCVPixelBufferHeightKey: height,
-            kCVPixelBufferIOSurfacePropertiesKey: [:]
+            kCVPixelBufferIOSurfacePropertiesKey: [:],
+            kCVPixelBufferMetalCompatibilityKey: kCFBooleanTrue!,
+            kCVPixelBufferCGImageCompatibilityKey: kCFBooleanTrue!,
+            kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue!
         ]
         
         let poolAttrs: [CFString: Any] = [
-            kCVPixelBufferPoolMinimumBufferCountKey: 3
+            kCVPixelBufferPoolMinimumBufferCountKey: 6,
+            kCVPixelBufferPoolMaximumBufferAgeKey: 0
+        ]
+        
+        let auxAttrs: [CFString: Any] = [
+            kCVPixelBufferPoolAllocationThresholdKey: 4
         ]
         
         var pool: CVPixelBufferPool?
@@ -404,15 +446,62 @@ final class MPVSoftwareRenderer {
         if status == kCVReturnSuccess, let pool {
             renderQueueSync {
                 self.pixelBufferPool = pool
-                self.pixelBufferPoolAuxAttributes = poolAttrs as CFDictionary
+                self.pixelBufferPoolAuxAttributes = auxAttrs as CFDictionary
+                self.poolWidth = width
+                self.poolHeight = height
             }
+            
+            preAllocateBuffers()
         } else {
             Logger.shared.log("Failed to create CVPixelBufferPool (\(status))", type: "Error")
         }
     }
     
+    private func recreatePixelBufferPool(width: Int, height: Int) {
+        renderQueueSync {
+            self.preAllocatedBuffers.removeAll()
+            
+            self.pixelBufferPool = nil
+            self.formatDescription = nil
+        }
+        
+        createPixelBufferPool(width: width, height: height)
+    }
+    
+    private func preAllocateBuffers() {
+        guard let pool = pixelBufferPool else { return }
+        
+        let targetCount = min(maxPreAllocatedBuffers, 4)
+        let currentCount = preAllocatedBuffers.count
+        
+        guard currentCount < targetCount else { return }
+        
+        let bufferCount = targetCount - currentCount
+        
+        for _ in 0..<bufferCount {
+            var buffer: CVPixelBuffer?
+            let status = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(
+                kCFAllocatorDefault,
+                pool,
+                pixelBufferPoolAuxAttributes,
+                &buffer
+            )
+            
+            if status == kCVReturnSuccess, let buffer = buffer {
+                renderQueue.async { [weak self] in
+                    guard let self = self else { return }
+                    if self.preAllocatedBuffers.count < self.maxPreAllocatedBuffers {
+                        self.preAllocatedBuffers.append(buffer)
+                    }
+                }
+            } else {
+                break
+            }
+        }
+    }
+    
     private func enqueue(buffer: CVPixelBuffer) {
-        let size = CVImageBufferGetEncodedSize(buffer)
+        _ = CVImageBufferGetEncodedSize(buffer)
         let needsFlush = updateFormatDescriptionIfNeeded(for: buffer)
         let presentationTime = CMClockGetTime(CMClockGetHostTimeClock())
         var timing = CMSampleTimingInfo(duration: .invalid, presentationTimeStamp: presentationTime, decodeTimeStamp: .invalid)
@@ -499,9 +588,9 @@ final class MPVSoftwareRenderer {
         }
         renderQueue.async { [weak self] in
             guard let self else { return }
-            self.createPixelBufferPool(width: max(width, 0), height: max(height, 0))
-            self.renderQueueSync {
-                self.formatDescription = nil
+            
+            if self.poolWidth != width || self.poolHeight != height {
+                self.recreatePixelBufferPool(width: max(width, 0), height: max(height, 0))
             }
         }
     }
