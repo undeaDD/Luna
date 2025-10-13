@@ -161,10 +161,10 @@
 			children = (
 				1324E7B72E940BD70036B5F5 /* Elements */,
 				1324E7B32E940BD70036B5F5 /* PlayerPreset.swift */,
+				1324E7BA2E940BD70036B5F5 /* PiPController.swift */,
 				1324E7B52E940BD70036B5F5 /* PlayerViewController.swift */,
 				1324E7B42E940BD70036B5F5 /* MPVSoftwareRenderer.swift */,
 				1324E7B62E940BD70036B5F5 /* SampleBufferDisplayView.swift */,
-				1324E7BA2E940BD70036B5F5 /* PiPController.swift */,
 			);
 			path = Player;
 			sourceTree = "<group>";

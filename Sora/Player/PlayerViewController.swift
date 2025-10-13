@@ -154,7 +154,7 @@ final class PlayerViewController: UIViewController {
         r.delegate = self
         return r
     }()
-    
+    var mediaInfo: MediaInfo?
     private var isSeeking = false
     private var cachedDuration: Double = 0
     private var cachedPosition: Double = 0
@@ -206,6 +206,14 @@ final class PlayerViewController: UIViewController {
     override var prefersStatusBarHidden: Bool { true }
     override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation { .fade }
     
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        if UserDefaults.standard.bool(forKey: "alwaysLandscape") {
+            return .landscape
+        } else {
+            return .all
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setNeedsStatusBarAppearanceUpdate()
@@ -241,6 +249,36 @@ final class PlayerViewController: UIViewController {
     
     func load(url: URL, preset: PlayerPreset, headers: [String: String]? = nil) {
         renderer.load(url: url, with: preset, headers: headers)
+        if let info = mediaInfo {
+            seekToLastPosition(for: info)
+        }
+    }
+    
+    private func seekToLastPosition(for mediaInfo: MediaInfo) {
+        let lastPlayedTime: Double
+        
+        switch mediaInfo {
+        case .movie(let id, let title):
+            lastPlayedTime = ProgressManager.shared.getMovieCurrentTime(movieId: id, title: title)
+            
+        case .episode(let showId, let seasonNumber, let episodeNumber):
+            lastPlayedTime = ProgressManager.shared.getEpisodeCurrentTime(showId: showId, seasonNumber: seasonNumber, episodeNumber: episodeNumber)
+        }
+        
+        if lastPlayedTime != 0 {
+            let progress: Double
+            switch mediaInfo {
+            case .movie(let id, let title):
+                progress = ProgressManager.shared.getMovieProgress(movieId: id, title: title)
+            case .episode(let showId, let seasonNumber, let episodeNumber):
+                progress = ProgressManager.shared.getEpisodeProgress(showId: showId, seasonNumber: seasonNumber, episodeNumber: episodeNumber)
+            }
+            
+            if progress < 0.95 {
+                renderer.seek(to: lastPlayedTime)
+                Logger.shared.log("Resumed MPV renderer from \(Int(lastPlayedTime))s", type: "Progress")
+            }
+        }
     }
     
     private func setupLayout() {
@@ -548,6 +586,15 @@ final class PlayerViewController: UIViewController {
             }
             self.progressModel.position = position
             self.progressModel.duration = max(duration, 1.0)
+        }
+        
+        guard duration.isFinite, duration > 0, position >= 0, let info = mediaInfo else { return }
+        
+        switch info {
+        case .movie(let id, let title):
+            ProgressManager.shared.updateMovieProgress(movieId: id, title: title, currentTime: position, totalDuration: duration)
+        case .episode(let showId, let seasonNumber, let episodeNumber):
+            ProgressManager.shared.updateEpisodeProgress(showId: showId, seasonNumber: seasonNumber, episodeNumber: episodeNumber, currentTime: position, totalDuration: duration)
         }
     }
     

@@ -1119,6 +1119,11 @@ struct ModulesSearchResultsSheet: View {
                     preset: preset ?? PlayerPreset(id: .sdrRec709, title: "Default", summary: "", stream: nil, commands: []),
                     headers: finalHeaders
                 )
+                if isMovie {
+                    pvc.mediaInfo = .movie(id: tmdbId, title: mediaTitle)
+                } else if let episode = selectedEpisode {
+                    pvc.mediaInfo = .episode(showId: tmdbId, seasonNumber: episode.seasonNumber, episodeNumber: episode.episodeNumber)
+                }
                 pvc.modalPresentationStyle = .fullScreen
                 
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
