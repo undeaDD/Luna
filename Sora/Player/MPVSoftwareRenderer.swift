@@ -209,17 +209,23 @@ final class MPVSoftwareRenderer {
     
     private func setProperty(name: String, value: String) {
         guard let handle = mpv else { return }
-        _ = value.withCString { valuePointer in
+        let status = value.withCString { valuePointer in
             name.withCString { namePointer in
                 mpv_set_property_string(handle, namePointer, valuePointer)
             }
+        }
+        if status < 0 {
+            Logger.shared.log("Failed to set property \(name)=\(value) (\(status))", type: "Warn")
         }
     }
     
     private func clearProperty(name: String) {
         guard let handle = mpv else { return }
-        name.withCString { namePointer in
+        let status = name.withCString { namePointer in
             mpv_set_property(handle, namePointer, MPV_FORMAT_NONE, nil)
+        }
+        if status < 0 {
+            Logger.shared.log("Failed to clear property \(name) (\(status))", type: "Warn")
         }
     }
     
