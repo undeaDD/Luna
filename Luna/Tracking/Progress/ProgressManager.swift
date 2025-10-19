@@ -76,8 +76,6 @@ class ProgressManager {
         if progressPercentage >= 0.95 {
             UserDefaults.standard.set(true, forKey: watchedKey)
         }
-        
-        Logger.shared.log("Updated movie progress: \(title) - \(String(format: "%.1f", progressPercentage * 100))%", type: "Progress")
     }
     
     func updateEpisodeProgress(showId: Int, seasonNumber: Int, episodeNumber: Int, currentTime: Double, totalDuration: Double) {
@@ -97,8 +95,6 @@ class ProgressManager {
         if progressPercentage >= 0.95 {
             UserDefaults.standard.set(true, forKey: watchedKey)
         }
-        
-        Logger.shared.log("Updated episode progress: S\(seasonNumber)E\(episodeNumber) - \(String(format: "%.1f", progressPercentage * 100))%", type: "Progress")
     }
     
     // MARK: - Progress Retrieval
