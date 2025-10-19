@@ -13,6 +13,8 @@ final class PlayerViewController: UIViewController {
     private let videoContainer: UIView = {
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
+        v.backgroundColor = .black
+        v.clipsToBounds = true
         return v
     }()
     
@@ -182,7 +184,6 @@ final class PlayerViewController: UIViewController {
             presentErrorAlert(title: "Playback Error", message: "Failed to start renderer: \(error)")
         }
         
-        displayLayer.videoGravity = .resizeAspect
         pipController = PiPController(sampleBufferDisplayLayer: displayLayer)
         pipController?.delegate = self
         
@@ -226,7 +227,13 @@ final class PlayerViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
         displayLayer.frame = videoContainer.bounds
+        displayLayer.isHidden = false
+        displayLayer.opacity = 1.0
+        CATransaction.commit()
     }
     
     deinit {
@@ -283,6 +290,14 @@ final class PlayerViewController: UIViewController {
     
     private func setupLayout() {
         view.addSubview(videoContainer)
+        
+        displayLayer.frame = videoContainer.bounds
+        displayLayer.videoGravity = .resizeAspect
+        if #available(iOS 17.0, *) {
+            displayLayer.wantsExtendedDynamicRangeContent = true
+        }
+        displayLayer.backgroundColor = UIColor.black.cgColor
+        
         videoContainer.layer.addSublayer(displayLayer)
         videoContainer.addSubview(controlsOverlayView)
         view.addSubview(errorBanner)

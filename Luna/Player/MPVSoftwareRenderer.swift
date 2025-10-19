@@ -37,7 +37,6 @@ final class MPVSoftwareRenderer {
     private var videoSize: CGSize = .zero
     private var pixelBufferPool: CVPixelBufferPool?
     private var pixelBufferPoolAuxAttributes: CFDictionary?
-    private var colorState = ColorState()
     private var formatDescription: CMVideoFormatDescription?
     private var didFlushForFormatChange = false
     private var poolWidth: Int = 0
@@ -60,7 +59,6 @@ final class MPVSoftwareRenderer {
     private var cachedDuration: Double = 0
     private var cachedPosition: Double = 0
     private var isPaused: Bool = true
-    private var lastWantsExtendedDynamicRangeContent: Bool = false
     private var isRenderScheduled = false
     private var lastRenderTime: CFTimeInterval = 0
     private let minRenderInterval: CFTimeInterval = 1.0 / 120.0
@@ -148,6 +146,13 @@ final class MPVSoftwareRenderer {
                 mpv_destroy(handle)
             }
             self.mpv = nil
+            
+            self.preAllocatedBuffers.removeAll()
+            self.pixelBufferPool = nil
+            self.pixelBufferPoolAuxAttributes = nil
+            self.formatDescription = nil
+            self.poolWidth = 0
+            self.poolHeight = 0
             
             self.disposeBag.forEach { $0() }
             self.disposeBag.removeAll()
@@ -278,12 +283,7 @@ final class MPVSoftwareRenderer {
             ("dheight", MPV_FORMAT_INT64),
             ("duration", MPV_FORMAT_DOUBLE),
             ("time-pos", MPV_FORMAT_DOUBLE),
-            ("pause", MPV_FORMAT_FLAG),
-            ("video-params/primaries", MPV_FORMAT_STRING),
-            ("video-params/transfer", MPV_FORMAT_STRING),
-            ("video-params/colormatrix", MPV_FORMAT_STRING),
-            ("video-params/colorlevels", MPV_FORMAT_STRING),
-            ("video-params/sig-peak", MPV_FORMAT_DOUBLE)
+            ("pause", MPV_FORMAT_FLAG)
         ]
         
         for (name, format) in properties {
@@ -363,16 +363,27 @@ final class MPVSoftwareRenderer {
         }
         
         if status != kCVReturnSuccess || pixelBuffer == nil {
-            let attrs = [
+            let attrs: [CFString: Any] = [
                 kCVPixelBufferIOSurfacePropertiesKey: [:] as CFDictionary,
                 kCVPixelBufferCGImageCompatibilityKey: kCFBooleanTrue!,
                 kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue!,
-                kCVPixelBufferMetalCompatibilityKey: kCFBooleanTrue!
-            ] as CFDictionary
-            status = CVPixelBufferCreate(kCFAllocatorDefault, width, height, kCVPixelFormatType_32BGRA, attrs, &pixelBuffer)
+                kCVPixelBufferMetalCompatibilityKey: kCFBooleanTrue!,
+                kCVPixelBufferWidthKey: width,
+                kCVPixelBufferHeightKey: height,
+                kCVPixelBufferPixelFormatTypeKey: kCVPixelFormatType_32BGRA
+            ]
+            status = CVPixelBufferCreate(kCFAllocatorDefault, width, height, kCVPixelFormatType_32BGRA, attrs as CFDictionary, &pixelBuffer)
         }
         
-        guard status == kCVReturnSuccess, let buffer = pixelBuffer else { return }
+        guard status == kCVReturnSuccess, let buffer = pixelBuffer else {
+            Logger.shared.log("Failed to create pixel buffer for rendering (status: \(status))", type: "Error")
+            return
+        }
+        
+        let actualFormat = CVPixelBufferGetPixelFormatType(buffer)
+        if actualFormat != kCVPixelFormatType_32BGRA {
+            Logger.shared.log("Pixel buffer format mismatch: expected BGRA (0x42475241), got \(actualFormat)", type: "Error")
+        }
         
         CVPixelBufferLockBaseAddress(buffer, [])
         guard let baseAddress = CVPixelBufferGetBaseAddress(buffer) else {
@@ -385,8 +396,6 @@ final class MPVSoftwareRenderer {
             memset(baseAddress, 0, bufferDataSize)
             shouldClearPixelBuffer = false
         }
-        
-        applyColorAttachments(to: buffer)
         
         dimensionsArray[0] = Int32(width)
         dimensionsArray[1] = Int32(height)
@@ -420,7 +429,7 @@ final class MPVSoftwareRenderer {
         enqueue(buffer: buffer)
         
         if preAllocatedBuffers.count < 2 {
-            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            renderQueue.async { [weak self] in
                 self?.preAllocateBuffers()
             }
         }
@@ -428,18 +437,19 @@ final class MPVSoftwareRenderer {
     
     private func createPixelBufferPool(width: Int, height: Int) {
         let pixelFormat = kCVPixelFormatType_32BGRA
+        
         let attrs: [CFString: Any] = [
             kCVPixelBufferPixelFormatTypeKey: pixelFormat,
             kCVPixelBufferWidthKey: width,
             kCVPixelBufferHeightKey: height,
-            kCVPixelBufferIOSurfacePropertiesKey: [:],
+            kCVPixelBufferIOSurfacePropertiesKey: [:] as CFDictionary,
             kCVPixelBufferMetalCompatibilityKey: kCFBooleanTrue!,
             kCVPixelBufferCGImageCompatibilityKey: kCFBooleanTrue!,
             kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue!
         ]
         
         let poolAttrs: [CFString: Any] = [
-            kCVPixelBufferPoolMinimumBufferCountKey: 6,
+            kCVPixelBufferPoolMinimumBufferCountKey: maxPreAllocatedBuffers,
             kCVPixelBufferPoolMaximumBufferAgeKey: 0
         ]
         
@@ -457,24 +467,34 @@ final class MPVSoftwareRenderer {
                 self.poolHeight = height
             }
             
-            preAllocateBuffers()
+            renderQueue.async { [weak self] in
+                self?.preAllocateBuffers()
+            }
         } else {
-            Logger.shared.log("Failed to create CVPixelBufferPool (\(status))", type: "Error")
+            Logger.shared.log("Failed to create CVPixelBufferPool (status: \(status))", type: "Error")
         }
     }
     
     private func recreatePixelBufferPool(width: Int, height: Int) {
         renderQueueSync {
             self.preAllocatedBuffers.removeAll()
-            
             self.pixelBufferPool = nil
             self.formatDescription = nil
+            self.poolWidth = 0
+            self.poolHeight = 0
         }
         
         createPixelBufferPool(width: width, height: height)
     }
     
     private func preAllocateBuffers() {
+        guard DispatchQueue.getSpecific(key: renderQueueKey) != nil else {
+            renderQueue.async { [weak self] in
+                self?.preAllocateBuffers()
+            }
+            return
+        }
+        
         guard let pool = pixelBufferPool else { return }
         
         let targetCount = min(maxPreAllocatedBuffers, 4)
@@ -494,35 +514,65 @@ final class MPVSoftwareRenderer {
             )
             
             if status == kCVReturnSuccess, let buffer = buffer {
-                renderQueue.async { [weak self] in
-                    guard let self = self else { return }
-                    if self.preAllocatedBuffers.count < self.maxPreAllocatedBuffers {
-                        self.preAllocatedBuffers.append(buffer)
-                    }
+                if preAllocatedBuffers.count < maxPreAllocatedBuffers {
+                    preAllocatedBuffers.append(buffer)
                 }
             } else {
+                if status != kCVReturnWouldExceedAllocationThreshold {
+                    Logger.shared.log("Failed to pre-allocate buffer (status: \(status))", type: "Warn")
+                }
                 break
             }
         }
     }
     
     private func enqueue(buffer: CVPixelBuffer) {
-        _ = CVImageBufferGetEncodedSize(buffer)
         let needsFlush = updateFormatDescriptionIfNeeded(for: buffer)
+        var capturedFormatDescription: CMVideoFormatDescription?
+        renderQueueSync {
+            capturedFormatDescription = self.formatDescription
+        }
+        
+        guard let formatDescription = capturedFormatDescription else {
+            Logger.shared.log("Missing formatDescription when creating sample buffer — skipping frame", type: "Error")
+            return
+        }
+        
         let presentationTime = CMClockGetTime(CMClockGetHostTimeClock())
         var timing = CMSampleTimingInfo(duration: .invalid, presentationTimeStamp: presentationTime, decodeTimeStamp: .invalid)
         
         var sampleBuffer: CMSampleBuffer?
-        guard let formatDescription = formatDescription else {
-            Logger.shared.log("Missing formatDescription when creating sample buffer — skipping frame", type: "Error")
+        let result = CMSampleBufferCreateForImageBuffer(
+            allocator: kCFAllocatorDefault, 
+            imageBuffer: buffer, 
+            dataReady: true, 
+            makeDataReadyCallback: nil, 
+            refcon: nil, 
+            formatDescription: formatDescription, 
+            sampleTiming: &timing, 
+            sampleBufferOut: &sampleBuffer
+        )
+        
+        guard result == noErr, let sample = sampleBuffer else {
+            Logger.shared.log("Failed to create sample buffer (error: \(result), -12743 = invalid format)", type: "Error")
+            
+            let width = CVPixelBufferGetWidth(buffer)
+            let height = CVPixelBufferGetHeight(buffer)
+            let pixelFormat = CVPixelBufferGetPixelFormatType(buffer)
+            Logger.shared.log("Buffer info: \(width)x\(height), format: \(pixelFormat)", type: "Error")
             return
         }
-        let result = CMSampleBufferCreateForImageBuffer(allocator: kCFAllocatorDefault, imageBuffer: buffer, dataReady: true, makeDataReadyCallback: nil, refcon: nil, formatDescription: formatDescription, sampleTiming: &timing, sampleBufferOut: &sampleBuffer)
-        
-        guard result == noErr, let sample = sampleBuffer else { return }
         
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
+            
+            if self.displayLayer.status == .failed {
+                if let error = self.displayLayer.error {
+                    Logger.shared.log("Display layer in failed state: \(error.localizedDescription)", type: "Error")
+                }
+                self.displayLayer.flushAndRemoveImage()
+            }
+            
             if needsFlush {
                 self.displayLayer.flushAndRemoveImage()
                 self.didFlushForFormatChange = true
@@ -542,8 +592,8 @@ final class MPVSoftwareRenderer {
                 }
             }
             
-            if self.displayLayer.status == .failed {
-                self.displayLayer.flushAndRemoveImage()
+            if !self.displayLayer.isReadyForMoreMediaData {
+                Logger.shared.log("Display layer not ready for more media data", type: "Warn")
             }
             
             self.displayLayer.enqueue(sample)
@@ -554,19 +604,39 @@ final class MPVSoftwareRenderer {
         var didChange = false
         let width = Int32(CVPixelBufferGetWidth(buffer))
         let height = Int32(CVPixelBufferGetHeight(buffer))
+        let pixelFormat = CVPixelBufferGetPixelFormatType(buffer)
+        
         renderQueueSync {
+            var needsRecreate = false
+            
             if let description = formatDescription {
                 let currentDimensions = CMVideoFormatDescriptionGetDimensions(description)
-                if currentDimensions.width != width || currentDimensions.height != height {
-                    formatDescription = nil
+                let currentPixelFormat = CMFormatDescriptionGetMediaSubType(description)
+                
+                if currentDimensions.width != width || 
+                   currentDimensions.height != height || 
+                   currentPixelFormat != pixelFormat {
+                    needsRecreate = true
                 }
+            } else {
+                needsRecreate = true
             }
             
-            if formatDescription == nil {
+            if needsRecreate {
                 var newDescription: CMVideoFormatDescription?
-                if CMVideoFormatDescriptionCreateForImageBuffer(allocator: kCFAllocatorDefault, imageBuffer: buffer, formatDescriptionOut: &newDescription) == noErr, let newDescription {
+                
+                let status = CMVideoFormatDescriptionCreateForImageBuffer(
+                    allocator: kCFAllocatorDefault, 
+                    imageBuffer: buffer, 
+                    formatDescriptionOut: &newDescription
+                )
+                
+                if status == noErr, let newDescription = newDescription {
                     formatDescription = newDescription
                     didChange = true
+                    Logger.shared.log("Created new format description: \(width)x\(height), format: \(pixelFormat)", type: "Info")
+                } else {
+                    Logger.shared.log("Failed to create format description (status: \(status))", type: "Error")
                 }
             }
         }
@@ -597,51 +667,6 @@ final class MPVSoftwareRenderer {
             
             if self.poolWidth != width || self.poolHeight != height {
                 self.recreatePixelBufferPool(width: max(width, 0), height: max(height, 0))
-            }
-        }
-    }
-    
-    private func updateColorState(transform: @escaping (inout ColorState) -> Void) {
-        stateQueue.async(flags: .barrier) {
-            transform(&self.colorState)
-        }
-    }
-    
-    private func snapshotColorState() -> ColorState {
-        stateQueue.sync { colorState }
-    }
-    
-    private func applyColorAttachments(to buffer: CVPixelBuffer) {
-        let state = snapshotColorState()
-        
-        if let primaries = state.primaries, let value = primaries.cvValue {
-            CVBufferSetAttachment(buffer, kCVImageBufferColorPrimariesKey, value, .shouldPropagate)
-        }
-        
-        if let transfer = state.transfer, let value = transfer.cvValue {
-            CVBufferSetAttachment(buffer, kCVImageBufferTransferFunctionKey, value, .shouldPropagate)
-        }
-        
-        if let matrix = state.matrix, let value = matrix.cvValue {
-            CVBufferSetAttachment(buffer, kCVImageBufferYCbCrMatrixKey, value, .shouldPropagate)
-        }
-        
-        if #available(iOS 17.0, *) {
-            let wantsEDR = (state.signalPeak ?? 0.0) > 1.0
-            if wantsEDR != lastWantsExtendedDynamicRangeContent {
-                lastWantsExtendedDynamicRangeContent = wantsEDR
-                DispatchQueue.main.async { [weak self] in
-                    guard let self else { return }
-                    self.displayLayer.wantsExtendedDynamicRangeContent = wantsEDR
-                }
-            }
-            
-            if wantsEDR, let sigPeak = state.signalPeak {
-                let masteringDict: [String: Any] = [
-                    "MasteringDisplayMaximumLuminance": sigPeak * 10000.0,
-                    "MasteringDisplayMinimumLuminance": 0.05
-                ]
-                CVBufferSetAttachment(buffer, kCVImageBufferMasteringDisplayColorVolumeKey, masteringDict as CFDictionary, .shouldPropagate)
             }
         }
     }
@@ -740,37 +765,6 @@ final class MPVSoftwareRenderer {
                     delegate?.renderer(self, didChangePause: isPaused)
                 }
             }
-        case "video-params/primaries":
-            let value = getStringProperty(handle: handle, name: name)
-            let normalized = value?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-            updateColorState { state in
-                state.primaries = normalized.flatMap(ColorPrimaries.fromString(_:))
-            }
-        case "video-params/transfer":
-            let value = getStringProperty(handle: handle, name: name)
-            let normalized = value?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-            updateColorState { state in
-                state.transfer = normalized.flatMap(ColorTransfer.fromString(_:))
-            }
-        case "video-params/colormatrix":
-            let value = getStringProperty(handle: handle, name: name)
-            let normalized = value?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-            updateColorState { state in
-                state.matrix = normalized.flatMap(ColorMatrix.fromString(_:))
-            }
-        case "video-params/colorlevels":
-            let value = getStringProperty(handle: handle, name: name)
-            updateColorState { state in
-                state.levels = value.flatMap(ColorLevels.init(rawValue:))
-            }
-        case "video-params/sig-peak":
-            var doubleValue = Double(0)
-            let status = getProperty(handle: handle, name: name, format: MPV_FORMAT_DOUBLE, value: &doubleValue)
-            if status >= 0 {
-                updateColorState { state in
-                    state.signalPeak = doubleValue
-                }
-            }
         default:
             break
         }
@@ -836,106 +830,4 @@ final class MPVSoftwareRenderer {
         guard let handle = mpv else { return }
         command(handle, ["seek", String(seconds), "relative"])
     }
-}
-
-// MARK: - Color State
-
-private struct ColorState {
-    var primaries: ColorPrimaries? = nil
-    var transfer: ColorTransfer? = nil
-    var matrix: ColorMatrix? = nil
-    var levels: ColorLevels? = nil
-    var signalPeak: Double? = nil
-}
-
-private enum ColorPrimaries: String {
-    case bt709 = "bt.709"
-    case bt2020 = "bt.2020"
-    case smpte170m = "smpte170m"
-    case bt601 = "bt.601"
-    
-    var cvValue: CFString? {
-        switch self {
-        case .bt709, .smpte170m:
-            return kCVImageBufferColorPrimaries_ITU_R_709_2
-        case .bt2020:
-            return kCVImageBufferColorPrimaries_ITU_R_2020
-        case .bt601:
-            return kCVImageBufferColorPrimaries_SMPTE_C
-        }
-    }
-    
-    static func fromString(_ s: String) -> ColorPrimaries? {
-        if s.contains("2020") { return .bt2020 }
-        if s.contains("709") { return .bt709 }
-        if s.contains("170") || s.contains("smpte170") { return .smpte170m }
-        if s.contains("601") { return .bt601 }
-        return nil
-    }
-}
-
-private enum ColorTransfer: String {
-    case bt1886 = "bt.1886"
-    case bt2020_10 = "bt.2020-10"
-    case bt2020_12 = "bt.2020-12"
-    case srgb = "srgb"
-    case linear = "linear"
-    case pq = "pq"
-    case hlg = "hlg"
-    case smpte2084 = "smpte2084"
-    case dolby = "dolby"
-    
-    var cvValue: CFString? {
-        switch self {
-        case .bt1886, .bt2020_10, .bt2020_12, .srgb:
-            return kCVImageBufferTransferFunction_ITU_R_709_2
-        case .linear:
-            return kCVImageBufferTransferFunction_Linear
-        case .pq, .smpte2084, .dolby:
-            return kCVImageBufferTransferFunction_SMPTE_ST_2084_PQ
-        case .hlg:
-            return kCVImageBufferTransferFunction_ITU_R_2100_HLG
-        }
-    }
-    
-    static func fromString(_ s: String) -> ColorTransfer? {
-        if s.contains("pq") || s.contains("smpte2084") || s.contains("2084") { return .pq }
-        if s.contains("hlg") { return .hlg }
-        if s.contains("dolby") { return .dolby }
-        if s.contains("1886") { return .bt1886 }
-        if s.contains("2020") { return .bt2020_10 }
-        if s.contains("srgb") { return .srgb }
-        if s.contains("linear") { return .linear }
-        return nil
-    }
-}
-
-private enum ColorMatrix: String {
-    case bt601 = "bt.601"
-    case bt709 = "bt.709"
-    case bt2020NCL = "bt.2020nc"
-    case bt2020 = "bt.2020"
-    
-    var cvValue: CFString? {
-        switch self {
-        case .bt601:
-            return kCVImageBufferYCbCrMatrix_ITU_R_601_4
-        case .bt709:
-            return kCVImageBufferYCbCrMatrix_ITU_R_709_2
-        case .bt2020, .bt2020NCL:
-            return kCVImageBufferYCbCrMatrix_ITU_R_2020
-        }
-    }
-    
-    static func fromString(_ s: String) -> ColorMatrix? {
-        if s.contains("2020") { return .bt2020 }
-        if s.contains("709") { return .bt709 }
-        if s.contains("601") { return .bt601 }
-        return nil
-    }
-}
-
-private enum ColorLevels: String {
-    case limited
-    case full
 }
