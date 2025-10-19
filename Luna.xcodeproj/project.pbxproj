@@ -92,7 +92,7 @@
 		139509A12E7DDAE100CB60D4 /* PlayerSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerSettingsView.swift; sourceTree = "<group>"; };
 		13B2E5732E7597B9009F3271 /* JSController-NetworkFetch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSController-NetworkFetch.swift"; sourceTree = "<group>"; };
 		13DCC4F52E58B40F0028AE91 /* HybridSimilarity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HybridSimilarity.swift; sourceTree = "<group>"; };
-		13F0725B2E4B2D3300EF90EB /* Sora.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sora.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13F0725B2E4B2D3300EF90EB /* Luna.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Luna.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13F0725E2E4B2D3300EF90EB /* SoraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraApp.swift; sourceTree = "<group>"; };
 		13F072622E4B2D3700EF90EB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		13F072642E4B2D3700EF90EB /* Sora.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sora.entitlements; sourceTree = "<group>"; };
@@ -196,7 +196,7 @@
 		13F072522E4B2D3300EF90EB = {
 			isa = PBXGroup;
 			children = (
-				13F0725D2E4B2D3300EF90EB /* Sora */,
+				13F0725D2E4B2D3300EF90EB /* Luna */,
 				13F0725C2E4B2D3300EF90EB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -204,12 +204,12 @@
 		13F0725C2E4B2D3300EF90EB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13F0725B2E4B2D3300EF90EB /* Sora.app */,
+				13F0725B2E4B2D3300EF90EB /* Luna.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		13F0725D2E4B2D3300EF90EB /* Sora */ = {
+		13F0725D2E4B2D3300EF90EB /* Luna */ = {
 			isa = PBXGroup;
 			children = (
 				1324E7B22E940BD70036B5F5 /* Player */,
@@ -228,7 +228,7 @@
 				13F072642E4B2D3700EF90EB /* Sora.entitlements */,
 				13F072652E4B2D3700EF90EB /* Preview Content */,
 			);
-			path = Sora;
+			path = Luna;
 			sourceTree = "<group>";
 		};
 		13F072652E4B2D3700EF90EB /* Preview Content */ = {
@@ -438,9 +438,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		13F0725A2E4B2D3300EF90EB /* Sora */ = {
+		13F0725A2E4B2D3300EF90EB /* Luna */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 13F0726A2E4B2D3700EF90EB /* Build configuration list for PBXNativeTarget "Sora" */;
+			buildConfigurationList = 13F0726A2E4B2D3700EF90EB /* Build configuration list for PBXNativeTarget "Luna" */;
 			buildPhases = (
 				13F072572E4B2D3300EF90EB /* Sources */,
 				13F072582E4B2D3300EF90EB /* Frameworks */,
@@ -450,14 +450,14 @@
 			);
 			dependencies = (
 			);
-			name = Sora;
+			name = Luna;
 			packageProductDependencies = (
 				13F072C22E4B2F8500EF90EB /* SoraCore */,
 				13E34D292E535CB500C7BF07 /* Kingfisher */,
 				1396D5322E9C0715008DBB8B /* MPVKit */,
 			);
 			productName = Sora;
-			productReference = 13F0725B2E4B2D3300EF90EB /* Sora.app */;
+			productReference = 13F0725B2E4B2D3300EF90EB /* Luna.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -475,7 +475,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 13F072562E4B2D3300EF90EB /* Build configuration list for PBXProject "Sora" */;
+			buildConfigurationList = 13F072562E4B2D3300EF90EB /* Build configuration list for PBXProject "Luna" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -493,7 +493,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				13F0725A2E4B2D3300EF90EB /* Sora */,
+				13F0725A2E4B2D3300EF90EB /* Luna */,
 			);
 		};
 /* End PBXProject section */
@@ -784,7 +784,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		13F072562E4B2D3300EF90EB /* Build configuration list for PBXProject "Sora" */ = {
+		13F072562E4B2D3300EF90EB /* Build configuration list for PBXProject "Luna" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13F072682E4B2D3700EF90EB /* Debug */,
@@ -793,7 +793,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		13F0726A2E4B2D3700EF90EB /* Build configuration list for PBXNativeTarget "Sora" */ = {
+		13F0726A2E4B2D3700EF90EB /* Build configuration list for PBXNativeTarget "Luna" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13F0726B2E4B2D3700EF90EB /* Debug */,
