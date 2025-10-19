@@ -877,6 +877,7 @@ struct ModulesSearchResultsSheet: View {
                                 self.pendingEpisodes = season
                                 self.pendingResult = result
                                 self.pendingJSController = jsController
+                                self.pendingService = service
                                 self.isFetchingStreams = false
                                 
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -906,6 +907,7 @@ struct ModulesSearchResultsSheet: View {
                                 self.availableSeasons = seasons
                                 self.pendingResult = result
                                 self.pendingJSController = jsController
+                                self.pendingService = service
                                 self.isFetchingStreams = false
                                 
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -918,6 +920,7 @@ struct ModulesSearchResultsSheet: View {
                                     self.pendingEpisodes = season
                                     self.pendingResult = result
                                     self.pendingJSController = jsController
+                                    self.pendingService = service
                                     self.isFetchingStreams = false
                                     
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
