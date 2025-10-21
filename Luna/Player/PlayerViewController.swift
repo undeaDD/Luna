@@ -23,10 +23,12 @@ final class PlayerViewController: UIViewController {
     private let centerPlayPauseButton: UIButton = {
         let b = UIButton(type: .system)
         b.translatesAutoresizingMaskIntoConstraints = false
-        let configuration = UIImage.SymbolConfiguration(pointSize: 44, weight: .bold)
+        let configuration = UIImage.SymbolConfiguration(pointSize: 32, weight: .semibold)
         let image = UIImage(systemName: "play.fill", withConfiguration: configuration)
         b.setImage(image, for: .normal)
         b.tintColor = .white
+        b.backgroundColor = UIColor(white: 0.2, alpha: 0.5)
+        b.layer.cornerRadius = 35
         b.clipsToBounds = true
         return b
     }()
@@ -34,7 +36,18 @@ final class PlayerViewController: UIViewController {
     private let controlsOverlayView: UIView = {
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
-        v.backgroundColor = UIColor(white: 0.0, alpha: 0.4)
+        
+        let gradient = CAGradientLayer()
+        gradient.colors = [
+            UIColor.black.withAlphaComponent(0.6).cgColor,
+            UIColor.clear.cgColor,
+            UIColor.clear.cgColor,
+            UIColor.black.withAlphaComponent(0.6).cgColor
+        ]
+        gradient.locations = [0, 0.2, 0.8, 1]
+        gradient.name = "gradientLayer"
+        v.layer.insertSublayer(gradient, at: 0)
+        
         v.alpha = 0.0
         v.isUserInteractionEnabled = false
         return v
@@ -95,7 +108,7 @@ final class PlayerViewController: UIViewController {
     private let closeButton: UIButton = {
         let b = UIButton(type: .system)
         b.translatesAutoresizingMaskIntoConstraints = false
-        let cfg = UIImage.SymbolConfiguration(pointSize: 20, weight: .semibold)
+        let cfg = UIImage.SymbolConfiguration(pointSize: 18, weight: .semibold)
         let img = UIImage(systemName: "xmark", withConfiguration: cfg)
         b.setImage(img, for: .normal)
         b.tintColor = .white
@@ -106,7 +119,7 @@ final class PlayerViewController: UIViewController {
     private let pipButton: UIButton = {
         let b = UIButton(type: .system)
         b.translatesAutoresizingMaskIntoConstraints = false
-        let cfg = UIImage.SymbolConfiguration(pointSize: 22, weight: .semibold)
+        let cfg = UIImage.SymbolConfiguration(pointSize: 18, weight: .semibold)
         let img = UIImage(systemName: "pip.enter", withConfiguration: cfg)
         b.setImage(img, for: .normal)
         b.tintColor = .white
@@ -117,7 +130,7 @@ final class PlayerViewController: UIViewController {
     private let skipBackwardButton: UIButton = {
         let b = UIButton(type: .system)
         b.translatesAutoresizingMaskIntoConstraints = false
-        let cfg = UIImage.SymbolConfiguration(pointSize: 22, weight: .semibold)
+        let cfg = UIImage.SymbolConfiguration(pointSize: 28, weight: .semibold)
         let img = UIImage(systemName: "gobackward.15", withConfiguration: cfg)
         b.setImage(img, for: .normal)
         b.tintColor = .white
@@ -128,7 +141,7 @@ final class PlayerViewController: UIViewController {
     private let skipForwardButton: UIButton = {
         let b = UIButton(type: .system)
         b.translatesAutoresizingMaskIntoConstraints = false
-        let cfg = UIImage.SymbolConfiguration(pointSize: 22, weight: .semibold)
+        let cfg = UIImage.SymbolConfiguration(pointSize: 28, weight: .semibold)
         let img = UIImage(systemName: "goforward.15", withConfiguration: cfg)
         b.setImage(img, for: .normal)
         b.tintColor = .white
@@ -233,6 +246,11 @@ final class PlayerViewController: UIViewController {
         displayLayer.frame = videoContainer.bounds
         displayLayer.isHidden = false
         displayLayer.opacity = 1.0
+        
+        if let gradientLayer = controlsOverlayView.layer.sublayers?.first(where: { $0.name == "gradientLayer" }) {
+            gradientLayer.frame = controlsOverlayView.bounds
+        }
+        
         CATransaction.commit()
     }
     
@@ -333,28 +351,28 @@ final class PlayerViewController: UIViewController {
             
             centerPlayPauseButton.centerXAnchor.constraint(equalTo: videoContainer.centerXAnchor),
             centerPlayPauseButton.centerYAnchor.constraint(equalTo: videoContainer.centerYAnchor),
-            centerPlayPauseButton.widthAnchor.constraint(equalToConstant: 72),
-            centerPlayPauseButton.heightAnchor.constraint(equalToConstant: 72),
+            centerPlayPauseButton.widthAnchor.constraint(equalToConstant: 70),
+            centerPlayPauseButton.heightAnchor.constraint(equalToConstant: 70),
             
-            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
-            closeButton.leadingAnchor.constraint(equalTo: progressContainer.leadingAnchor),
-            closeButton.widthAnchor.constraint(equalToConstant: 24),
-            closeButton.heightAnchor.constraint(equalToConstant: 24),
+            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            closeButton.leadingAnchor.constraint(equalTo: progressContainer.leadingAnchor, constant: 4),
+            closeButton.widthAnchor.constraint(equalToConstant: 36),
+            closeButton.heightAnchor.constraint(equalToConstant: 36),
             
             pipButton.centerYAnchor.constraint(equalTo: closeButton.centerYAnchor),
-            pipButton.leadingAnchor.constraint(equalTo: closeButton.trailingAnchor, constant: 12),
+            pipButton.leadingAnchor.constraint(equalTo: closeButton.trailingAnchor, constant: 16),
             pipButton.widthAnchor.constraint(equalToConstant: 36),
-            pipButton.heightAnchor.constraint(equalToConstant: 30),
+            pipButton.heightAnchor.constraint(equalToConstant: 36),
             
             skipBackwardButton.centerYAnchor.constraint(equalTo: centerPlayPauseButton.centerYAnchor),
-            skipBackwardButton.trailingAnchor.constraint(equalTo: centerPlayPauseButton.leadingAnchor, constant: -56),
-            skipBackwardButton.widthAnchor.constraint(equalToConstant: 48),
-            skipBackwardButton.heightAnchor.constraint(equalToConstant: 48),
+            skipBackwardButton.trailingAnchor.constraint(equalTo: centerPlayPauseButton.leadingAnchor, constant: -48),
+            skipBackwardButton.widthAnchor.constraint(equalToConstant: 50),
+            skipBackwardButton.heightAnchor.constraint(equalToConstant: 50),
             
             skipForwardButton.centerYAnchor.constraint(equalTo: centerPlayPauseButton.centerYAnchor),
-            skipForwardButton.leadingAnchor.constraint(equalTo: centerPlayPauseButton.trailingAnchor, constant: 56),
-            skipForwardButton.widthAnchor.constraint(equalToConstant: 48),
-            skipForwardButton.heightAnchor.constraint(equalToConstant: 48)
+            skipForwardButton.leadingAnchor.constraint(equalTo: centerPlayPauseButton.trailingAnchor, constant: 48),
+            skipForwardButton.widthAnchor.constraint(equalToConstant: 50),
+            skipForwardButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
@@ -384,12 +402,24 @@ final class PlayerViewController: UIViewController {
     
     @objc private func skipBackwardTapped() {
         renderer.seek(by: -15)
+        animateButtonTap(skipBackwardButton)
         showControlsTemporarily()
     }
     
     @objc private func skipForwardTapped() {
         renderer.seek(by: 15)
+        animateButtonTap(skipForwardButton)
         showControlsTemporarily()
+    }
+    
+    private func animateButtonTap(_ button: UIButton) {
+        UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseOut]) {
+            button.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+        } completion: { _ in
+            UIView.animate(withDuration: 0.15, delay: 0, options: [.curveEaseIn]) {
+                button.transform = .identity
+            }
+        }
     }
     
     private func updateProgressHostingController() {
@@ -430,11 +460,20 @@ final class PlayerViewController: UIViewController {
     
     private func updatePlayPauseButton(isPaused: Bool) {
         DispatchQueue.main.async {
-            let config = UIImage.SymbolConfiguration(pointSize: 44, weight: .bold)
+            let config = UIImage.SymbolConfiguration(pointSize: 32, weight: .semibold)
             let name = isPaused ? "play.fill" : "pause.fill"
             let img = UIImage(systemName: name, withConfiguration: config)
             self.centerPlayPauseButton.setImage(img, for: .normal)
             self.centerPlayPauseButton.isHidden = false
+            
+            UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseInOut]) {
+                self.centerPlayPauseButton.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+            } completion: { _ in
+                UIView.animate(withDuration: 0.15) {
+                    self.centerPlayPauseButton.transform = .identity
+                }
+            }
+            
             self.showControlsTemporarily()
         }
     }
@@ -534,8 +573,9 @@ final class PlayerViewController: UIViewController {
     private func showControlsTemporarily() {
         controlsHideWorkItem?.cancel()
         controlsVisible = true
+        
         DispatchQueue.main.async {
-            UIView.animate(withDuration: 0.15) {
+            UIView.animate(withDuration: 0.25, delay: 0, options: [.curveEaseOut]) {
                 self.centerPlayPauseButton.alpha = 1.0
                 self.controlsOverlayView.alpha = 1.0
                 self.progressContainer.alpha = 1.0
@@ -545,18 +585,20 @@ final class PlayerViewController: UIViewController {
                 self.skipForwardButton.alpha = 1.0
             }
         }
+        
         let work = DispatchWorkItem { [weak self] in
             self?.hideControls()
         }
         controlsHideWorkItem = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0, execute: work)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0, execute: work)
     }
     
     private func hideControls() {
         controlsHideWorkItem?.cancel()
         controlsVisible = false
+        
         DispatchQueue.main.async {
-            UIView.animate(withDuration: 0.15) {
+            UIView.animate(withDuration: 0.25, delay: 0, options: [.curveEaseIn]) {
                 self.centerPlayPauseButton.alpha = 0.0
                 self.controlsOverlayView.alpha = 0.0
                 self.progressContainer.alpha = 0.0
