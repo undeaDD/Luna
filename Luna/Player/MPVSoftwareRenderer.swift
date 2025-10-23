@@ -13,6 +13,7 @@ import AVFoundation
 protocol MPVSoftwareRendererDelegate: AnyObject {
     func renderer(_ renderer: MPVSoftwareRenderer, didUpdatePosition position: Double, duration: Double)
     func renderer(_ renderer: MPVSoftwareRenderer, didChangePause isPaused: Bool)
+    func renderer(_ renderer: MPVSoftwareRenderer, didChangeLoading isLoading: Bool)
 }
 
 final class MPVSoftwareRenderer {
@@ -59,6 +60,7 @@ final class MPVSoftwareRenderer {
     private var cachedDuration: Double = 0
     private var cachedPosition: Double = 0
     private var isPaused: Bool = true
+    private var isLoading: Bool = false
     private var isRenderScheduled = false
     private var lastRenderTime: CFTimeInterval = 0
     private let minRenderInterval: CFTimeInterval = 1.0 / 120.0
@@ -170,6 +172,15 @@ final class MPVSoftwareRenderer {
         currentPreset = preset
         currentURL = url
         currentHeaders = headers
+        
+        renderQueue.async { [weak self] in
+            guard let self else { return }
+            self.isLoading = true
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.delegate?.renderer(self, didChangeLoading: true)
+            }
+        }
         
         guard let handle = mpv else { return }
         
@@ -528,6 +539,13 @@ final class MPVSoftwareRenderer {
     
     private func enqueue(buffer: CVPixelBuffer) {
         let needsFlush = updateFormatDescriptionIfNeeded(for: buffer)
+        var shouldNotifyLoadingEnd = false
+        renderQueueSync {
+            if self.isLoading {
+                self.isLoading = false
+                shouldNotifyLoadingEnd = true
+            }
+        }
         var capturedFormatDescription: CMVideoFormatDescription?
         renderQueueSync {
             capturedFormatDescription = self.formatDescription
@@ -543,13 +561,13 @@ final class MPVSoftwareRenderer {
         
         var sampleBuffer: CMSampleBuffer?
         let result = CMSampleBufferCreateForImageBuffer(
-            allocator: kCFAllocatorDefault, 
-            imageBuffer: buffer, 
-            dataReady: true, 
-            makeDataReadyCallback: nil, 
-            refcon: nil, 
-            formatDescription: formatDescription, 
-            sampleTiming: &timing, 
+            allocator: kCFAllocatorDefault,
+            imageBuffer: buffer,
+            dataReady: true,
+            makeDataReadyCallback: nil,
+            refcon: nil,
+            formatDescription: formatDescription,
+            sampleTiming: &timing,
             sampleBufferOut: &sampleBuffer
         )
         
@@ -595,6 +613,9 @@ final class MPVSoftwareRenderer {
             if !self.displayLayer.isReadyForMoreMediaData {
                 Logger.shared.log("Display layer not ready for more media data", type: "Warn")
             }
+            if shouldNotifyLoadingEnd {
+                self.delegate?.renderer(self, didChangeLoading: false)
+            }
             
             self.displayLayer.enqueue(sample)
         }
@@ -613,9 +634,9 @@ final class MPVSoftwareRenderer {
                 let currentDimensions = CMVideoFormatDescriptionGetDimensions(description)
                 let currentPixelFormat = CMFormatDescriptionGetMediaSubType(description)
                 
-                if currentDimensions.width != width || 
-                   currentDimensions.height != height || 
-                   currentPixelFormat != pixelFormat {
+                if currentDimensions.width != width ||
+                    currentDimensions.height != height ||
+                    currentPixelFormat != pixelFormat {
                     needsRecreate = true
                 }
             } else {
@@ -626,8 +647,8 @@ final class MPVSoftwareRenderer {
                 var newDescription: CMVideoFormatDescription?
                 
                 let status = CMVideoFormatDescriptionCreateForImageBuffer(
-                    allocator: kCFAllocatorDefault, 
-                    imageBuffer: buffer, 
+                    allocator: kCFAllocatorDefault,
+                    imageBuffer: buffer,
                     formatDescriptionOut: &newDescription
                 )
                 

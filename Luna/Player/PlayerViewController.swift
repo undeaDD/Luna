@@ -33,21 +33,20 @@ final class PlayerViewController: UIViewController {
         return b
     }()
     
+    private let loadingIndicator: UIActivityIndicatorView = {
+        let v: UIActivityIndicatorView
+        v = UIActivityIndicatorView(style: .large)
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.hidesWhenStopped = true
+        v.color = .white
+        v.alpha = 0.0
+        return v
+    }()
+    
     private let controlsOverlayView: UIView = {
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
-        
-        let gradient = CAGradientLayer()
-        gradient.colors = [
-            UIColor.black.withAlphaComponent(0.6).cgColor,
-            UIColor.clear.cgColor,
-            UIColor.clear.cgColor,
-            UIColor.black.withAlphaComponent(0.6).cgColor
-        ]
-        gradient.locations = [0, 0.2, 0.8, 1]
-        gradient.name = "gradientLayer"
-        v.layer.insertSublayer(gradient, at: 0)
-        
+        v.backgroundColor = UIColor(white: 0.0, alpha: 0.4)
         v.alpha = 0.0
         v.isUserInteractionEnabled = false
         return v
@@ -318,6 +317,7 @@ final class PlayerViewController: UIViewController {
         
         videoContainer.layer.addSublayer(displayLayer)
         videoContainer.addSubview(controlsOverlayView)
+        videoContainer.addSubview(loadingIndicator)
         view.addSubview(errorBanner)
         videoContainer.addSubview(centerPlayPauseButton)
         videoContainer.addSubview(progressContainer)
@@ -353,6 +353,9 @@ final class PlayerViewController: UIViewController {
             centerPlayPauseButton.centerYAnchor.constraint(equalTo: videoContainer.centerYAnchor),
             centerPlayPauseButton.widthAnchor.constraint(equalToConstant: 70),
             centerPlayPauseButton.heightAnchor.constraint(equalToConstant: 70),
+            
+            loadingIndicator.centerXAnchor.constraint(equalTo: centerPlayPauseButton.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: centerPlayPauseButton.centerYAnchor),
             
             closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             closeButton.leadingAnchor.constraint(equalTo: progressContainer.leadingAnchor, constant: 4),
@@ -677,6 +680,21 @@ extension PlayerViewController: MPVSoftwareRendererDelegate {
     
     func renderer(_ renderer: MPVSoftwareRenderer, didChangePause isPaused: Bool) {
         updatePlayPauseButton(isPaused: isPaused)
+    }
+    
+    func renderer(_ renderer: MPVSoftwareRenderer, didChangeLoading isLoading: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            if isLoading {
+                self.centerPlayPauseButton.isHidden = true
+                self.loadingIndicator.alpha = 1.0
+                self.loadingIndicator.startAnimating()
+            } else {
+                self.loadingIndicator.stopAnimating()
+                self.loadingIndicator.alpha = 0.0
+                self.updatePlayPauseButton(isPaused: self.renderer.isPausedState)
+            }
+        }
     }
 }
 
