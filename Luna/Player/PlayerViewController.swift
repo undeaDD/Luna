@@ -148,6 +148,19 @@ final class PlayerViewController: UIViewController {
         return b
     }()
     
+    private let speedIndicatorLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .white
+        label.font = .systemFont(ofSize: 16, weight: .bold)
+        label.textAlignment = .center
+        label.backgroundColor = UIColor(white: 0.2, alpha: 0.8)
+        label.layer.cornerRadius = 20
+        label.clipsToBounds = true
+        label.alpha = 0.0
+        return label
+    }()
+    
     private let progressContainer: UIView = {
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
@@ -177,8 +190,12 @@ final class PlayerViewController: UIViewController {
     private var initialPreset: PlayerPreset?
     private var initialHeaders: [String: String]?
     
+    private var originalSpeed: Double = 1.0
+    private var holdGesture: UILongPressGestureRecognizer?
+    
     private var controlsHideWorkItem: DispatchWorkItem?
     private var controlsVisible: Bool = true
+    private var pendingSeekTime: Double?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -186,6 +203,7 @@ final class PlayerViewController: UIViewController {
         modalPresentationCapturesStatusBarAppearance = true
         setupLayout()
         setupActions()
+        setupHoldGesture()
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleLoggerNotification(_:)), name: NSNotification.Name("LoggerNotification"), object: nil)
         
@@ -274,11 +292,11 @@ final class PlayerViewController: UIViewController {
     func load(url: URL, preset: PlayerPreset, headers: [String: String]? = nil) {
         renderer.load(url: url, with: preset, headers: headers)
         if let info = mediaInfo {
-            seekToLastPosition(for: info)
+            prepareSeekToLastPosition(for: info)
         }
     }
     
-    private func seekToLastPosition(for mediaInfo: MediaInfo) {
+    private func prepareSeekToLastPosition(for mediaInfo: MediaInfo) {
         let lastPlayedTime: Double
         
         switch mediaInfo {
@@ -299,8 +317,7 @@ final class PlayerViewController: UIViewController {
             }
             
             if progress < 0.95 {
-                renderer.seek(to: lastPlayedTime)
-                Logger.shared.log("Resumed MPV renderer from \(Int(lastPlayedTime))s", type: "Progress")
+                pendingSeekTime = lastPlayedTime
             }
         }
     }
@@ -325,6 +342,7 @@ final class PlayerViewController: UIViewController {
         videoContainer.addSubview(pipButton)
         videoContainer.addSubview(skipBackwardButton)
         videoContainer.addSubview(skipForwardButton)
+        videoContainer.addSubview(speedIndicatorLabel)
         
         NSLayoutConstraint.activate([
             videoContainer.topAnchor.constraint(equalTo: view.topAnchor),
@@ -375,7 +393,12 @@ final class PlayerViewController: UIViewController {
             skipForwardButton.centerYAnchor.constraint(equalTo: centerPlayPauseButton.centerYAnchor),
             skipForwardButton.leadingAnchor.constraint(equalTo: centerPlayPauseButton.trailingAnchor, constant: 48),
             skipForwardButton.widthAnchor.constraint(equalToConstant: 50),
-            skipForwardButton.heightAnchor.constraint(equalToConstant: 50)
+            skipForwardButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            speedIndicatorLabel.topAnchor.constraint(equalTo: videoContainer.safeAreaLayoutGuide.topAnchor, constant: 20),
+            speedIndicatorLabel.centerXAnchor.constraint(equalTo: videoContainer.centerXAnchor),
+            speedIndicatorLabel.widthAnchor.constraint(equalToConstant: 100),
+            speedIndicatorLabel.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     
@@ -387,6 +410,50 @@ final class PlayerViewController: UIViewController {
         skipForwardButton.addTarget(self, action: #selector(skipForwardTapped), for: .touchUpInside)
         let tap = UITapGestureRecognizer(target: self, action: #selector(containerTapped))
         videoContainer.addGestureRecognizer(tap)
+    }
+    
+    private func setupHoldGesture() {
+        holdGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleHoldGesture(_:)))
+        holdGesture?.minimumPressDuration = 0.5
+        if let holdGesture = holdGesture {
+            videoContainer.addGestureRecognizer(holdGesture)
+        }
+    }
+    
+    @objc private func handleHoldGesture(_ gesture: UILongPressGestureRecognizer) {
+        switch gesture.state {
+        case .began:
+            beginHoldSpeed()
+        case .ended, .cancelled:
+            endHoldSpeed()
+        default:
+            break
+        }
+    }
+    
+    private func beginHoldSpeed() {
+        originalSpeed = renderer.getSpeed()
+        let holdSpeed = UserDefaults.standard.float(forKey: "holdSpeedPlayer")
+        let targetSpeed = holdSpeed > 0 ? Double(holdSpeed) : 2.0
+        renderer.setSpeed(targetSpeed)
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.speedIndicatorLabel.text = String(format: "%.1fx", targetSpeed)
+            UIView.animate(withDuration: 0.2) {
+                self.speedIndicatorLabel.alpha = 1.0
+            }
+        }
+    }
+    
+    private func endHoldSpeed() {
+        renderer.setSpeed(originalSpeed)
+        
+        DispatchQueue.main.async { [weak self] in
+            UIView.animate(withDuration: 0.2) {
+                self?.speedIndicatorLabel.alpha = 0.0
+            }
+        }
     }
     
     @objc private func playPauseTapped() {
@@ -646,6 +713,10 @@ final class PlayerViewController: UIViewController {
             }
             self.progressModel.position = position
             self.progressModel.duration = max(duration, 1.0)
+            
+            if self.pipController?.isPictureInPictureActive == true {
+                self.pipController?.updatePlaybackState()
+            }
         }
         
         guard duration.isFinite, duration > 0, position >= 0, let info = mediaInfo else { return }
@@ -680,6 +751,7 @@ extension PlayerViewController: MPVSoftwareRendererDelegate {
     
     func renderer(_ renderer: MPVSoftwareRenderer, didChangePause isPaused: Bool) {
         updatePlayPauseButton(isPaused: isPaused)
+        pipController?.updatePlaybackState()
     }
     
     func renderer(_ renderer: MPVSoftwareRenderer, didChangeLoading isLoading: Bool) {
@@ -696,12 +768,27 @@ extension PlayerViewController: MPVSoftwareRendererDelegate {
             }
         }
     }
+    
+    func renderer(_ renderer: MPVSoftwareRenderer, didBecomeReadyToSeek: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            if let seekTime = self.pendingSeekTime {
+                self.renderer.seek(to: seekTime)
+                Logger.shared.log("Resumed MPV playback from \(Int(seekTime))s", type: "Progress")
+                self.pendingSeekTime = nil
+            }
+        }
+    }
 }
 
 // MARK: - PiP Support
 extension PlayerViewController: PiPControllerDelegate {
-    func pipController(_ controller: PiPController, willStartPictureInPicture: Bool) { }
-    func pipController(_ controller: PiPController, didStartPictureInPicture: Bool) { }
+    func pipController(_ controller: PiPController, willStartPictureInPicture: Bool) {
+        pipController?.updatePlaybackState()
+    }
+    func pipController(_ controller: PiPController, didStartPictureInPicture: Bool) {
+        pipController?.updatePlaybackState()
+    }
     func pipController(_ controller: PiPController, willStopPictureInPicture: Bool) { }
     func pipController(_ controller: PiPController, didStopPictureInPicture: Bool) { }
     func pipController(_ controller: PiPController, restoreUserInterfaceForPictureInPictureStop completionHandler: @escaping (Bool) -> Void) {

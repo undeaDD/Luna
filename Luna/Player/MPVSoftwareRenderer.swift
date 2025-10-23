@@ -14,6 +14,7 @@ protocol MPVSoftwareRendererDelegate: AnyObject {
     func renderer(_ renderer: MPVSoftwareRenderer, didUpdatePosition position: Double, duration: Double)
     func renderer(_ renderer: MPVSoftwareRenderer, didChangePause isPaused: Bool)
     func renderer(_ renderer: MPVSoftwareRenderer, didChangeLoading isLoading: Bool)
+    func renderer(_ renderer: MPVSoftwareRenderer, didBecomeReadyToSeek: Bool)
 }
 
 final class MPVSoftwareRenderer {
@@ -64,6 +65,7 @@ final class MPVSoftwareRenderer {
     private var isRenderScheduled = false
     private var lastRenderTime: CFTimeInterval = 0
     private let minRenderInterval: CFTimeInterval = 1.0 / 120.0
+    private var isReadyToSeek: Bool = false
     
     var isPausedState: Bool {
         return isPaused
@@ -176,6 +178,7 @@ final class MPVSoftwareRenderer {
         renderQueue.async { [weak self] in
             guard let self else { return }
             self.isLoading = true
+            self.isReadyToSeek = false
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 self.delegate?.renderer(self, didChangeLoading: true)
@@ -727,6 +730,14 @@ final class MPVSoftwareRenderer {
         switch event.event_id {
         case MPV_EVENT_VIDEO_RECONFIG:
             refreshVideoState()
+        case MPV_EVENT_FILE_LOADED:
+            if !isReadyToSeek {
+                isReadyToSeek = true
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else { return }
+                    self.delegate?.renderer(self, didBecomeReadyToSeek: true)
+                }
+            }
         case MPV_EVENT_PROPERTY_CHANGE:
             if let property = event.data?.assumingMemoryBound(to: mpv_event_property.self).pointee.name {
                 let name = String(cString: property)
@@ -836,19 +847,34 @@ final class MPVSoftwareRenderer {
     func play() {
         setProperty(name: "pause", value: "no")
     }
+    
     func pausePlayback() {
         setProperty(name: "pause", value: "yes")
     }
+    
     func togglePause() {
         if isPaused { play() } else { pausePlayback() }
     }
+    
     func seek(to seconds: Double) {
         guard let handle = mpv else { return }
         let clamped = max(0, seconds)
         command(handle, ["seek", String(clamped), "absolute"])
     }
+    
     func seek(by seconds: Double) {
         guard let handle = mpv else { return }
         command(handle, ["seek", String(seconds), "relative"])
+    }
+    
+    func setSpeed(_ speed: Double) {
+        setProperty(name: "speed", value: String(speed))
+    }
+    
+    func getSpeed() -> Double {
+        guard let handle = mpv else { return 1.0 }
+        var speed: Double = 1.0
+        getProperty(handle: handle, name: "speed", format: MPV_FORMAT_DOUBLE, value: &speed)
+        return speed
     }
 }
