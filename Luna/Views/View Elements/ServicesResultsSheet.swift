@@ -1120,7 +1120,8 @@ struct ModulesSearchResultsSheet: View {
                 let pvc = PlayerViewController(
                     url: streamURL,
                     preset: preset ?? PlayerPreset(id: .sdrRec709, title: "Default", summary: "", stream: nil, commands: []),
-                    headers: finalHeaders
+                    headers: finalHeaders,
+                    subtitles: subtitles
                 )
                 if isMovie {
                     pvc.mediaInfo = .movie(id: tmdbId, title: mediaTitle)

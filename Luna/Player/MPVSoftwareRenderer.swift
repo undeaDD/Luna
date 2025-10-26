@@ -5,6 +5,7 @@
 //  Created by Francesco on 28/09/25.
 //
 
+import UIKit
 import Libmpv
 import CoreMedia
 import CoreVideo
@@ -15,6 +16,38 @@ protocol MPVSoftwareRendererDelegate: AnyObject {
     func renderer(_ renderer: MPVSoftwareRenderer, didChangePause isPaused: Bool)
     func renderer(_ renderer: MPVSoftwareRenderer, didChangeLoading isLoading: Bool)
     func renderer(_ renderer: MPVSoftwareRenderer, didBecomeReadyToSeek: Bool)
+    func renderer(_ renderer: MPVSoftwareRenderer, getSubtitleForTime time: Double) -> NSAttributedString?
+    func renderer(_ renderer: MPVSoftwareRenderer, getSubtitleStyle: Void) -> SubtitleStyle
+}
+
+struct SubtitleStyle {
+    let foregroundColor: UIColor
+    let strokeColor: UIColor
+    let strokeWidth: CGFloat
+    let fontSize: CGFloat
+    let isVisible: Bool
+    
+    static let `default` = SubtitleStyle(
+        foregroundColor: .white,
+        strokeColor: .black,
+        strokeWidth: 1.0,
+        fontSize: 38.0,
+        isVisible: false
+    )
+}
+
+private struct SubtitleRenderKey: Equatable {
+    let text: String
+    let fontSize: CGFloat
+    let foreground: String
+    let stroke: String
+    let strokeWidth: CGFloat
+}
+
+private struct SubtitleRenderCache {
+    let key: SubtitleRenderKey
+    let image: CGImage
+    let size: CGSize
 }
 
 final class MPVSoftwareRenderer {
@@ -66,6 +99,7 @@ final class MPVSoftwareRenderer {
     private var lastRenderTime: CFTimeInterval = 0
     private let minRenderInterval: CFTimeInterval = 1.0 / 120.0
     private var isReadyToSeek: Bool = false
+    private var subtitleRenderCache: SubtitleRenderCache?
     
     var isPausedState: Bool {
         return isPaused
@@ -440,6 +474,16 @@ final class MPVSoftwareRenderer {
         }
         
         CVPixelBufferUnlockBaseAddress(buffer, [])
+        
+        if let style = delegate?.renderer(self, getSubtitleStyle: ()), style.isVisible,
+           let attributedText = delegate?.renderer(self, getSubtitleForTime: cachedPosition),
+           attributedText.length > 0 {
+            burnSubtitles(into: buffer, attributedText: attributedText, style: style)
+        }
+        else {
+            subtitleRenderCache = nil
+        }
+        
         enqueue(buffer: buffer)
         
         if preAllocatedBuffers.count < 2 {
@@ -447,6 +491,188 @@ final class MPVSoftwareRenderer {
                 self?.preAllocateBuffers()
             }
         }
+    }
+    
+    private func burnSubtitles(into pixelBuffer: CVPixelBuffer, attributedText: NSAttributedString, style: SubtitleStyle) {
+        let bufferWidth = CVPixelBufferGetWidth(pixelBuffer)
+        let bufferHeight = CVPixelBufferGetHeight(pixelBuffer)
+        
+        guard bufferWidth > 0, bufferHeight > 0 else {
+            Logger.shared.log("Invalid bufer dimensions for subtitle: \(bufferWidth)x\(bufferHeight)", type: "Error")
+            return
+        }
+        
+        guard let subtitleImage = makeSubtitleImage(from: attributedText, style: style, maxWidth: CGFloat(bufferWidth) * 0.9) else {
+            return
+        }
+        
+        CVPixelBufferLockBaseAddress(pixelBuffer, [])
+        defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, []) }
+        
+        guard let baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer) else {
+            Logger.shared.log("Failed to get base addres s for subtitle rendering", type: "Error")
+            return
+        }
+        
+        let bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer)
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        
+        guard let context = CGContext(
+            data: baseAddress,
+            width: bufferWidth,
+            height: bufferHeight,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue
+        ) else {
+            Logger.shared.log("Failed to create CGContext for subtitle rendering", type: "Error")
+            return
+        }
+        
+        context.saveGState()
+        context.interpolationQuality = .high
+        context.setAllowsAntialiasing(true)
+        context.setShouldAntialias(true)
+        
+        let imageSize = subtitleImage.size
+        let bottomMargin = max(CGFloat(bufferHeight) * 0.08, style.fontSize * 1.4)
+        let horizontalMargin = max(CGFloat(bufferWidth) * 0.02, style.fontSize * 0.8)
+        let availableWidth = max(CGFloat(bufferWidth) - horizontalMargin * 2.0, 1.0)
+        let scale = min(1.0, availableWidth / imageSize.width)
+        
+        let renderWidth = imageSize.width * scale
+        let renderHeight = imageSize.height * scale
+        
+        var xPosition = (CGFloat(bufferWidth) - renderWidth) / 2.0
+        if xPosition < horizontalMargin {
+            xPosition = horizontalMargin
+        }
+        if xPosition + renderWidth > CGFloat(bufferWidth) - horizontalMargin {
+            xPosition = max(horizontalMargin, CGFloat(bufferWidth) - horizontalMargin - renderWidth)
+        }
+        
+        let topLimit = CGFloat(bufferHeight) - renderHeight - bottomMargin
+        var yPosition = bottomMargin
+        if topLimit < bottomMargin {
+            yPosition = max(topLimit, 0)
+        }
+        let renderRect = CGRect(x: xPosition, y: yPosition, width: renderWidth, height: renderHeight)
+        
+        context.draw(subtitleImage.image, in: renderRect)
+        context.restoreGState()
+    }
+    
+    private func makeSubtitleImage(from attributedText: NSAttributedString, style: SubtitleStyle, maxWidth: CGFloat) -> (image: CGImage, size: CGSize)? {
+        guard maxWidth > 0, attributedText.length > 0 else { return nil }
+
+        let key = SubtitleRenderKey(
+            text: attributedText.string,
+            fontSize: style.fontSize,
+            foreground: colorKey(style.foregroundColor),
+            stroke: colorKey(style.strokeColor),
+            strokeWidth: style.strokeWidth
+        )
+        if let cache = subtitleRenderCache, cache.key == key {
+            return (cache.image, cache.size)
+        }
+
+        return autoreleasepool {
+            let mutable = NSMutableAttributedString(attributedString: attributedText)
+            let fullRange = NSRange(location: 0, length: mutable.length)
+
+            mutable.enumerateAttribute(.font, in: fullRange, options: []) { value, range, _ in
+                if let font = value as? UIFont {
+                    let descriptor = font.fontDescriptor
+                    let newFont = UIFont(descriptor: descriptor, size: style.fontSize)
+                    mutable.addAttribute(.font, value: newFont, range: range)
+                } else {
+                    mutable.addAttribute(.font, value: UIFont.systemFont(ofSize: style.fontSize, weight: .semibold), range: range)
+                }
+            }
+
+            mutable.addAttribute(.foregroundColor, value: style.foregroundColor, range: fullRange)
+
+            if style.strokeWidth > 0 && style.strokeColor.cgColor.alpha > 0 {
+                mutable.addAttribute(.strokeColor, value: style.strokeColor, range: fullRange)
+                mutable.addAttribute(.strokeWidth, value: -style.strokeWidth * 2.0, range: fullRange)
+            } else {
+                mutable.removeAttribute(.strokeColor, range: fullRange)
+                mutable.removeAttribute(.strokeWidth, range: fullRange)
+            }
+
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.alignment = .center
+            paragraphStyle.lineBreakMode = .byWordWrapping
+            paragraphStyle.lineHeightMultiple = 1.05
+            mutable.addAttribute(.paragraphStyle, value: paragraphStyle, range: fullRange)
+
+            let constraint = CGSize(width: maxWidth, height: CGFloat.greatestFiniteMagnitude)
+            var boundingRect = mutable.boundingRect(with: constraint, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+            boundingRect.origin = .zero
+            boundingRect.size.width = ceil(boundingRect.width)
+            boundingRect.size.height = ceil(boundingRect.height)
+
+            guard boundingRect.width > 0, boundingRect.height > 0 else { return nil }
+
+            let strokeRadius = max(style.strokeWidth, 0)
+            let padding = strokeRadius > 0 ? strokeRadius * 2.0 : 2.0
+            let paddedSize = CGSize(width: boundingRect.width + padding * 2.0, height: boundingRect.height + padding * 2.0)
+            let textRect = CGRect(origin: CGPoint(x: padding, y: padding), size: boundingRect.size)
+
+            UIGraphicsBeginImageContextWithOptions(paddedSize, false, 0)
+            defer { UIGraphicsEndImageContext() }
+
+            if strokeRadius > 0, let ctx = UIGraphicsGetCurrentContext() {
+                ctx.saveGState()
+                let offsets: [CGPoint] = [
+                    CGPoint(x: -strokeRadius, y: 0),
+                    CGPoint(x: strokeRadius, y: 0),
+                    CGPoint(x: 0, y: -strokeRadius),
+                    CGPoint(x: 0, y: strokeRadius),
+                    CGPoint(x: -strokeRadius, y: -strokeRadius),
+                    CGPoint(x: strokeRadius, y: strokeRadius),
+                    CGPoint(x: -strokeRadius, y: strokeRadius),
+                    CGPoint(x: strokeRadius, y: -strokeRadius)
+                ]
+                let strokeText = NSMutableAttributedString(attributedString: mutable)
+                strokeText.addAttribute(.foregroundColor, value: style.strokeColor, range: fullRange)
+                strokeText.removeAttribute(.strokeColor, range: fullRange)
+                strokeText.removeAttribute(.strokeWidth, range: fullRange)
+                for offset in offsets {
+                    let offsetRect = textRect.offsetBy(dx: offset.x, dy: offset.y)
+                    strokeText.draw(with: offsetRect, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+                }
+                ctx.restoreGState()
+            }
+
+            mutable.draw(with: textRect, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+
+            guard let image = UIGraphicsGetImageFromCurrentImageContext()?.cgImage else {
+                Logger.shared.log("Failed to create CGImage for subtitles", type: "Error")
+                return nil
+            }
+
+            let cache = SubtitleRenderCache(key: key, image: image, size: paddedSize)
+            subtitleRenderCache = cache
+            return (image, paddedSize)
+        }
+    }
+
+    private func colorKey(_ color: UIColor) -> String {
+        let rgbSpace = CGColorSpaceCreateDeviceRGB()
+        let cgColor = color.cgColor
+        let converted = cgColor.converted(to: rgbSpace, intent: .defaultIntent, options: nil) ?? cgColor
+        guard let components = converted.components else {
+            return "unknown"
+        }
+
+        let r = components.count > 0 ? components[0] : 0
+        let g = components.count > 1 ? components[1] : r
+        let b = components.count > 2 ? components[2] : r
+        let a = components.count > 3 ? components[3] : cgColor.alpha
+
+        return String(format: "%.4f-%.4f-%.4f-%.4f", r, g, b, a)
     }
     
     private func createPixelBufferPool(width: Int, height: Int) {

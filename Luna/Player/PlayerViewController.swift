@@ -161,6 +161,19 @@ final class PlayerViewController: UIViewController {
         return label
     }()
     
+    private let subtitleButton: UIButton = {
+        let b = UIButton(type: .system)
+        b.translatesAutoresizingMaskIntoConstraints = false
+        let cfg = UIImage.SymbolConfiguration(pointSize: 16, weight: .semibold)
+        let img = UIImage(systemName: "captions.bubble", withConfiguration: cfg)
+        b.setImage(img, for: .normal)
+        b.tintColor = .white
+        b.alpha = 0.0
+        b.isHidden = true
+        b.showsMenuAsPrimaryAction = true
+        return b
+    }()
+    
     private let progressContainer: UIView = {
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
@@ -189,6 +202,21 @@ final class PlayerViewController: UIViewController {
     private var initialURL: URL?
     private var initialPreset: PlayerPreset?
     private var initialHeaders: [String: String]?
+    private var initialSubtitles: [String]?
+    
+    private var subtitleURLs: [String] = []
+    private var currentSubtitleIndex: Int = 0
+    private var subtitleEntries: [SubtitleEntry] = []
+    
+    class SubtitleModel: ObservableObject {
+        @Published var currentAttributedText: NSAttributedString = NSAttributedString()
+        @Published var isVisible: Bool = false
+        @Published var foregroundColor: UIColor = .white
+        @Published var strokeColor: UIColor = .black
+        @Published var strokeWidth: CGFloat = 1.0
+        @Published var fontSize: CGFloat = 24.0
+    }
+    private var subtitleModel = SubtitleModel()
     
     private var originalSpeed: Double = 1.0
     private var holdGesture: UILongPressGestureRecognizer?
@@ -282,17 +310,22 @@ final class PlayerViewController: UIViewController {
         NotificationCenter.default.removeObserver(self)
     }
     
-    convenience init(url: URL, preset: PlayerPreset, headers: [String: String]? = nil) {
+    convenience init(url: URL, preset: PlayerPreset, headers: [String: String]? = nil, subtitles: [String]? = nil) {
         self.init(nibName: nil, bundle: nil)
         self.initialURL = url
         self.initialPreset = preset
         self.initialHeaders = headers
+        self.initialSubtitles = subtitles
     }
     
     func load(url: URL, preset: PlayerPreset, headers: [String: String]? = nil) {
         renderer.load(url: url, with: preset, headers: headers)
         if let info = mediaInfo {
             prepareSeekToLastPosition(for: info)
+        }
+        
+        if let subs = initialSubtitles, !subs.isEmpty {
+            loadSubtitles(subs)
         }
     }
     
@@ -343,6 +376,7 @@ final class PlayerViewController: UIViewController {
         videoContainer.addSubview(skipBackwardButton)
         videoContainer.addSubview(skipForwardButton)
         videoContainer.addSubview(speedIndicatorLabel)
+        videoContainer.addSubview(subtitleButton)
         
         NSLayoutConstraint.activate([
             videoContainer.topAnchor.constraint(equalTo: view.topAnchor),
@@ -398,7 +432,12 @@ final class PlayerViewController: UIViewController {
             speedIndicatorLabel.topAnchor.constraint(equalTo: videoContainer.safeAreaLayoutGuide.topAnchor, constant: 20),
             speedIndicatorLabel.centerXAnchor.constraint(equalTo: videoContainer.centerXAnchor),
             speedIndicatorLabel.widthAnchor.constraint(equalToConstant: 100),
-            speedIndicatorLabel.heightAnchor.constraint(equalToConstant: 40)
+            speedIndicatorLabel.heightAnchor.constraint(equalToConstant: 40),
+            
+            subtitleButton.trailingAnchor.constraint(equalTo: progressContainer.trailingAnchor, constant: 0),
+            subtitleButton.bottomAnchor.constraint(equalTo: progressContainer.topAnchor, constant: -8),
+            subtitleButton.widthAnchor.constraint(equalToConstant: 32),
+            subtitleButton.heightAnchor.constraint(equalToConstant: 32)
         ])
     }
     
@@ -480,6 +519,237 @@ final class PlayerViewController: UIViewController {
         renderer.seek(by: 15)
         animateButtonTap(skipForwardButton)
         showControlsTemporarily()
+    }
+    
+    private func updateSubtitleMenu() {
+        var trackActions: [UIAction] = []
+        
+        let disableAction = UIAction(
+            title: "Disable Subtitles",
+            image: UIImage(systemName: "xmark"),
+            state: subtitleModel.isVisible ? .off : .on
+        ) { [weak self] _ in
+            self?.subtitleModel.isVisible = false
+            self?.updateSubtitleButtonAppearance()
+            self?.updateSubtitleMenu()
+        }
+        trackActions.append(disableAction)
+        
+        for (index, _) in subtitleURLs.enumerated() {
+            let isSelected = subtitleModel.isVisible && currentSubtitleIndex == index
+            let action = UIAction(
+                title: "Subtitle \(index + 1)",
+                image: UIImage(systemName: "captions.bubble"),
+                state: isSelected ? .on : .off
+            ) { [weak self] _ in
+                self?.currentSubtitleIndex = index
+                self?.subtitleModel.isVisible = true
+                self?.loadCurrentSubtitle()
+                self?.updateSubtitleButtonAppearance()
+                self?.updateSubtitleMenu()
+            }
+            trackActions.append(action)
+        }
+        
+        let trackMenu = UIMenu(title: "Select Track", image: UIImage(systemName: "list.bullet"), children: trackActions)
+        
+        let appearanceMenu = createAppearanceMenu()
+        
+        let mainMenu = UIMenu(title: "Subtitles", children: [trackMenu, appearanceMenu])
+        subtitleButton.menu = mainMenu
+    }
+    
+    private func createAppearanceMenu() -> UIMenu {
+        let foregroundColors: [(String, UIColor)] = [
+            ("White", .white),
+            ("Yellow", .yellow),
+            ("Cyan", .cyan),
+            ("Green", .green),
+            ("Magenta", .magenta)
+        ]
+        
+        let foregroundColorActions = foregroundColors.map { (name, color) in
+            UIAction(
+                title: name,
+                state: subtitleModel.foregroundColor == color ? .on : .off
+            ) { [weak self] _ in
+                self?.subtitleModel.foregroundColor = color
+                self?.updateCurrentSubtitleAppearance()
+                self?.updateSubtitleMenu()
+            }
+        }
+        
+        let foregroundColorMenu = UIMenu(title: "Text Color", image: UIImage(systemName: "paintpalette"), children: foregroundColorActions)
+        
+        let strokeColors: [(String, UIColor)] = [
+            ("Black", .black),
+            ("Dark Gray", .darkGray),
+            ("White", .white),
+            ("None", .clear)
+        ]
+        
+        let strokeColorActions = strokeColors.map { (name, color) in
+            UIAction(
+                title: name,
+                state: subtitleModel.strokeColor == color ? .on : .off
+            ) { [weak self] _ in
+                self?.subtitleModel.strokeColor = color
+                self?.updateCurrentSubtitleAppearance()
+                self?.updateSubtitleMenu()
+            }
+        }
+        
+        let strokeColorMenu = UIMenu(title: "Stroke Color", image: UIImage(systemName: "pencil.tip"), children: strokeColorActions)
+        
+        let strokeWidths: [(String, CGFloat)] = [
+            ("None", 0.0),
+            ("Thin", 0.5),
+            ("Normal", 1.0),
+            ("Medium", 1.5),
+            ("Thick", 2.0)
+        ]
+        
+        let strokeWidthActions = strokeWidths.map { (name, width) in
+            UIAction(
+                title: name,
+                state: subtitleModel.strokeWidth == width ? .on : .off
+            ) { [weak self] _ in
+                self?.subtitleModel.strokeWidth = width
+                self?.updateCurrentSubtitleAppearance()
+                self?.updateSubtitleMenu()
+            }
+        }
+        
+        let strokeWidthMenu = UIMenu(title: "Stroke Width", image: UIImage(systemName: "lineweight"), children: strokeWidthActions)
+        
+        let fontSizes: [(String, CGFloat)] = [
+            ("Small", 34.0),
+            ("Medium", 38.0),
+            ("Large", 42.0),
+            ("Extra Large", 46.0),
+            ("Huge", 56.0),
+            ("Extra Huge", 66.0)
+        ]
+        
+        let fontSizeActions = fontSizes.map { (name, size) in
+            UIAction(
+                title: name,
+                state: subtitleModel.fontSize == size ? .on : .off
+            ) { [weak self] _ in
+                self?.subtitleModel.fontSize = size
+                self?.updateCurrentSubtitleAppearance()
+                self?.updateSubtitleMenu()
+            }
+        }
+        
+        let fontSizeMenu = UIMenu(title: "Font Size", image: UIImage(systemName: "textformat.size"), children: fontSizeActions)
+        
+        return UIMenu(title: "Appearance", image: UIImage(systemName: "paintbrush"), children: [
+            foregroundColorMenu,
+            strokeColorMenu,
+            strokeWidthMenu,
+            fontSizeMenu
+        ])
+    }
+    
+    private func updateCurrentSubtitleAppearance() {
+        if subtitleModel.isVisible && currentSubtitleIndex < subtitleURLs.count {
+            loadCurrentSubtitle()
+        }
+    }
+    
+    private func updateSubtitleButtonAppearance() {
+        let cfg = UIImage.SymbolConfiguration(pointSize: 16, weight: .semibold)
+        let imageName = subtitleModel.isVisible ? "captions.bubble.fill" : "captions.bubble"
+        let img = UIImage(systemName: imageName, withConfiguration: cfg)
+        subtitleButton.setImage(img, for: .normal)
+    }
+    
+    private func loadSubtitles(_ urls: [String]) {
+        subtitleURLs = urls
+        
+        if !urls.isEmpty {
+            subtitleButton.isHidden = false
+            currentSubtitleIndex = 0
+            subtitleModel.isVisible = true
+            loadCurrentSubtitle()
+            updateSubtitleButtonAppearance()
+            updateSubtitleMenu()
+        }
+    }
+    
+    private func loadCurrentSubtitle() {
+        guard currentSubtitleIndex < subtitleURLs.count else { return }
+        let urlString = subtitleURLs[currentSubtitleIndex]
+        
+        guard let url = URL(string: urlString) else {
+            Logger.shared.log("Invalid subtitle URL: \(urlString)", type: "Error")
+            return
+        }
+        
+        URLSession.custom.dataTask(with: url) { [weak self] data, response, error in
+            guard let self = self else { return }
+            
+            if let error = error {
+                Logger.shared.log("Failed to download subtitles: \(error.localizedDescription)", type: "Error")
+                return
+            }
+            
+            guard let data = data, let subtitleContent = String(data: data, encoding: .utf8) else {
+                Logger.shared.log("Failed to parse subtitle data", type: "Error")
+                return
+            }
+            
+            self.parseAndDisplaySubtitles(subtitleContent)
+        }.resume()
+    }
+    
+    private func parseAndDisplaySubtitles(_ content: String) {
+        subtitleEntries = SubtitleLoader.parseSubtitles(from: content, fontSize: subtitleModel.fontSize, foregroundColor: subtitleModel.foregroundColor)
+        Logger.shared.log("Loaded \(subtitleEntries.count) subtitle entries", type: "Info")
+    }
+    
+    @objc private func subtitleButtonTapped() {
+        guard !subtitleURLs.isEmpty else { return }
+        
+        if subtitleURLs.count == 1 {
+            subtitleModel.isVisible.toggle()
+            updateSubtitleButtonAppearance()
+        } else {
+            showSubtitleSelectionMenu()
+        }
+        
+        showControlsTemporarily()
+    }
+    
+    private func showSubtitleSelectionMenu() {
+        let alert = UIAlertController(title: "Select Subtitle", message: nil, preferredStyle: .actionSheet)
+        
+        let disableAction = UIAlertAction(title: "Disable Subtitles", style: .default) { [weak self] _ in
+            self?.subtitleModel.isVisible = false
+            self?.updateSubtitleButtonAppearance()
+        }
+        alert.addAction(disableAction)
+        
+        for (index, _) in subtitleURLs.enumerated() {
+            let action = UIAlertAction(title: "Subtitle \(index + 1)", style: .default) { [weak self] _ in
+                self?.currentSubtitleIndex = index
+                self?.subtitleModel.isVisible = true
+                self?.loadCurrentSubtitle()
+                self?.updateSubtitleButtonAppearance()
+            }
+            alert.addAction(action)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        alert.addAction(cancelAction)
+        
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = subtitleButton
+            popover.sourceRect = subtitleButton.bounds
+        }
+        
+        present(alert, animated: true, completion: nil)
     }
     
     private func animateButtonTap(_ button: UIButton) {
@@ -653,6 +923,9 @@ final class PlayerViewController: UIViewController {
                 self.pipButton.alpha = 1.0
                 self.skipBackwardButton.alpha = 1.0
                 self.skipForwardButton.alpha = 1.0
+                if !self.subtitleButton.isHidden {
+                    self.subtitleButton.alpha = 1.0
+                }
             }
         }
         
@@ -676,6 +949,7 @@ final class PlayerViewController: UIViewController {
                 self.pipButton.alpha = 0.0
                 self.skipBackwardButton.alpha = 0.0
                 self.skipForwardButton.alpha = 0.0
+                self.subtitleButton.alpha = 0.0
             }
         }
     }
@@ -778,6 +1052,29 @@ extension PlayerViewController: MPVSoftwareRendererDelegate {
                 self.pendingSeekTime = nil
             }
         }
+    }
+    
+    func renderer(_ renderer: MPVSoftwareRenderer, getSubtitleForTime time: Double) -> NSAttributedString? {
+        guard subtitleModel.isVisible, !subtitleEntries.isEmpty else {
+            return nil
+        }
+        
+        if let entry = subtitleEntries.first(where: { $0.startTime <= time && time <= $0.endTime }) {
+            return entry.attributedText
+        }
+        
+        return nil
+    }
+    
+    func renderer(_ renderer: MPVSoftwareRenderer, getSubtitleStyle: Void) -> SubtitleStyle {
+        let style = SubtitleStyle(
+            foregroundColor: subtitleModel.foregroundColor,
+            strokeColor: subtitleModel.strokeColor,
+            strokeWidth: subtitleModel.strokeWidth,
+            fontSize: subtitleModel.fontSize,
+            isVisible: subtitleModel.isVisible
+        )
+        return style
     }
 }
 
