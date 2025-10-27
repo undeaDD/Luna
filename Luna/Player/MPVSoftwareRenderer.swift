@@ -77,7 +77,7 @@ final class MPVSoftwareRenderer {
     private var poolWidth: Int = 0
     private var poolHeight: Int = 0
     private var preAllocatedBuffers: [CVPixelBuffer] = []
-    private let maxPreAllocatedBuffers = 6
+    private let maxPreAllocatedBuffers = 12
     
     private var currentPreset: PlayerPreset?
     private var currentURL: URL?
@@ -97,9 +97,12 @@ final class MPVSoftwareRenderer {
     private var isLoading: Bool = false
     private var isRenderScheduled = false
     private var lastRenderTime: CFTimeInterval = 0
-    private let minRenderInterval: CFTimeInterval = 1.0 / 120.0
+    private let minRenderInterval: CFTimeInterval = 1.0 / 144.0
     private var isReadyToSeek: Bool = false
+    private var lastSubtitleCheckTime: Double = -1.0
+    private var cachedSubtitleText: NSAttributedString?
     private var subtitleRenderCache: SubtitleRenderCache?
+    private var lastRenderDimensions: CGSize = .zero
     
     var isPausedState: Bool {
         return isPaused
@@ -130,6 +133,10 @@ final class MPVSoftwareRenderer {
         setOption(name: "gpu-context", value: "metal")
         setOption(name: "demuxer-thread", value: "yes")
         setOption(name: "ytdl", value: "yes")
+        setOption(name: "vd-lavc-threads", value: "8")
+        setOption(name: "cache", value: "yes")
+        setOption(name: "demuxer-max-bytes", value: "150M")
+        setOption(name: "demuxer-readahead-secs", value: "20")
         
         let initStatus = mpv_initialize(handle)
         guard initStatus >= 0 else {
@@ -173,6 +180,7 @@ final class MPVSoftwareRenderer {
             self.pixelBufferPool = nil
             self.poolWidth = 0
             self.poolHeight = 0
+            self.lastRenderDimensions = .zero
         }
         
         eventQueueGroup.wait()
@@ -191,6 +199,7 @@ final class MPVSoftwareRenderer {
             self.formatDescription = nil
             self.poolWidth = 0
             self.poolHeight = 0
+            self.lastRenderDimensions = .zero
             
             self.disposeBag.forEach { $0() }
             self.disposeBag.removeAll()
@@ -362,8 +371,11 @@ final class MPVSoftwareRenderer {
             guard let self, self.isRunning, !self.isStopping else { return }
             
             let currentTime = CACurrentMediaTime()
-            if self.isRenderScheduled && (currentTime - self.lastRenderTime) < self.minRenderInterval {
-                return
+            if self.isRenderScheduled {
+                let timeSinceLastRender = currentTime - self.lastRenderTime
+                if timeSinceLastRender < self.minRenderInterval {
+                    return
+                }
             }
             
             self.isRenderScheduled = true
@@ -390,11 +402,21 @@ final class MPVSoftwareRenderer {
     
     private func renderFrame() {
         guard let context = renderContext else { return }
-        let size = currentVideoSize()
-        guard size.width > 0, size.height > 0 else { return }
+        let videoSize = currentVideoSize()
+        guard videoSize.width > 0, videoSize.height > 0 else { return }
         
-        let width = Int(size.width)
-        let height = Int(size.height)
+        let targetSize = targetRenderSize(for: videoSize)
+        let width = Int(targetSize.width)
+        let height = Int(targetSize.height)
+        guard width > 0, height > 0 else { return }
+        if lastRenderDimensions != targetSize {
+            lastRenderDimensions = targetSize
+            if targetSize != videoSize {
+                Logger.shared.log("Rendering scaled output at \(width)x\(height) (source \(Int(videoSize.width))x\(Int(videoSize.height)))", type: "Info")
+            } else {
+                Logger.shared.log("Rendering output at native size \(width)x\(height)", type: "Info")
+            }
+        }
         
         if poolWidth != width || poolHeight != height {
             recreatePixelBufferPool(width: width, height: height)
@@ -475,22 +497,51 @@ final class MPVSoftwareRenderer {
         
         CVPixelBufferUnlockBaseAddress(buffer, [])
         
-        if let style = delegate?.renderer(self, getSubtitleStyle: ()), style.isVisible,
-           let attributedText = delegate?.renderer(self, getSubtitleForTime: cachedPosition),
-           attributedText.length > 0 {
-            burnSubtitles(into: buffer, attributedText: attributedText, style: style)
-        }
-        else {
+        if let style = delegate?.renderer(self, getSubtitleStyle: ()), style.isVisible {
+            let currentTime = cachedPosition
+            let timeDelta = abs(currentTime - lastSubtitleCheckTime)
+            
+            if timeDelta >= 0.1 {
+                lastSubtitleCheckTime = currentTime
+                cachedSubtitleText = delegate?.renderer(self, getSubtitleForTime: currentTime)
+            }
+            
+            if let attributedText = cachedSubtitleText, attributedText.length > 0 {
+                burnSubtitles(into: buffer, attributedText: attributedText, style: style)
+            } else {
+                subtitleRenderCache = nil
+            }
+        } else {
             subtitleRenderCache = nil
+            lastSubtitleCheckTime = -1.0
+            cachedSubtitleText = nil
         }
         
         enqueue(buffer: buffer)
         
-        if preAllocatedBuffers.count < 2 {
+        if preAllocatedBuffers.count < 4 {
             renderQueue.async { [weak self] in
                 self?.preAllocateBuffers()
             }
         }
+    }
+    
+    private func targetRenderSize(for videoSize: CGSize) -> CGSize {
+        guard videoSize.width > 0, videoSize.height > 0 else { return videoSize }
+        let screen = UIScreen.main
+        var scale = screen.scale
+        if scale <= 0 { scale = 1 }
+        let maxWidth = max(screen.bounds.width * scale, 1.0)
+        let maxHeight = max(screen.bounds.height * scale, 1.0)
+        if maxWidth <= 0 || maxHeight <= 0 {
+            return videoSize
+        }
+        let widthRatio = videoSize.width / maxWidth
+        let heightRatio = videoSize.height / maxHeight
+        let ratio = max(widthRatio, heightRatio, 1)
+        let targetWidth = max(1, Int(videoSize.width / ratio))
+        let targetHeight = max(1, Int(videoSize.height / ratio))
+        return CGSize(width: CGFloat(targetWidth), height: CGFloat(targetHeight))
     }
     
     private func burnSubtitles(into pixelBuffer: CVPixelBuffer, attributedText: NSAttributedString, style: SubtitleStyle) {
@@ -502,7 +553,12 @@ final class MPVSoftwareRenderer {
             return
         }
         
-        guard let subtitleImage = makeSubtitleImage(from: attributedText, style: style, maxWidth: CGFloat(bufferWidth) * 0.9) else {
+        let highRes = bufferWidth >= 3840 || bufferHeight >= 2160
+        let renderScale: CGFloat = highRes ? 0.5 : 1.0
+        let effectiveWidth = Int(CGFloat(bufferWidth) * renderScale)
+        let effectiveHeight = Int(CGFloat(bufferHeight) * renderScale)
+        
+        guard let subtitleImage = makeSubtitleImage(from: attributedText, style: style, maxWidth: CGFloat(effectiveWidth) * 0.9) else {
             return
         }
         
@@ -536,23 +592,23 @@ final class MPVSoftwareRenderer {
         context.setShouldAntialias(true)
         
         let imageSize = subtitleImage.size
-        let bottomMargin = max(CGFloat(bufferHeight) * 0.08, style.fontSize * 1.4)
-        let horizontalMargin = max(CGFloat(bufferWidth) * 0.02, style.fontSize * 0.8)
-        let availableWidth = max(CGFloat(bufferWidth) - horizontalMargin * 2.0, 1.0)
+        let bottomMargin = max(CGFloat(effectiveHeight) * 0.08, style.fontSize * 1.4)
+        let horizontalMargin = max(CGFloat(effectiveWidth) * 0.02, style.fontSize * 0.8)
+        let availableWidth = max(CGFloat(effectiveWidth) - horizontalMargin * 2.0, 1.0)
         let scale = min(1.0, availableWidth / imageSize.width)
         
         let renderWidth = imageSize.width * scale
         let renderHeight = imageSize.height * scale
         
-        var xPosition = (CGFloat(bufferWidth) - renderWidth) / 2.0
+        var xPosition = (CGFloat(effectiveWidth) - renderWidth) / 2.0
         if xPosition < horizontalMargin {
             xPosition = horizontalMargin
         }
-        if xPosition + renderWidth > CGFloat(bufferWidth) - horizontalMargin {
-            xPosition = max(horizontalMargin, CGFloat(bufferWidth) - horizontalMargin - renderWidth)
+        if xPosition + renderWidth > CGFloat(effectiveWidth) - horizontalMargin {
+            xPosition = max(horizontalMargin, CGFloat(effectiveWidth) - horizontalMargin - renderWidth)
         }
         
-        let topLimit = CGFloat(bufferHeight) - renderHeight - bottomMargin
+        let topLimit = CGFloat(effectiveHeight) - renderHeight - bottomMargin
         var yPosition = bottomMargin
         if topLimit < bottomMargin {
             yPosition = max(topLimit, 0)
@@ -565,7 +621,7 @@ final class MPVSoftwareRenderer {
     
     private func makeSubtitleImage(from attributedText: NSAttributedString, style: SubtitleStyle, maxWidth: CGFloat) -> (image: CGImage, size: CGSize)? {
         guard maxWidth > 0, attributedText.length > 0 else { return nil }
-
+        
         let key = SubtitleRenderKey(
             text: attributedText.string,
             fontSize: style.fontSize,
@@ -576,11 +632,11 @@ final class MPVSoftwareRenderer {
         if let cache = subtitleRenderCache, cache.key == key {
             return (cache.image, cache.size)
         }
-
+        
         return autoreleasepool {
             let mutable = NSMutableAttributedString(attributedString: attributedText)
             let fullRange = NSRange(location: 0, length: mutable.length)
-
+            
             mutable.enumerateAttribute(.font, in: fullRange, options: []) { value, range, _ in
                 if let font = value as? UIFont {
                     let descriptor = font.fontDescriptor
@@ -590,9 +646,9 @@ final class MPVSoftwareRenderer {
                     mutable.addAttribute(.font, value: UIFont.systemFont(ofSize: style.fontSize, weight: .semibold), range: range)
                 }
             }
-
+            
             mutable.addAttribute(.foregroundColor, value: style.foregroundColor, range: fullRange)
-
+            
             if style.strokeWidth > 0 && style.strokeColor.cgColor.alpha > 0 {
                 mutable.addAttribute(.strokeColor, value: style.strokeColor, range: fullRange)
                 mutable.addAttribute(.strokeWidth, value: -style.strokeWidth * 2.0, range: fullRange)
@@ -600,29 +656,29 @@ final class MPVSoftwareRenderer {
                 mutable.removeAttribute(.strokeColor, range: fullRange)
                 mutable.removeAttribute(.strokeWidth, range: fullRange)
             }
-
+            
             let paragraphStyle = NSMutableParagraphStyle()
             paragraphStyle.alignment = .center
             paragraphStyle.lineBreakMode = .byWordWrapping
             paragraphStyle.lineHeightMultiple = 1.05
             mutable.addAttribute(.paragraphStyle, value: paragraphStyle, range: fullRange)
-
+            
             let constraint = CGSize(width: maxWidth, height: CGFloat.greatestFiniteMagnitude)
             var boundingRect = mutable.boundingRect(with: constraint, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
             boundingRect.origin = .zero
             boundingRect.size.width = ceil(boundingRect.width)
             boundingRect.size.height = ceil(boundingRect.height)
-
+            
             guard boundingRect.width > 0, boundingRect.height > 0 else { return nil }
-
+            
             let strokeRadius = max(style.strokeWidth, 0)
             let padding = strokeRadius > 0 ? strokeRadius * 2.0 : 2.0
             let paddedSize = CGSize(width: boundingRect.width + padding * 2.0, height: boundingRect.height + padding * 2.0)
             let textRect = CGRect(origin: CGPoint(x: padding, y: padding), size: boundingRect.size)
-
+            
             UIGraphicsBeginImageContextWithOptions(paddedSize, false, 0)
             defer { UIGraphicsEndImageContext() }
-
+            
             if strokeRadius > 0, let ctx = UIGraphicsGetCurrentContext() {
                 ctx.saveGState()
                 let offsets: [CGPoint] = [
@@ -645,20 +701,20 @@ final class MPVSoftwareRenderer {
                 }
                 ctx.restoreGState()
             }
-
+            
             mutable.draw(with: textRect, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
-
+            
             guard let image = UIGraphicsGetImageFromCurrentImageContext()?.cgImage else {
                 Logger.shared.log("Failed to create CGImage for subtitles", type: "Error")
                 return nil
             }
-
+            
             let cache = SubtitleRenderCache(key: key, image: image, size: paddedSize)
             subtitleRenderCache = cache
             return (image, paddedSize)
         }
     }
-
+    
     private func colorKey(_ color: UIColor) -> String {
         let rgbSpace = CGColorSpaceCreateDeviceRGB()
         let cgColor = color.cgColor
@@ -666,12 +722,12 @@ final class MPVSoftwareRenderer {
         guard let components = converted.components else {
             return "unknown"
         }
-
+        
         let r = components.count > 0 ? components[0] : 0
         let g = components.count > 1 ? components[1] : r
         let b = components.count > 2 ? components[2] : r
         let a = components.count > 3 ? components[3] : cgColor.alpha
-
+        
         return String(format: "%.4f-%.4f-%.4f-%.4f", r, g, b, a)
     }
     
@@ -694,7 +750,7 @@ final class MPVSoftwareRenderer {
         ]
         
         let auxAttrs: [CFString: Any] = [
-            kCVPixelBufferPoolAllocationThresholdKey: 4
+            kCVPixelBufferPoolAllocationThresholdKey: 8
         ]
         
         var pool: CVPixelBufferPool?
@@ -737,7 +793,7 @@ final class MPVSoftwareRenderer {
         
         guard let pool = pixelBufferPool else { return }
         
-        let targetCount = min(maxPreAllocatedBuffers, 4)
+        let targetCount = min(maxPreAllocatedBuffers, 8)
         let currentCount = preAllocatedBuffers.count
         
         guard currentCount < targetCount else { return }
@@ -839,9 +895,6 @@ final class MPVSoftwareRenderer {
                 }
             }
             
-            if !self.displayLayer.isReadyForMoreMediaData {
-                Logger.shared.log("Display layer not ready for more media data", type: "Warn")
-            }
             if shouldNotifyLoadingEnd {
                 self.delegate?.renderer(self, didChangeLoading: false)
             }
