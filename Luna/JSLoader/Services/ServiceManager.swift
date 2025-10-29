@@ -13,6 +13,7 @@ struct ServiceSetting {
     let value: String
     let type: SettingType
     let comment: String?
+    let options: [String]?
     
     enum SettingType {
         case string, bool, int, float
@@ -487,18 +488,56 @@ class ServiceManager: ObservableObject {
         let key = String(line[keyRange])
         let valueString = String(line[valueRange]).trimmingCharacters(in: .whitespaces)
         
-        let comment = commentRegex.firstMatch(in: line, range: range).flatMap { match in
+        let rawComment = commentRegex.firstMatch(in: line, range: range).flatMap { match in
             Range(match.range(at: 1), in: line).map { String(line[$0]) }
+        }
+        
+        var comment: String? = nil
+        var options: [String]? = nil
+        if let rc = rawComment {
+            if let start = rc.firstIndex(of: "["), let end = rc.firstIndex(of: "]"), end > start {
+                let optsSub = rc[rc.index(after: start)..<end]
+                let rawOpts = optsSub.split(separator: ",").map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+                let cleaned = rawOpts.map { opt -> String in
+                    var s = opt.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if let first = s.first, let last = s.last,
+                       "\"'“”‘’".contains(first), "\"'“”‘’".contains(last) {
+                        s = String(s[s.index(after: s.startIndex)..<s.index(before: s.endIndex)])
+                    }
+                    return s
+                }.filter { !$0.isEmpty }
+                
+                if !cleaned.isEmpty {
+                    options = cleaned
+                }
+                
+                var temp = rc
+                temp.removeSubrange(start...end)
+                let trimmed = temp.trimmingCharacters(in: .whitespacesAndNewlines)
+                comment = trimmed.isEmpty ? nil : trimmed
+            } else {
+                comment = rc.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
         }
         
         let (type, cleanValue) = determineSettingType(from: valueString)
         
-        return ServiceSetting(key: key, value: cleanValue, type: type, comment: comment)
+        return ServiceSetting(key: key, value: cleanValue, type: type, comment: comment, options: options)
     }
     
     private func determineSettingType(from valueString: String) -> (ServiceSetting.SettingType, String) {
-        if valueString.hasPrefix("\"") && valueString.hasSuffix("\"") {
-            return (.string, String(valueString.dropFirst().dropLast()))
+        func stripQuotes(_ s: String) -> String {
+            var t = s.trimmingCharacters(in: .whitespacesAndNewlines)
+            if t.count >= 2, let first = t.first, let last = t.last,
+               "\"'“”‘’".contains(first), "\"'“”‘’".contains(last) {
+                t = String(t[t.index(after: t.startIndex)..<t.index(before: t.endIndex)])
+            }
+            return t
+        }
+        
+        let trimmed = valueString.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let first = trimmed.first, let last = trimmed.last, "\"'“”‘’".contains(first) && "\"'“”‘’".contains(last) {
+            return (.string, stripQuotes(trimmed))
         } else if valueString.lowercased() == "true" || valueString.lowercased() == "false" {
             return (.bool, valueString.lowercased())
         } else if valueString.contains(".") {
@@ -506,7 +545,7 @@ class ServiceManager: ObservableObject {
         } else if Int(valueString) != nil {
             return (.int, valueString)
         } else {
-            return (.string, valueString)
+            return (.string, stripQuotes(valueString))
         }
     }
     
@@ -536,7 +575,17 @@ class ServiceManager: ObservableObject {
                     
                     if let setting = settingsMap[key] {
                         let formattedValue = formatSettingValue(setting)
-                        let commentPart = setting.comment.map { " // \($0)" } ?? ""
+                        
+                        var commentParts: [String] = []
+                        if let c = setting.comment, !c.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            commentParts.append(c)
+                        }
+                        if let opts = setting.options, !opts.isEmpty {
+                            let optsEscaped = opts.map { "\"\($0)\"" }.joined(separator: ", ")
+                            commentParts.append("[\(optsEscaped)]")
+                        }
+                        
+                        let commentPart = commentParts.isEmpty ? "" : " // " + commentParts.joined(separator: " ")
                         let leadingWhitespace = String(line.prefix(while: \.isWhitespace))
                         lines[index] = "\(leadingWhitespace)const \(setting.key) = \(formattedValue);\(commentPart)"
                     }

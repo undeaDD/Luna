@@ -200,7 +200,8 @@ struct ServiceSettingsView: View {
                 key: setting.key,
                 value: editedSettings[setting.key] ?? setting.value,
                 type: setting.type,
-                comment: setting.comment
+                comment: setting.comment,
+                options: setting.options
             )
         }
         
@@ -278,8 +279,40 @@ struct SettingRow: View {
             .keyboardType(.decimalPad)
             
         case .string:
-            TextField("Enter text", text: $value)
-                .textFieldStyle(modernTextFieldStyle)
+            if let options = setting.options, !options.isEmpty {
+                Menu {
+                    ForEach(options, id: \.self) { opt in
+                        Button {
+                            value = opt
+                        } label: {
+                            HStack {
+                                Text(opt)
+                                Spacer()
+                                if value == opt {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Text(value.isEmpty ? "Select" : value)
+                            .foregroundColor(.primary)
+                        Spacer()
+                        Image(systemName: "chevron.down")
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.black.opacity(0.06))
+                    )
+                }
+            } else {
+                TextField("Enter text", text: $value)
+                    .textFieldStyle(modernTextFieldStyle)
+            }
         }
     }
     

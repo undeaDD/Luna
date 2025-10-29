@@ -97,7 +97,7 @@ final class MPVSoftwareRenderer {
     private var isLoading: Bool = false
     private var isRenderScheduled = false
     private var lastRenderTime: CFTimeInterval = 0
-    private let minRenderInterval: CFTimeInterval = 1.0 / 144.0
+    private var minRenderInterval: CFTimeInterval
     private var isReadyToSeek: Bool = false
     private var lastSubtitleCheckTime: Double = -1.0
     private var cachedSubtitleText: NSAttributedString?
@@ -110,6 +110,10 @@ final class MPVSoftwareRenderer {
     
     init(displayLayer: AVSampleBufferDisplayLayer) {
         self.displayLayer = displayLayer
+        let maxFPS = UIScreen.main.maximumFramesPerSecond
+        let cappedFPS = min(maxFPS, 60)
+        self.minRenderInterval = 1.0 / CFTimeInterval(cappedFPS)
+
         renderQueue.setSpecific(key: renderQueueKey, value: ())
     }
     
@@ -371,11 +375,19 @@ final class MPVSoftwareRenderer {
             guard let self, self.isRunning, !self.isStopping else { return }
             
             let currentTime = CACurrentMediaTime()
-            if self.isRenderScheduled {
-                let timeSinceLastRender = currentTime - self.lastRenderTime
-                if timeSinceLastRender < self.minRenderInterval {
-                    return
+            let timeSinceLastRender = currentTime - self.lastRenderTime
+            if timeSinceLastRender < self.minRenderInterval {
+                let remaining = self.minRenderInterval - timeSinceLastRender
+                if self.isRenderScheduled { return }
+                self.isRenderScheduled = true
+                
+                self.renderQueue.asyncAfter(deadline: .now() + remaining) { [weak self] in
+                    guard let self else { return }
+                    self.lastRenderTime = CACurrentMediaTime()
+                    self.performRenderUpdate()
+                    self.isRenderScheduled = false
                 }
+                return
             }
             
             self.isRenderScheduled = true
