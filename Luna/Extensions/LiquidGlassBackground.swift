@@ -10,9 +10,9 @@ import SwiftUI
 extension View {
     @ViewBuilder
     func applyLiquidGlassBackground(cornerRadius: CGFloat) -> some View {
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.0, macOS 15.0, tvOS 20.0, *) {
             self
-                .glassBackgroundEffect(in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         } else {
             self
                 .background(
