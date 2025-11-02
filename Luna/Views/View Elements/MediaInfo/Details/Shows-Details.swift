@@ -76,6 +76,7 @@ struct TVShowSeasonsSection: View {
                 .padding(.horizontal)
                 .padding(.vertical, 16)
                 .applyLiquidGlassBackground(cornerRadius: 12)
+                .padding(.horizontal)
                 
                 if !tvShow.seasons.isEmpty {
                     if isGroupedBySeasons && !useSeasonMenu {

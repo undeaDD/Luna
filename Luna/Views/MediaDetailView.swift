@@ -297,13 +297,11 @@ struct MediaDetailView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
                 .padding(.horizontal, 25)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(serviceManager.activeServices.isEmpty ? Color.gray.opacity(0.3) : Color.black.opacity(0.2))
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(serviceManager.activeServices.isEmpty ? .thinMaterial : .ultraThinMaterial)
-                        )
+                .applyLiquidGlassBackground(
+                    cornerRadius: 12,
+                    fallbackFill: serviceManager.activeServices.isEmpty ? Color.gray.opacity(0.3) : Color.black.opacity(0.2),
+                    fallbackMaterial: serviceManager.activeServices.isEmpty ? .thinMaterial : .ultraThinMaterial,
+                    glassTint: serviceManager.activeServices.isEmpty ? Color.gray.opacity(0.3) : nil
                 )
                 .foregroundColor(serviceManager.activeServices.isEmpty ? .secondary : .primary)
                 .cornerRadius(8)
