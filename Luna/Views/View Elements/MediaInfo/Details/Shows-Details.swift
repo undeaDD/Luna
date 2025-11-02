@@ -39,6 +39,7 @@ struct TVShowSeasonsSection: View {
                     .fontWeight(.bold)
                     .padding(.horizontal)
                     .padding(.top)
+                    .foregroundColor(.white)
                 
                 VStack(spacing: 12) {
                     if let numberOfSeasons = tvShow.numberOfSeasons, numberOfSeasons > 0 {
@@ -86,6 +87,7 @@ struct TVShowSeasonsSection: View {
                                 .fontWeight(.bold)
                             Spacer()
                         }
+                        .foregroundColor(.white)
                         .padding(.horizontal)
                         .padding(.top)
                         
@@ -97,6 +99,7 @@ struct TVShowSeasonsSection: View {
                                 .fontWeight(.bold)
                             Spacer()
                         }
+                        .foregroundColor(.white)
                         .padding(.horizontal)
                         .padding(.top)
                     } else {
@@ -140,6 +143,7 @@ struct TVShowSeasonsSection: View {
             Text("Episodes")
                 .font(.title2)
                 .fontWeight(.bold)
+                .foregroundColor(.white)
             
             Spacer()
             

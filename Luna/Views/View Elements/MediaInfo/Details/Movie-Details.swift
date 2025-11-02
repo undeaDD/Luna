@@ -18,6 +18,7 @@ struct MovieDetailsSection: View {
                     .fontWeight(.bold)
                     .padding(.horizontal)
                     .padding(.top)
+                    .foregroundColor(.white)
                 
                 VStack(spacing: 12) {
                     if let runtime = movie.runtime, runtime > 0 {
@@ -76,4 +77,3 @@ struct MovieDetailsSection: View {
         return nil
     }
 }
-

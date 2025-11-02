@@ -69,7 +69,7 @@ struct EpisodeCell: View {
                     HStack {
                         Text("Episode \(episode.episodeNumber)")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white)
                         
                         Spacer()
                         
@@ -81,17 +81,18 @@ struct EpisodeCell: View {
                                         .foregroundColor(.yellow)
                                     Text(String(format: "%.1f", episode.voteAverage))
                                         .font(.caption2)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(.white)
                                     
                                     
                                     Text(" - ")
                                         .font(.caption2)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(.white)
                                 }
                                 
                                 if let runtime = episode.runtime, runtime > 0 {
                                     Text(episode.runtimeFormatted)
                                         .font(.caption2)
+                                        .foregroundColor(.white)
                                 }
                             }
                         }
@@ -104,7 +105,7 @@ struct EpisodeCell: View {
                             glassTint: Color.gray.opacity(0.15)
                         )
                         .clipShape(Capsule())
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.white)
                     }
                     
                     if !episode.name.isEmpty {
@@ -117,7 +118,7 @@ struct EpisodeCell: View {
                     if let overview = episode.overview, !overview.isEmpty {
                         Text(overview)
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white)
                             .lineLimit(3)
                             .multilineTextAlignment(.leading)
                     }
@@ -171,7 +172,7 @@ struct EpisodeCell: View {
                     HStack {
                         Text("Episode \(episode.episodeNumber)")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white)
                             .fontWeight(.medium)
                         
                         Spacer()
@@ -184,12 +185,12 @@ struct EpisodeCell: View {
                                         .foregroundColor(.yellow)
                                     Text(String(format: "%.1f", episode.voteAverage))
                                         .font(.caption2)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(.white)
                                     
                                     
                                     Text(" - ")
                                         .font(.caption2)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(.white)
                                 }
                                 
                                 if let runtime = episode.runtime, runtime > 0 {
@@ -207,7 +208,7 @@ struct EpisodeCell: View {
                             glassTint: Color.gray.opacity(0.15)
                         )
                         .clipShape(Capsule())
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.white)
                     }
                     
                     if !episode.name.isEmpty {
@@ -221,7 +222,7 @@ struct EpisodeCell: View {
                     if let overview = episode.overview, !overview.isEmpty {
                         Text(overview)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white)
                             .lineLimit(3)
                             .fixedSize(horizontal: false, vertical: true)
                     }
