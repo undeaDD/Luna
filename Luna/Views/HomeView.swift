@@ -41,7 +41,7 @@ struct HomeView: View {
     @StateObject private var tmdbService = TMDBService.shared
     @StateObject private var contentFilter = TMDBContentFilter.shared
     
-    private let heroHeight: CGFloat = 500
+    private let heroHeight: CGFloat = 580
     
     var body: some View {
         if #available(iOS 16.0, *) {

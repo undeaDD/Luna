@@ -69,7 +69,7 @@ struct EpisodeCell: View {
                     HStack {
                         Text("Episode \(episode.episodeNumber)")
                             .font(.caption)
-                            .foregroundColor(.white)
+                            .foregroundColor(.secondary)
                         
                         Spacer()
                         
@@ -105,7 +105,6 @@ struct EpisodeCell: View {
                             glassTint: Color.gray.opacity(0.15)
                         )
                         .clipShape(Capsule())
-                        .foregroundColor(.white)
                     }
                     
                     if !episode.name.isEmpty {
@@ -118,7 +117,7 @@ struct EpisodeCell: View {
                     if let overview = episode.overview, !overview.isEmpty {
                         Text(overview)
                             .font(.caption2)
-                            .foregroundColor(.white)
+                            .foregroundColor(.secondary)
                             .lineLimit(3)
                             .multilineTextAlignment(.leading)
                     }
@@ -133,6 +132,7 @@ struct EpisodeCell: View {
         .onAppear {
             loadEpisodeProgress()
         }
+        .preferredColorScheme(.dark)
     }
     
     @MainActor private var verticalLayout: some View {
@@ -172,7 +172,7 @@ struct EpisodeCell: View {
                     HStack {
                         Text("Episode \(episode.episodeNumber)")
                             .font(.caption)
-                            .foregroundColor(.white)
+                            .foregroundColor(.secondary)
                             .fontWeight(.medium)
                         
                         Spacer()
@@ -208,7 +208,6 @@ struct EpisodeCell: View {
                             glassTint: Color.gray.opacity(0.15)
                         )
                         .clipShape(Capsule())
-                        .foregroundColor(.white)
                     }
                     
                     if !episode.name.isEmpty {
@@ -222,7 +221,7 @@ struct EpisodeCell: View {
                     if let overview = episode.overview, !overview.isEmpty {
                         Text(overview)
                             .font(.caption)
-                            .foregroundColor(.white)
+                            .foregroundColor(.secondary)
                             .lineLimit(3)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -242,6 +241,7 @@ struct EpisodeCell: View {
         .onAppear {
             loadEpisodeProgress()
         }
+        .preferredColorScheme(.dark)
     }
     
     private var episodeContextMenu: some View {

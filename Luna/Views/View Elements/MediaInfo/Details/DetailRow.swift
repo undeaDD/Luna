@@ -24,5 +24,6 @@ struct DetailRow: View {
                 .fontWeight(.medium)
                 .foregroundColor(.white)
         }
+        .preferredColorScheme(.dark)
     }
 }
