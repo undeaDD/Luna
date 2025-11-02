@@ -5,8 +5,10 @@
 //  Created by paul on 17/08/2025.
 //
 
-#if !os(tvOS)
-import WebKit
+#if os(tvOS)
+    import FakeWebKit
+#else
+    import WebKit
 #endif
 import JavaScriptCore
 

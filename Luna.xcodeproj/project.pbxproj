@@ -15,6 +15,7 @@
 		1324E7BF2E940BD70036B5F5 /* MusicProgressSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7B82E940BD70036B5F5 /* MusicProgressSlider.swift */; };
 		1324E7C12E940BD70036B5F5 /* PiPController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7BA2E940BD70036B5F5 /* PiPController.swift */; };
 		13631B322E4F1A200035C39F /* ServiceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13631B312E4F1A200035C39F /* ServiceSettingsView.swift */; };
+		136D3E5A2EB756330094210C /* FakeWebKit in Frameworks */ = {isa = PBXBuildFile; productRef = 136D3E592EB756330094210C /* FakeWebKit */; };
 		13830AEC2E55BD9200B3CDE4 /* AlgorithmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AEB2E55BD9200B3CDE4 /* AlgorithmManager.swift */; };
 		13830AEE2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AED2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift */; };
 		13830AF02E55C04F00B3CDE4 /* AlgorithmSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AEF2E55C04F00B3CDE4 /* AlgorithmSelectionView.swift */; };
@@ -152,6 +153,7 @@
 				13D8192E2EB5FD06002274AE /* MPVKit-GPL in Frameworks */,
 				13E34D2A2E535CB500C7BF07 /* Kingfisher in Frameworks */,
 				13F072C32E4B2F8500EF90EB /* SoraCore in Frameworks */,
+				136D3E5A2EB756330094210C /* FakeWebKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -458,6 +460,7 @@
 				13F072C22E4B2F8500EF90EB /* SoraCore */,
 				13E34D292E535CB500C7BF07 /* Kingfisher */,
 				13D8192D2EB5FD06002274AE /* MPVKit-GPL */,
+				136D3E592EB756330094210C /* FakeWebKit */,
 			);
 			productName = Sora;
 			productReference = 13F0725B2E4B2D3300EF90EB /* Luna.app */;
@@ -491,6 +494,7 @@
 				13F072C12E4B2F8500EF90EB /* XCRemoteSwiftPackageReference "SoraCore" */,
 				13E34D282E535CB500C7BF07 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				13D8192C2EB5FD06002274AE /* XCRemoteSwiftPackageReference "MPVKit" */,
+				136D3E582EB756330094210C /* XCRemoteSwiftPackageReference "FakeWebKit" */,
 			);
 			productRefGroup = 13F0725C2E4B2D3300EF90EB /* Products */;
 			projectDirPath = "";
@@ -809,6 +813,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		136D3E582EB756330094210C /* XCRemoteSwiftPackageReference "FakeWebKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/undeaDD/FakeWebKit";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		13D8192C2EB5FD06002274AE /* XCRemoteSwiftPackageReference "MPVKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/cranci1/MPVKit/";
@@ -836,6 +848,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		136D3E592EB756330094210C /* FakeWebKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 136D3E582EB756330094210C /* XCRemoteSwiftPackageReference "FakeWebKit" */;
+			productName = FakeWebKit;
+		};
 		13D8192D2EB5FD06002274AE /* MPVKit-GPL */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 13D8192C2EB5FD06002274AE /* XCRemoteSwiftPackageReference "MPVKit" */;

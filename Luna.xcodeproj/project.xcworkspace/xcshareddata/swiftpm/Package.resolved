@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "fakewebkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/undeaDD/FakeWebKit",
+      "state" : {
+        "branch" : "main",
+        "revision" : "851ab88f8558e5af93d4f4f7160586ad0aa5e93b"
+      }
+    },
+    {
       "identity" : "kingfisher",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onevcat/Kingfisher.git",
