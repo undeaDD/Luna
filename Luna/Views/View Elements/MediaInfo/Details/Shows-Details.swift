@@ -177,7 +177,7 @@ struct TVShowSeasonsSection: View {
                     
                     Image(systemName: "chevron.down")
                 }
-                .foregroundColor(.primary)
+                .foregroundColor(.white)
             }
         }
     }
@@ -227,7 +227,7 @@ struct TVShowSeasonsSection: View {
                                         .lineLimit(1)
                                         .multilineTextAlignment(.center)
                                         .frame(width: 80)
-                                        .foregroundColor(selectedSeason?.id == season.id ? .accentColor : .primary)
+                                        .foregroundColor(selectedSeason?.id == season.id ? .accentColor : .white)
                                 }
                             }
                             .buttonStyle(PlainButtonStyle())

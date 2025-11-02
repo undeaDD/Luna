@@ -22,7 +22,7 @@ struct DetailRow: View {
             Text(value)
                 .font(.subheadline)
                 .fontWeight(.medium)
+                .foregroundColor(.white)
         }
     }
 }
-
