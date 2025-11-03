@@ -58,6 +58,7 @@ Frameworks:
 - [MPVKit](https://github.com/mpvkit/MPVKit) - GPLv3.0 License
 - [SoraCore](https://github.com/cranci1/SoraCore) – Custom License
 - [KingFisher](https://github.com/onevcat/Kingfisher) - MIT License
+- [FakeWebkit](https://github.com/undeaDD/FakeWebKit) - GPLv3.0 License
 
 Misc:
 - [50/50](https://github.com/50n50) for the app icon  
