@@ -7,9 +7,22 @@
 
 #if os(tvOS)
     import FakeWebKit
+
+    /*
+    // Uncomment code below to enable FakeWebKit debug logging:
+
+    private let FakeWebKitLoggerEnabled: Void = {
+        struct SimpleLogger: DebugLogger {
+            func log(_ m: String) { print("[FakeWKWebView] log:", m) }
+            func logError(_ m: String) { print("[FakeWKWebView] error:", m) }
+        }
+        WKWebView.logger = SimpleLogger()
+    }()
+     */
 #else
     import WebKit
 #endif
+
 import JavaScriptCore
 
 struct NetworkFetchOptions {
@@ -46,13 +59,12 @@ struct NetworkFetchOptions {
     }
 }
 
-#if !os(tvOS)
 extension JSContext {
     func setupNetworkFetch() {
         let networkFetchNativeFunction: @convention(block) (String, JSValue?, JSValue, JSValue) -> Void = { urlString, optionsValue, resolve, reject in
             DispatchQueue.main.async {
                 var options = NetworkFetchOptions()
-                
+
                 if let optionsDict = optionsValue?.toDictionary() {
                     let timeoutSeconds = optionsDict["timeoutSeconds"] as? Int ?? 10
                     let headers = optionsDict["headers"] as? [String: String] ?? [:]
@@ -63,7 +75,7 @@ extension JSContext {
                     let waitForSelectors = optionsDict["waitForSelectors"] as? [String] ?? []
                     let maxWaitTime = optionsDict["maxWaitTime"] as? Int ?? 5
                     let htmlContent = optionsDict["htmlContent"] as? String
-                    
+
                     options = NetworkFetchOptions(
                         timeoutSeconds: timeoutSeconds,
                         headers: headers,
@@ -76,7 +88,7 @@ extension JSContext {
                         htmlContent: htmlContent
                     )
                 }
-                
+
                 NetworkFetchManager.shared.performNetworkFetch(
                     urlString: urlString,
                     options: options,
@@ -85,111 +97,15 @@ extension JSContext {
                 )
             }
         }
-        
+
         self.setObject(networkFetchNativeFunction, forKeyedSubscript: "networkFetchNative" as NSString)
-        
+
         let networkFetchDefinition = """
-            function networkFetch(url, options = {}) {
-                if (typeof options === 'number') {
-                    const timeoutSeconds = options;
-                    const headers = arguments[2] || {};
-                    const cutoff = arguments[3] || null;
-                    options = { timeoutSeconds, headers, cutoff };
-                }
-                
-                const finalOptions = {
-                    timeoutSeconds: options.timeoutSeconds || 10,
-                    headers: options.headers || {},
-                    cutoff: options.cutoff || null,
-                    returnHTML: options.returnHTML || false,
-                    returnCookies: options.returnCookies !== undefined ? options.returnCookies : true,
-                    clickSelectors: options.clickSelectors || [],
-                    waitForSelectors: options.waitForSelectors || [],
-                    maxWaitTime: options.maxWaitTime || 5,
-                    htmlContent: options.htmlContent || null
-                };
-                
-                return new Promise(function(resolve, reject) {
-                    networkFetchNative(url, finalOptions, function(result) {
-                        resolve({
-                            url: result.originalUrl,
-                            requests: result.requests,
-                            html: result.html || null,
-                            cookies: result.cookies || null,
-                            success: result.success,
-                            error: result.error || null,
-                            totalRequests: result.requests.length,
-                            cutoffTriggered: result.cutoffTriggered || false,
-                            cutoffUrl: result.cutoffUrl || null,
-                            htmlCaptured: result.htmlCaptured || false,
-                            cookiesCaptured: result.cookiesCaptured || false,
-                            elementsClicked: result.elementsClicked || [],
-                            waitResults: result.waitResults || {}
-                        });
-                    }, reject);
-                });
-            }
-            
-            function networkFetchWithHTML(url, timeoutSeconds = 10) {
-                return networkFetch(url, {
-                    timeoutSeconds: timeoutSeconds,
-                    returnHTML: true,
-                    returnCookies: true
-                });
-            }
-            
-            function networkFetchWithCutoff(url, cutoff, timeoutSeconds = 10) {
-                return networkFetch(url, {
-                    timeoutSeconds: timeoutSeconds,
-                    cutoff: cutoff,
-                    returnCookies: true
-                });
-            }
-            
-            function networkFetchWithClicks(url, clickSelectors, options = {}) {
-                return networkFetch(url, {
-                    timeoutSeconds: options.timeoutSeconds || 10,
-                    headers: options.headers || {},
-                    cutoff: options.cutoff || null,
-                    returnHTML: options.returnHTML || false,
-                    returnCookies: options.returnCookies !== undefined ? options.returnCookies : true,
-                    clickSelectors: Array.isArray(clickSelectors) ? clickSelectors : [clickSelectors],
-                    waitForSelectors: options.waitForSelectors || [],
-                    maxWaitTime: options.maxWaitTime || 5
-                });
-            }
-            
-            function networkFetchWithWaitAndClick(url, waitForSelectors, clickSelectors, options = {}) {
-                return networkFetch(url, {
-                    timeoutSeconds: options.timeoutSeconds || 10,
-                    headers: options.headers || {},
-                    cutoff: options.cutoff || null,
-                    returnHTML: options.returnHTML || false,
-                    returnCookies: options.returnCookies !== undefined ? options.returnCookies : true,
-                    clickSelectors: Array.isArray(clickSelectors) ? clickSelectors : [clickSelectors],
-                    waitForSelectors: Array.isArray(waitForSelectors) ? waitForSelectors : [waitForSelectors],
-                    maxWaitTime: options.maxWaitTime || 5
-                });
-            }
-            
-            function networkFetchFromHTML(htmlContent, options = {}) {
-                return networkFetch('', {
-                    timeoutSeconds: options.timeoutSeconds || 10,
-                    headers: options.headers || {},
-                    cutoff: options.cutoff || null,
-                    returnHTML: options.returnHTML || false,
-                    returnCookies: options.returnCookies !== undefined ? options.returnCookies : true,
-                    clickSelectors: options.clickSelectors || [],
-                    waitForSelectors: options.waitForSelectors || [],
-                    maxWaitTime: options.maxWaitTime || 5,
-                    htmlContent: htmlContent
-                });
-            }
             """
-        
+
         self.evaluateScript(networkFetchDefinition)
     }
-    
+
     func setupNetworkFetchSimple() {
         let networkFetchSimpleNativeFunction: @convention(block) (String, JSValue?, JSValue, JSValue) -> Void = { urlString, optionsValue, resolve, reject in
             DispatchQueue.main.async {
@@ -213,35 +129,6 @@ extension JSContext {
         }
         self.setObject(networkFetchSimpleNativeFunction, forKeyedSubscript: "networkFetchSimpleNative" as NSString)
         let networkFetchSimpleDefinition = """
-            function networkFetchSimple(url, options = {}) {
-                if (typeof options === 'number') {
-                    const timeoutSeconds = options;
-                    options = { timeoutSeconds };
-                }
-                const finalOptions = {
-                    timeoutSeconds: options.timeoutSeconds || 5,
-                    htmlContent: options.htmlContent || null,
-                    headers: options.headers || {}
-                };
-                return new Promise(function(resolve, reject) {
-                    networkFetchSimpleNative(url, finalOptions, function(result) {
-                        resolve({
-                            url: result.originalUrl,
-                            requests: result.requests,
-                            success: result.success,
-                            error: result.error || null,
-                            totalRequests: result.requests.length
-                        });
-                    }, reject);
-                });
-            }
-            function networkFetchSimpleFromHTML(htmlContent, options = {}) {
-                return networkFetchSimple('', {
-                    timeoutSeconds: options.timeoutSeconds || 5,
-                    htmlContent: htmlContent,
-                    headers: options.headers || {}
-                });
-            }
             """
         self.evaluateScript(networkFetchSimpleDefinition)
     }
@@ -249,13 +136,13 @@ extension JSContext {
 
 class NetworkFetchSimpleManager: NSObject, ObservableObject {
     static let shared = NetworkFetchSimpleManager()
-    
+
     private var activeMonitors: [String: NetworkFetchSimpleMonitor] = [:]
-    
+
     private override init() {
         super.init()
     }
-    
+
     func performNetworkFetch(urlString: String, timeoutSeconds: Int, htmlContent: String? = nil, headers: [String: String] = [:], resolve: JSValue, reject: JSValue) {
         let monitorId = UUID().uuidString
         let monitor = NetworkFetchSimpleMonitor()
@@ -280,11 +167,11 @@ class NetworkFetchSimpleMonitor: NSObject, ObservableObject {
     private var webView: WKWebView?
     private var completionHandler: (([String: Any]) -> Void)?
     private var timer: Timer?
-    
+
     @Published private(set) var networkRequests: [String] = []
-    
+
     private var originalUrlString: String = ""
-    
+
     func startMonitoring(urlString: String, timeoutSeconds: Int, htmlContent: String? = nil, headers: [String: String] = [:], completion: @escaping ([String: Any]) -> Void) {
         originalUrlString = urlString
         completionHandler = completion
@@ -309,267 +196,37 @@ class NetworkFetchSimpleMonitor: NSObject, ObservableObject {
             self?.stopMonitoring()
         }
     }
-    
+
     private func loadHTMLContent(_ htmlContent: String) {
         guard let webView = webView else { return }
-        
+
         addRequest("data:text/html;charset=utf-8,<html_content>")
-        
+
         webView.loadHTMLString(htmlContent, baseURL: nil)
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             self.simulateUserInteraction()
         }
     }
-    
+
     private func setupWebView() {
         let config = WKWebViewConfiguration()
         config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = []
-        
+
         let jsCode = """
-        (function() {
-            Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-            Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
-            Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
-            delete window.navigator.__proto__.webdriver;
-            
-            window.chrome = { runtime: {} };
-            Object.defineProperty(navigator, 'permissions', { get: () => undefined });
-            
-            const originalFetch = window.fetch;
-            const originalXHROpen = XMLHttpRequest.prototype.open;
-            const originalXHRSend = XMLHttpRequest.prototype.send;
-            
-            window.fetch = function() {
-                const url = arguments[0];
-                const options = arguments[1] || {};
-                
-                try {
-                    const fullUrl = new URL(url, window.location.href).href;
-                    window.webkit.messageHandlers.networkLogger.postMessage({
-                        type: 'fetch',
-                        url: fullUrl
-                    });
-                } catch(e) {
-                    window.webkit.messageHandlers.networkLogger.postMessage({
-                        type: 'fetch',
-                        url: url.toString()
-                    });
-                }
-                return originalFetch.apply(this, arguments);
-            };
-            
-            XMLHttpRequest.prototype.open = function() {
-                const method = arguments[0];
-                const url = arguments[1];
-                
-                try {
-                    this._url = new URL(url, window.location.href).href;
-                } catch(e) {
-                    this._url = url;
-                }
-                
-                window.webkit.messageHandlers.networkLogger.postMessage({
-                    type: 'xhr-open',
-                    url: this._url
-                });
-                
-                const self = this;
-                const originalOnReadyStateChange = this.onreadystatechange;
-                
-                this.onreadystatechange = function() {
-                    if (this.readyState === 4) {
-                        if (this.responseURL) {
-                            window.webkit.messageHandlers.networkLogger.postMessage({
-                                type: 'xhr-response',
-                                url: this.responseURL
-                            });
-                        }
-                        
-                        try {
-                            const responseText = this.responseText;
-                            if (responseText) {
-                                const urlRegex = /(https?:\\/\\/[^\\s"'<>]+\\.(m3u8|ts|mp4|webm|mkv))/gi;
-                                const matches = responseText.match(urlRegex);
-                                if (matches) {
-                                    matches.forEach(function(match) {
-                                        window.webkit.messageHandlers.networkLogger.postMessage({
-                                            type: 'response-content',
-                                            url: match
-                                        });
-                                    });
-                                }
-                            }
-                        } catch(e) {
-                        }
-                    }
-                    
-                    if (originalOnReadyStateChange) {
-                        originalOnReadyStateChange.apply(this, arguments);
-                    }
-                };
-                
-                return originalXHROpen.apply(this, arguments);
-            };
-            
-            XMLHttpRequest.prototype.send = function() {
-                if (this._url) {
-                    window.webkit.messageHandlers.networkLogger.postMessage({
-                        type: 'xhr-send',
-                        url: this._url
-                    });
-                }
-                return originalXHRSend.apply(this, arguments);
-            };
-            
-            const originalWebSocket = window.WebSocket;
-            window.WebSocket = function(url, protocols) {
-                window.webkit.messageHandlers.networkLogger.postMessage({
-                    type: 'websocket',
-                    url: url
-                });
-                return new originalWebSocket(url, protocols);
-            };
-            
-            const hookUrlProperties = function(obj, properties) {
-                properties.forEach(function(prop) {
-                    if (obj && obj.prototype) {
-                        const descriptor = Object.getOwnPropertyDescriptor(obj.prototype, prop) || {};
-                        const originalSetter = descriptor.set;
-                        
-                        if (originalSetter) {
-                            Object.defineProperty(obj.prototype, prop, {
-                                set: function(value) {
-                                    if (typeof value === 'string' && (value.includes('http') || value.includes('.m3u8') || value.includes('.ts'))) {
-                                        window.webkit.messageHandlers.networkLogger.postMessage({
-                                            type: 'property-set',
-                                            url: value
-                                        });
-                                    }
-                                    return originalSetter.call(this, value);
-                                },
-                                get: descriptor.get,
-                                configurable: true
-                            });
-                        }
-                    }
-                });
-            };
-            
-            hookUrlProperties(HTMLVideoElement, ['src']);
-            hookUrlProperties(HTMLSourceElement, ['src']);
-            hookUrlProperties(HTMLScriptElement, ['src']);
-            hookUrlProperties(HTMLImageElement, ['src']);
-            
-            let jwHookAttempts = 0;
-            const aggressiveJWHook = function() {
-                jwHookAttempts++;
-                
-                if (window.jwplayer) {
-                    const originalJWPlayer = window.jwplayer;
-                    window.jwplayer = function(id) {
-                        const player = originalJWPlayer.apply(this, arguments);
-                        
-                        if (player && player.setup) {
-                            const originalSetup = player.setup;
-                            player.setup = function(config) {
-                                const extractUrls = function(obj, path = '') {
-                                    if (!obj) return;
-                                    
-                                    if (typeof obj === 'string' && (obj.includes('http') || obj.includes('.m3u8') || obj.includes('.ts'))) {
-                                        window.webkit.messageHandlers.networkLogger.postMessage({
-                                            type: 'jwplayer-config',
-                                            url: obj
-                                        });
-                                    } else if (typeof obj === 'object' && obj !== null) {
-                                        Object.keys(obj).forEach(function(key) {
-                                            extractUrls(obj[key], path + '.' + key);
-                                        });
-                                    }
-                                };
-                                
-                                extractUrls(config);
-                                return originalSetup.call(this, config);
-                            };
-                        }
-                        
-                        return player;
-                    };
-                    
-                    Object.keys(originalJWPlayer).forEach(function(key) {
-                        window.jwplayer[key] = originalJWPlayer[key];
-                    });
-                }
-                
-                if (jwHookAttempts < 20) {
-                    setTimeout(aggressiveJWHook, 200);
-                }
-            };
-            
-            aggressiveJWHook();
-            
-            const nuclearScan = function() {
-                Object.keys(window).forEach(function(key) {
-                    try {
-                        const value = window[key];
-                        if (typeof value === 'string' && (value.includes('.m3u8') || value.includes('.ts') || (value.includes('http') && value.includes('.')))) {
-                            window.webkit.messageHandlers.networkLogger.postMessage({
-                                type: 'global-variable',
-                                url: value
-                            });
-                        }
-                    } catch(e) {
-                    }
-                });
-                
-                document.querySelectorAll('script').forEach(function(script) {
-                    if (script.textContent) {
-                        const urlRegex = /(https?:\\/\\/[^\\s"'<>]+\\.(m3u8|ts|mp4))/gi;
-                        const matches = script.textContent.match(urlRegex);
-                        if (matches) {
-                            matches.forEach(function(match) {
-                                window.webkit.messageHandlers.networkLogger.postMessage({
-                                    type: 'script-content',
-                                    url: match
-                                });
-                            });
-                        }
-                    }
-                });
-                
-                const clickableSelectors = [
-                    'button', '.play', '.play-button', '[data-play]', '.video-play',
-                    '.jwplayer', '.player', '[id*="player"]', '[class*="play"]',
-                    'div[onclick]', 'span[onclick]', 'a[onclick]'
-                ];
-                
-                clickableSelectors.forEach(function(selector) {
-                    document.querySelectorAll(selector).forEach(function(el) {
-                        try {
-                            el.click();
-                        } catch(e) {
-                        }
-                    });
-                });
-            };
-            
-            setTimeout(nuclearScan, 500);
-            setTimeout(nuclearScan, 1500);
-            setTimeout(nuclearScan, 3000);
-        })();
         """
-        
-        let userScript = WKUserScript(source: jsCode, injectionTime: .atDocumentStart, forMainFrameOnly: false)
+
+        let userScript = WKUserScript(source: jsCode, injectionTime: WKUserScriptInjectionTime.atDocumentStart, forMainFrameOnly: false)
         config.userContentController.addUserScript(userScript)
         config.userContentController.add(self, name: "networkLogger")
-        
+
         webView = WKWebView(frame: CGRect(x: 0, y: 0, width: 1920, height: 1080), configuration: config)
         webView?.navigationDelegate = self
-        
+
         webView?.customUserAgent = URLSession.randomUserAgent
     }
-    
+
     private func loadURL(url: URL, headers: [String: String] = [:]) {
         guard let webView = webView else { return }
         addRequest(url.absoluteString)
@@ -601,81 +258,38 @@ class NetworkFetchSimpleMonitor: NSObject, ObservableObject {
             self.simulateUserInteraction()
         }
     }
-    
+
     private func simulateUserInteraction() {
         guard let webView = webView else { return }
-        
+
         let jsInteraction = """
-        setTimeout(function() {
-            const playButtons = document.querySelectorAll('button, div, span, a').filter(function(el) {
-                const text = el.textContent || el.innerText || '';
-                const classes = el.className || '';
-                return text.toLowerCase().includes('play') || 
-                       classes.toLowerCase().includes('play') ||
-                       el.getAttribute('aria-label')?.toLowerCase().includes('play');
-            });
-            playButtons.forEach(function(btn, index) {
-                setTimeout(function() {
-                    btn.click();
-                }, index * 200);
-            });
-            window.scrollTo(0, document.body.scrollHeight / 2);
-            setTimeout(function() {
-                window.scrollTo(0, 0);
-            }, 500);
-            document.querySelectorAll('video').forEach(function(video) {
-                if (video.play && typeof video.play === 'function') {
-                    video.play().catch(function(e) {
-                    });
-                }
-            });
-            if (window.jwplayer) {
-                try {
-                    const players = window.jwplayer().getInstances?.() || [];
-                    players.forEach(function(player) {
-                        if (player.play) {
-                            player.play();
-                        }
-                    });
-                } catch(e) {}
-            }
-            if (window.videojs) {
-                try {
-                    window.videojs.getAllPlayers?.().forEach(function(player) {
-                        if (player.play) {
-                            player.play();
-                        }
-                    });
-                } catch(e) {}
-            }
-        }, 1000);
         """
         webView.evaluateJavaScript(jsInteraction, completionHandler: nil)
     }
-    
+
     private func stopMonitoring() {
         timer?.invalidate()
         timer = nil
-        
+
         webView?.stopLoading()
         webView?.configuration.userContentController.removeScriptMessageHandler(forName: "networkLogger")
-        
-        let originalUrl = networkRequests.first == "data:text/html;charset=utf-8,<html_content>" ? 
-            "data:text/html;charset=utf-8,<html_content>" : 
+
+        let originalUrl = networkRequests.first == "data:text/html;charset=utf-8,<html_content>" ?
+            "data:text/html;charset=utf-8,<html_content>" :
             (webView?.url?.absoluteString ?? originalUrlString)
-        
+
         let result: [String: Any] = [
             "originalUrl": originalUrl,
             "requests": networkRequests,
             "success": true
         ]
-        
+
         webView = nil
-        
+
         completionHandler?(result)
         completionHandler = nil
     }
-    
+
     private func addRequest(_ urlString: String) {
         DispatchQueue.main.async {
             if !self.networkRequests.contains(urlString) {
@@ -686,11 +300,11 @@ class NetworkFetchSimpleMonitor: NSObject, ObservableObject {
 }
 
 extension NetworkFetchSimpleMonitor: WKNavigationDelegate {
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-    }
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation) {}
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation) {}
     
-    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-    }
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation, withError error: Error) {}
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if let url = navigationAction.request.url {
@@ -841,7 +455,7 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         }
         
         if shouldCaptureCookies {
-            captureCookies { [weak self] in
+            captureCookies {
                 DispatchQueue.main.async {
                     checkCompletion()
                 }
@@ -856,7 +470,7 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
         }
         
         let cookieStore = webView.configuration.websiteDataStore.httpCookieStore
-        
+
         cookieStore.getAllCookies { [weak self] cookies in
             DispatchQueue.main.async {
                 var cookieDict: [String: String] = [:]
@@ -1399,11 +1013,13 @@ class NetworkFetchMonitor: NSObject, ObservableObject {
 }
 
 extension NetworkFetchMonitor: WKNavigationDelegate {
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {}
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation) {}
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation) {}
     
-    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {}
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation, withError error: Error) {}
     
-    private func webView(_ webView: WKNavigationAction, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if let url = navigationAction.request.url {
             addRequest(url.absoluteString)
         }
@@ -1452,8 +1068,3 @@ extension NetworkFetchMonitor: WKScriptMessageHandler {
         }
     }
 }
-#else
-extension JSContext {
-    func setupNetworkFetch() {}
-}
-#endif

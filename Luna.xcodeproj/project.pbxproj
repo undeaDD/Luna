@@ -7,15 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		131A62002E51CCE9009CE905 /* FeaturedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */; };
+		120B0E142EB7BC7D008EA699 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 120B0E132EB7BC7D008EA699 /* AppIcon.icon */; };
+		121C829B2EB8166B0000D62C /* FakeWebKit in Frameworks */ = {isa = PBXBuildFile; productRef = 121C829A2EB8166B0000D62C /* FakeWebKit */; };
+		12E7AF5E2EB7FDB7003B7664 /* FakeWebKit in Frameworks */ = {isa = PBXBuildFile; productRef = 12E7AF5D2EB7FDB7003B7664 /* FakeWebKit */; };
+		12E7AF602EB80775003B7664 /* Platform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E7AF5F2EB80771003B7664 /* Platform.swift */; };
 		1324E7BB2E940BD70036B5F5 /* PlayerPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7B32E940BD70036B5F5 /* PlayerPreset.swift */; };
 		1324E7BC2E940BD70036B5F5 /* MPVSoftwareRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7B42E940BD70036B5F5 /* MPVSoftwareRenderer.swift */; };
 		1324E7BD2E940BD70036B5F5 /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7B52E940BD70036B5F5 /* PlayerViewController.swift */; };
 		1324E7BE2E940BD70036B5F5 /* SampleBufferDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7B62E940BD70036B5F5 /* SampleBufferDisplayView.swift */; };
 		1324E7BF2E940BD70036B5F5 /* MusicProgressSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7B82E940BD70036B5F5 /* MusicProgressSlider.swift */; };
 		1324E7C12E940BD70036B5F5 /* PiPController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7BA2E940BD70036B5F5 /* PiPController.swift */; };
+		132E48492EB8F6240037E2EC /* MPVKit-GPL in Frameworks */ = {isa = PBXBuildFile; productRef = 132E48482EB8F6240037E2EC /* MPVKit-GPL */; };
 		13631B322E4F1A200035C39F /* ServiceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13631B312E4F1A200035C39F /* ServiceSettingsView.swift */; };
-		136D3E5A2EB756330094210C /* FakeWebKit in Frameworks */ = {isa = PBXBuildFile; productRef = 136D3E592EB756330094210C /* FakeWebKit */; };
 		136D3E5C2EB75D7E0094210C /* LiquidGlassBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 136D3E5B2EB75D7E0094210C /* LiquidGlassBackground.swift */; };
 		13830AEC2E55BD9200B3CDE4 /* AlgorithmManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AEB2E55BD9200B3CDE4 /* AlgorithmManager.swift */; };
 		13830AEE2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13830AED2E55BEDD00B3CDE4 /* JaroWinklerSimilarity.swift */; };
@@ -25,12 +28,10 @@
 		139509A22E7DDAE100CB60D4 /* PlayerSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 139509A12E7DDAE100CB60D4 /* PlayerSettingsView.swift */; };
 		13B2E5742E7597B9009F3271 /* JSController-NetworkFetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B2E5732E7597B9009F3271 /* JSController-NetworkFetch.swift */; };
 		13B6F3452EA4C6BC00DECD2B /* ProgressManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B6F3442EA4C6BC00DECD2B /* ProgressManager.swift */; };
-		13D8192E2EB5FD06002274AE /* MPVKit-GPL in Frameworks */ = {isa = PBXBuildFile; productRef = 13D8192D2EB5FD06002274AE /* MPVKit-GPL */; };
 		13DCC4F62E58B40F0028AE91 /* HybridSimilarity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13DCC4F52E58B40F0028AE91 /* HybridSimilarity.swift */; };
 		13E34D2A2E535CB500C7BF07 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 13E34D292E535CB500C7BF07 /* Kingfisher */; };
 		13F0725F2E4B2D3300EF90EB /* SoraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F0725E2E4B2D3300EF90EB /* SoraApp.swift */; };
 		13F072632E4B2D3700EF90EB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13F072622E4B2D3700EF90EB /* Assets.xcassets */; };
-		13F072672E4B2D3700EF90EB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13F072662E4B2D3700EF90EB /* Preview Assets.xcassets */; };
 		13F0729B2E4B2D9200EF90EB /* Services.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F0726E2E4B2D9000EF90EB /* Services.swift */; };
 		13F0729C2E4B2D9200EF90EB /* JavaScriptCore+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F0726F2E4B2D9000EF90EB /* JavaScriptCore+Extensions.swift */; };
 		13F0729D2E4B2D9200EF90EB /* JSController-Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072702E4B2D9000EF90EB /* JSController-Search.swift */; };
@@ -63,7 +64,6 @@
 		13F072B82E4B2D9200EF90EB /* LevenshteinDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072962E4B2D9100EF90EB /* LevenshteinDistance.swift */; };
 		13F072B92E4B2D9200EF90EB /* TMDBModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F072992E4B2D9200EF90EB /* TMDBModels.swift */; };
 		13F072BA2E4B2D9200EF90EB /* TMDBService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F0729A2E4B2D9200EF90EB /* TMDBService.swift */; };
-		13F072C32E4B2F8500EF90EB /* SoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = 13F072C22E4B2F8500EF90EB /* SoraCore */; };
 		13F187AC2E6F38CE00747F7E /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187A42E6F38CE00747F7E /* LibraryManager.swift */; };
 		13F187AD2E6F38CE00747F7E /* LibraryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187A62E6F38CE00747F7E /* LibraryItem.swift */; };
 		13F187AE2E6F38CE00747F7E /* LibraryCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187A72E6F38CE00747F7E /* LibraryCollection.swift */; };
@@ -77,8 +77,22 @@
 		13F5B5972E730CDB00565E75 /* TMDBFiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B5962E730CDB00565E75 /* TMDBFiltersView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		12F745372EB539F000889684 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeaturedCard.swift; sourceTree = "<group>"; };
+		120B0E132EB7BC7D008EA699 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		12E7AF5F2EB80771003B7664 /* Platform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Platform.swift; sourceTree = "<group>"; };
 		1324E7B32E940BD70036B5F5 /* PlayerPreset.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerPreset.swift; sourceTree = "<group>"; };
 		1324E7B42E940BD70036B5F5 /* MPVSoftwareRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MPVSoftwareRenderer.swift; sourceTree = "<group>"; };
 		1324E7B52E940BD70036B5F5 /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
@@ -101,7 +115,6 @@
 		13F0725E2E4B2D3300EF90EB /* SoraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraApp.swift; sourceTree = "<group>"; };
 		13F072622E4B2D3700EF90EB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		13F072642E4B2D3700EF90EB /* Luna.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Luna.entitlements; sourceTree = "<group>"; };
-		13F072662E4B2D3700EF90EB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		13F0726E2E4B2D9000EF90EB /* Services.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Services.swift; sourceTree = "<group>"; };
 		13F0726F2E4B2D9000EF90EB /* JavaScriptCore+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JavaScriptCore+Extensions.swift"; sourceTree = "<group>"; };
 		13F072702E4B2D9000EF90EB /* JSController-Search.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSController-Search.swift"; sourceTree = "<group>"; };
@@ -152,10 +165,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				13D8192E2EB5FD06002274AE /* MPVKit-GPL in Frameworks */,
+				12E7AF5E2EB7FDB7003B7664 /* FakeWebKit in Frameworks */,
+				132E48492EB8F6240037E2EC /* MPVKit-GPL in Frameworks */,
 				13E34D2A2E535CB500C7BF07 /* Kingfisher in Frameworks */,
-				13F072C32E4B2F8500EF90EB /* SoraCore in Frameworks */,
-				136D3E5A2EB756330094210C /* FakeWebKit in Frameworks */,
+				121C829B2EB8166B0000D62C /* FakeWebKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -203,6 +216,7 @@
 		13F072522E4B2D3300EF90EB = {
 			isa = PBXGroup;
 			children = (
+				120B0E132EB7BC7D008EA699 /* AppIcon.icon */,
 				13F0725D2E4B2D3300EF90EB /* Luna */,
 				13F0725C2E4B2D3300EF90EB /* Products */,
 			);
@@ -233,17 +247,8 @@
 				13F0727D2E4B2D9000EF90EB /* ContentView.swift */,
 				13F072622E4B2D3700EF90EB /* Assets.xcassets */,
 				13F072642E4B2D3700EF90EB /* Luna.entitlements */,
-				13F072652E4B2D3700EF90EB /* Preview Content */,
 			);
 			path = Luna;
-			sourceTree = "<group>";
-		};
-		13F072652E4B2D3700EF90EB /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				13F072662E4B2D3700EF90EB /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 		13F0726D2E4B2D9000EF90EB /* JSLoader */ = {
@@ -279,7 +284,6 @@
 			children = (
 				13F187A32E6F38CE00747F7E /* Library */,
 				13F072802E4B2D9000EF90EB /* MediaInfo */,
-				131A61FF2E51CCE9009CE905 /* FeaturedCard.swift */,
 				13F072882E4B2D9000EF90EB /* SearchResultCard.swift */,
 				13F072892E4B2D9000EF90EB /* NormalPlayer.swift */,
 				13F0728A2E4B2D9000EF90EB /* FallbackImageView.swift */,
@@ -316,6 +320,7 @@
 				13F0728D2E4B2D9100EF90EB /* UIImage */,
 				13F072912E4B2D9100EF90EB /* Color */,
 				136D3E5B2EB75D7E0094210C /* LiquidGlassBackground.swift */,
+				12E7AF5F2EB80771003B7664 /* Platform.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -453,6 +458,7 @@
 				13F072572E4B2D3300EF90EB /* Sources */,
 				13F072582E4B2D3300EF90EB /* Frameworks */,
 				13F072592E4B2D3300EF90EB /* Resources */,
+				12F745372EB539F000889684 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -460,10 +466,10 @@
 			);
 			name = Luna;
 			packageProductDependencies = (
-				13F072C22E4B2F8500EF90EB /* SoraCore */,
 				13E34D292E535CB500C7BF07 /* Kingfisher */,
-				13D8192D2EB5FD06002274AE /* MPVKit-GPL */,
-				136D3E592EB756330094210C /* FakeWebKit */,
+				12E7AF5D2EB7FDB7003B7664 /* FakeWebKit */,
+				121C829A2EB8166B0000D62C /* FakeWebKit */,
+				132E48482EB8F6240037E2EC /* MPVKit-GPL */,
 			);
 			productName = Sora;
 			productReference = 13F0725B2E4B2D3300EF90EB /* Luna.app */;
@@ -476,8 +482,8 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1520;
-				LastUpgradeCheck = 1520;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					13F0725A2E4B2D3300EF90EB = {
 						CreatedOnToolsVersion = 15.2;
@@ -494,10 +500,9 @@
 			);
 			mainGroup = 13F072522E4B2D3300EF90EB;
 			packageReferences = (
-				13F072C12E4B2F8500EF90EB /* XCRemoteSwiftPackageReference "SoraCore" */,
 				13E34D282E535CB500C7BF07 /* XCRemoteSwiftPackageReference "Kingfisher" */,
-				13D8192C2EB5FD06002274AE /* XCRemoteSwiftPackageReference "MPVKit" */,
-				136D3E582EB756330094210C /* XCRemoteSwiftPackageReference "FakeWebKit" */,
+				121C82992EB8166B0000D62C /* XCRemoteSwiftPackageReference "FakeWebKit" */,
+				132E48472EB8F6240037E2EC /* XCRemoteSwiftPackageReference "MPVKit" */,
 			);
 			productRefGroup = 13F0725C2E4B2D3300EF90EB /* Products */;
 			projectDirPath = "";
@@ -513,8 +518,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				13F072672E4B2D3700EF90EB /* Preview Assets.xcassets in Resources */,
 				13F072632E4B2D3700EF90EB /* Assets.xcassets in Resources */,
+				120B0E142EB7BC7D008EA699 /* AppIcon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -525,6 +530,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				12E7AF602EB80775003B7664 /* Platform.swift in Sources */,
 				13DCC4F62E58B40F0028AE91 /* HybridSimilarity.swift in Sources */,
 				13F072A32E4B2D9200EF90EB /* SearchView.swift in Sources */,
 				13830AEC2E55BD9200B3CDE4 /* AlgorithmManager.swift in Sources */,
@@ -573,7 +579,6 @@
 				1324E7BC2E940BD70036B5F5 /* MPVSoftwareRenderer.swift in Sources */,
 				1324E7BF2E940BD70036B5F5 /* MusicProgressSlider.swift in Sources */,
 				1324E7BB2E940BD70036B5F5 /* PlayerPreset.swift in Sources */,
-				131A62002E51CCE9009CE905 /* FeaturedCard.swift in Sources */,
 				13F072A82E4B2D9200EF90EB /* ContentView.swift in Sources */,
 				13F072B72E4B2D9200EF90EB /* Logger.swift in Sources */,
 				13B2E5742E7597B9009F3271 /* JSController-NetworkFetch.swift in Sources */,
@@ -627,7 +632,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = AXLC3PQNC8;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -649,6 +656,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -688,7 +696,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = AXLC3PQNC8;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -703,6 +713,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
@@ -715,13 +726,25 @@
 				CODE_SIGN_ENTITLEMENTS = Luna/Luna.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Luna/Preview Content\"";
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 399LMK6Q2Y;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Luna/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Sora;
+				INFOPLIST_KEY_CFBundleDisplayName = Luna;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -733,20 +756,20 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = me.cranci.solar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx";
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,3";
-				TVOS_DEPLOYMENT_TARGET = 17.0;
+				TVOS_DEPLOYMENT_TARGET = 17.6;
 			};
 			name = Debug;
 		};
@@ -758,13 +781,25 @@
 				CODE_SIGN_ENTITLEMENTS = Luna/Luna.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Luna/Preview Content\"";
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 399LMK6Q2Y;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Luna/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Sora;
+				INFOPLIST_KEY_CFBundleDisplayName = Luna;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -776,20 +811,20 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = me.cranci.solar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx";
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,3";
-				TVOS_DEPLOYMENT_TARGET = 17.0;
+				TVOS_DEPLOYMENT_TARGET = 17.6;
 			};
 			name = Release;
 		};
@@ -817,7 +852,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		136D3E582EB756330094210C /* XCRemoteSwiftPackageReference "FakeWebKit" */ = {
+		121C82992EB8166B0000D62C /* XCRemoteSwiftPackageReference "FakeWebKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/undeaDD/FakeWebKit";
 			requirement = {
@@ -825,7 +860,7 @@
 				kind = branch;
 			};
 		};
-		13D8192C2EB5FD06002274AE /* XCRemoteSwiftPackageReference "MPVKit" */ = {
+		132E48472EB8F6240037E2EC /* XCRemoteSwiftPackageReference "MPVKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/cranci1/MPVKit/";
 			requirement = {
@@ -841,36 +876,27 @@
 				minimumVersion = 8.6.1;
 			};
 		};
-		13F072C12E4B2F8500EF90EB /* XCRemoteSwiftPackageReference "SoraCore" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/cranci1/SoraCore";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		136D3E592EB756330094210C /* FakeWebKit */ = {
+		121C829A2EB8166B0000D62C /* FakeWebKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 136D3E582EB756330094210C /* XCRemoteSwiftPackageReference "FakeWebKit" */;
+			package = 121C82992EB8166B0000D62C /* XCRemoteSwiftPackageReference "FakeWebKit" */;
 			productName = FakeWebKit;
 		};
-		13D8192D2EB5FD06002274AE /* MPVKit-GPL */ = {
+		12E7AF5D2EB7FDB7003B7664 /* FakeWebKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 13D8192C2EB5FD06002274AE /* XCRemoteSwiftPackageReference "MPVKit" */;
+			productName = FakeWebKit;
+		};
+		132E48482EB8F6240037E2EC /* MPVKit-GPL */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 132E48472EB8F6240037E2EC /* XCRemoteSwiftPackageReference "MPVKit" */;
 			productName = "MPVKit-GPL";
 		};
 		13E34D292E535CB500C7BF07 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 13E34D282E535CB500C7BF07 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
-		};
-		13F072C22E4B2F8500EF90EB /* SoraCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 13F072C12E4B2F8500EF90EB /* XCRemoteSwiftPackageReference "SoraCore" */;
-			productName = SoraCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
