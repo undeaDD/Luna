@@ -372,7 +372,7 @@ final class PlayerViewController: UIViewController {
 #if !os(tvOS)
         if #available(iOS 26.0, *) {
             displayLayer.preferredDynamicRange = .automatic
-        } else {
+        } else if #available(iOS 17.0, *) {
             displayLayer.wantsExtendedDynamicRangeContent = true
         }
 #endif
