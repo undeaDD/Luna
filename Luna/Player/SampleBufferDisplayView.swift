@@ -44,7 +44,7 @@ final class SampleBufferDisplayView: UIView {
             displayLayer.wantsExtendedDynamicRangeContent = true
         }
 #endif
-        if #available(iOS 18.0, *) {
+        if #available(iOS 17.0, *) {
             displayLayer.wantsExtendedDynamicRangeContent = true
         }
 #endif
