@@ -369,13 +369,16 @@ final class PlayerViewController: UIViewController {
         displayLayer.frame = videoContainer.bounds
         displayLayer.videoGravity = .resizeAspect
 #if compiler(>=6.0)
-#if !os(tvOS)
-        if #available(iOS 26.0, *) {
-            displayLayer.preferredDynamicRange = .automatic
-        } else if #available(iOS 17.0, *) {
-            displayLayer.wantsExtendedDynamicRangeContent = true
-        }
-#endif
+    if #available(iOS 26.0, tvOS 26.0, *) {
+        displayLayer.preferredDynamicRange = .automatic
+    } else {
+        #if !os(tvOS)
+            if #available(iOS 17.0, *) {
+                displayLayer.wantsExtendedDynamicRangeContent = true
+            }
+        #endif
+    }
+#elseif !os(tvOS)
         if #available(iOS 17.0, *) {
             displayLayer.wantsExtendedDynamicRangeContent = true
         }

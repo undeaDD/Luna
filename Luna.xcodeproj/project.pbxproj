@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		121C829B2EB8166B0000D62C /* FakeWebKit in Frameworks */ = {isa = PBXBuildFile; productRef = 121C829A2EB8166B0000D62C /* FakeWebKit */; };
+		129CC9072EBA1D4600D2D84B /* Build.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 129CC9062EBA1D4600D2D84B /* Build.xcconfig */; };
+		129CC90C2EBA920C00D2D84B /* Bundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 129CC90B2EBA920A00D2D84B /* Bundle.swift */; };
 		12E7AF5E2EB7FDB7003B7664 /* FakeWebKit in Frameworks */ = {isa = PBXBuildFile; productRef = 12E7AF5D2EB7FDB7003B7664 /* FakeWebKit */; };
 		12E7AF602EB80775003B7664 /* Platform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E7AF5F2EB80771003B7664 /* Platform.swift */; };
 		1324E7BB2E940BD70036B5F5 /* PlayerPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324E7B32E940BD70036B5F5 /* PlayerPreset.swift */; };
@@ -27,9 +28,6 @@
 		13B2E5742E7597B9009F3271 /* JSController-NetworkFetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B2E5732E7597B9009F3271 /* JSController-NetworkFetch.swift */; };
 		13B6F3452EA4C6BC00DECD2B /* ProgressManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B6F3442EA4C6BC00DECD2B /* ProgressManager.swift */; };
 		13DCC4F62E58B40F0028AE91 /* HybridSimilarity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13DCC4F52E58B40F0028AE91 /* HybridSimilarity.swift */; };
-		13E13CEC2EBA38F6000CD8CC /* SoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = 13E13CEB2EBA38F6000CD8CC /* SoraCore */; };
-		13E13CEF2EBA3B1B000CD8CC /* MPVKit-GPL in Frameworks */ = {isa = PBXBuildFile; productRef = 13E13CEE2EBA3B1B000CD8CC /* MPVKit-GPL */; };
-		13E34D2A2E535CB500C7BF07 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 13E34D292E535CB500C7BF07 /* Kingfisher */; };
 		13F0725F2E4B2D3300EF90EB /* SoraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F0725E2E4B2D3300EF90EB /* SoraApp.swift */; };
 		13F072632E4B2D3700EF90EB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13F072622E4B2D3700EF90EB /* Assets.xcassets */; };
 		13F0729B2E4B2D9200EF90EB /* Services.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F0726E2E4B2D9000EF90EB /* Services.swift */; };
@@ -71,6 +69,10 @@
 		13F187B02E6F38CE00747F7E /* CreateCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187AA2E6F38CE00747F7E /* CreateCollectionView.swift */; };
 		13F187B12E6F38CE00747F7E /* CollectionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F187AB2E6F38CE00747F7E /* CollectionDetailView.swift */; };
 		13F315B02EAD03F70025BD7A /* SubtitleLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F315AF2EAD03F70025BD7A /* SubtitleLoader.swift */; };
+		13F518382EBCE02F00DEF778 /* SoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = 13F518372EBCE02F00DEF778 /* SoraCore */; };
+		13F5183B2EBCE03400DEF778 /* FakeWebKit in Frameworks */ = {isa = PBXBuildFile; productRef = 13F5183A2EBCE03400DEF778 /* FakeWebKit */; };
+		13F5183E2EBCE03C00DEF778 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 13F5183D2EBCE03C00DEF778 /* Kingfisher */; };
+		13F518412EBCE1A100DEF778 /* MPVKit-GPL in Frameworks */ = {isa = PBXBuildFile; productRef = 13F518402EBCE1A100DEF778 /* MPVKit-GPL */; };
 		13F5B58F2E7308F300565E75 /* HomeSectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B58E2E7308F300565E75 /* HomeSectionsView.swift */; };
 		13F5B5922E73090000565E75 /* HomeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B5912E73090000565E75 /* HomeSection.swift */; };
 		13F5B5952E730CB200565E75 /* TMDBContentFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F5B5942E730CB200565E75 /* TMDBContentFilter.swift */; };
@@ -91,6 +93,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		129CC9062EBA1D4600D2D84B /* Build.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Build.xcconfig; sourceTree = "<group>"; };
+		129CC9082EBA1F8400D2D84B /* Build.local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Build.local.xcconfig; sourceTree = "<group>"; };
+		129CC90B2EBA920A00D2D84B /* Bundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundle.swift; sourceTree = "<group>"; };
 		12E7AF5F2EB80771003B7664 /* Platform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Platform.swift; sourceTree = "<group>"; };
 		1324E7B32E940BD70036B5F5 /* PlayerPreset.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerPreset.swift; sourceTree = "<group>"; };
 		1324E7B42E940BD70036B5F5 /* MPVSoftwareRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MPVSoftwareRenderer.swift; sourceTree = "<group>"; };
@@ -164,11 +169,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				13F5183E2EBCE03C00DEF778 /* Kingfisher in Frameworks */,
+				13F518382EBCE02F00DEF778 /* SoraCore in Frameworks */,
+				13F5183B2EBCE03400DEF778 /* FakeWebKit in Frameworks */,
 				12E7AF5E2EB7FDB7003B7664 /* FakeWebKit in Frameworks */,
-				13E13CEC2EBA38F6000CD8CC /* SoraCore in Frameworks */,
-				13E34D2A2E535CB500C7BF07 /* Kingfisher in Frameworks */,
-				121C829B2EB8166B0000D62C /* FakeWebKit in Frameworks */,
-				13E13CEF2EBA3B1B000CD8CC /* MPVKit-GPL in Frameworks */,
+				13F518412EBCE1A100DEF778 /* MPVKit-GPL in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -216,6 +221,8 @@
 		13F072522E4B2D3300EF90EB = {
 			isa = PBXGroup;
 			children = (
+				129CC9062EBA1D4600D2D84B /* Build.xcconfig */,
+				129CC9082EBA1F8400D2D84B /* Build.local.xcconfig */,
 				13F0725D2E4B2D3300EF90EB /* Luna */,
 				13F0725C2E4B2D3300EF90EB /* Products */,
 			);
@@ -315,6 +322,7 @@
 		13F0728C2E4B2D9100EF90EB /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				129CC90B2EBA920A00D2D84B /* Bundle.swift */,
 				13F0728F2E4B2D9100EF90EB /* URLSession */,
 				13F0728D2E4B2D9100EF90EB /* UIImage */,
 				13F072912E4B2D9100EF90EB /* Color */,
@@ -454,6 +462,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13F0726A2E4B2D3700EF90EB /* Build configuration list for PBXNativeTarget "Luna" */;
 			buildPhases = (
+				129CC90A2EBA1FEA00D2D84B /* Load Build Config */,
 				13F072572E4B2D3300EF90EB /* Sources */,
 				13F072582E4B2D3300EF90EB /* Frameworks */,
 				13F072592E4B2D3300EF90EB /* Resources */,
@@ -465,11 +474,11 @@
 			);
 			name = Luna;
 			packageProductDependencies = (
-				13E34D292E535CB500C7BF07 /* Kingfisher */,
 				12E7AF5D2EB7FDB7003B7664 /* FakeWebKit */,
-				121C829A2EB8166B0000D62C /* FakeWebKit */,
-				13E13CEB2EBA38F6000CD8CC /* SoraCore */,
-				13E13CEE2EBA3B1B000CD8CC /* MPVKit-GPL */,
+				13F518372EBCE02F00DEF778 /* SoraCore */,
+				13F5183A2EBCE03400DEF778 /* FakeWebKit */,
+				13F5183D2EBCE03C00DEF778 /* Kingfisher */,
+				13F518402EBCE1A100DEF778 /* MPVKit-GPL */,
 			);
 			productName = Sora;
 			productReference = 13F0725B2E4B2D3300EF90EB /* Luna.app */;
@@ -500,10 +509,10 @@
 			);
 			mainGroup = 13F072522E4B2D3300EF90EB;
 			packageReferences = (
-				13E34D282E535CB500C7BF07 /* XCRemoteSwiftPackageReference "Kingfisher" */,
-				121C82992EB8166B0000D62C /* XCRemoteSwiftPackageReference "FakeWebKit" */,
-				13E13CEA2EBA38F6000CD8CC /* XCRemoteSwiftPackageReference "SoraCore" */,
-				13E13CED2EBA3B1B000CD8CC /* XCRemoteSwiftPackageReference "MPVKit" */,
+				13F518362EBCE02F00DEF778 /* XCRemoteSwiftPackageReference "SoraCore" */,
+				13F518392EBCE03400DEF778 /* XCRemoteSwiftPackageReference "FakeWebKit" */,
+				13F5183C2EBCE03C00DEF778 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				13F5183F2EBCE1A100DEF778 /* XCRemoteSwiftPackageReference "MPVKit" */,
 			);
 			productRefGroup = 13F0725C2E4B2D3300EF90EB /* Products */;
 			projectDirPath = "";
@@ -520,10 +529,33 @@
 			buildActionMask = 2147483647;
 			files = (
 				13F072632E4B2D3700EF90EB /* Assets.xcassets in Resources */,
+				129CC9072EBA1D4600D2D84B /* Build.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		129CC90A2EBA1FEA00D2D84B /* Load Build Config */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Load Build Config";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ ! -f \"${PROJECT_DIR}/Build.local.xcconfig\" ]; then\n  echo \"⚠️  No Build.local.xcconfig found — using default build config\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		13F072572E4B2D3300EF90EB /* Sources */ = {
@@ -531,6 +563,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				12E7AF602EB80775003B7664 /* Platform.swift in Sources */,
+				129CC90C2EBA920C00D2D84B /* Bundle.swift in Sources */,
 				13DCC4F62E58B40F0028AE91 /* HybridSimilarity.swift in Sources */,
 				13F072A32E4B2D9200EF90EB /* SearchView.swift in Sources */,
 				13830AEC2E55BD9200B3CDE4 /* AlgorithmManager.swift in Sources */,
@@ -600,6 +633,7 @@
 /* Begin XCBuildConfiguration section */
 		13F072682E4B2D3700EF90EB /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 129CC9062EBA1D4600D2D84B /* Build.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -664,6 +698,7 @@
 		};
 		13F072692E4B2D3700EF90EB /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 129CC9062EBA1D4600D2D84B /* Build.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -720,6 +755,7 @@
 		};
 		13F0726B2E4B2D3700EF90EB /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 129CC9062EBA1D4600D2D84B /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -727,7 +763,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 399LMK6Q2Y;
+				DEVELOPMENT_TEAM = "${DEVELOPMENT_TEAM}";
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
@@ -744,7 +780,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Luna/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Luna;
+				INFOPLIST_KEY_CFBundleDisplayName = "${APP_NAME}";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -761,20 +797,21 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = me.cranci.solar;
+				PRODUCT_BUNDLE_IDENTIFIER = "${BUNDLE_IDENTIFIER}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,3";
-				TVOS_DEPLOYMENT_TARGET = 17.2;
+				TVOS_DEPLOYMENT_TARGET = 17.5;
 			};
 			name = Debug;
 		};
 		13F0726C2E4B2D3700EF90EB /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 129CC9062EBA1D4600D2D84B /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -782,7 +819,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 399LMK6Q2Y;
+				DEVELOPMENT_TEAM = "${DEVELOPMENT_TEAM}";
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
@@ -799,7 +836,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Luna/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Luna;
+				INFOPLIST_KEY_CFBundleDisplayName = "${APP_NAME}";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -816,15 +853,15 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = me.cranci.solar;
+				PRODUCT_BUNDLE_IDENTIFIER = "${BUNDLE_IDENTIFIER}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,3";
-				TVOS_DEPLOYMENT_TARGET = 17.2;
+				TVOS_DEPLOYMENT_TARGET = 17.5;
 			};
 			name = Release;
 		};
@@ -852,15 +889,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		121C82992EB8166B0000D62C /* XCRemoteSwiftPackageReference "FakeWebKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/undeaDD/FakeWebKit";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-		13E13CEA2EBA38F6000CD8CC /* XCRemoteSwiftPackageReference "SoraCore" */ = {
+		13F518362EBCE02F00DEF778 /* XCRemoteSwiftPackageReference "SoraCore" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/cranci1/SoraCore";
 			requirement = {
@@ -868,7 +897,23 @@
 				kind = branch;
 			};
 		};
-		13E13CED2EBA3B1B000CD8CC /* XCRemoteSwiftPackageReference "MPVKit" */ = {
+		13F518392EBCE03400DEF778 /* XCRemoteSwiftPackageReference "FakeWebKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/undeaDD/FakeWebKit";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		13F5183C2EBCE03C00DEF778 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.6.1;
+			};
+		};
+		13F5183F2EBCE1A100DEF778 /* XCRemoteSwiftPackageReference "MPVKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/cranci1/MPVKit/";
 			requirement = {
@@ -876,40 +921,32 @@
 				kind = branch;
 			};
 		};
-		13E34D282E535CB500C7BF07 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/onevcat/Kingfisher";
-			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 8.6.1;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		121C829A2EB8166B0000D62C /* FakeWebKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 121C82992EB8166B0000D62C /* XCRemoteSwiftPackageReference "FakeWebKit" */;
-			productName = FakeWebKit;
-		};
 		12E7AF5D2EB7FDB7003B7664 /* FakeWebKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FakeWebKit;
 		};
-		13E13CEB2EBA38F6000CD8CC /* SoraCore */ = {
+		13F518372EBCE02F00DEF778 /* SoraCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 13E13CEA2EBA38F6000CD8CC /* XCRemoteSwiftPackageReference "SoraCore" */;
+			package = 13F518362EBCE02F00DEF778 /* XCRemoteSwiftPackageReference "SoraCore" */;
 			productName = SoraCore;
 		};
-		13E13CEE2EBA3B1B000CD8CC /* MPVKit-GPL */ = {
+		13F5183A2EBCE03400DEF778 /* FakeWebKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 13E13CED2EBA3B1B000CD8CC /* XCRemoteSwiftPackageReference "MPVKit" */;
-			productName = "MPVKit-GPL";
+			package = 13F518392EBCE03400DEF778 /* XCRemoteSwiftPackageReference "FakeWebKit" */;
+			productName = FakeWebKit;
 		};
-		13E34D292E535CB500C7BF07 /* Kingfisher */ = {
+		13F5183D2EBCE03C00DEF778 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 13E34D282E535CB500C7BF07 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			package = 13F5183C2EBCE03C00DEF778 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		13F518402EBCE1A100DEF778 /* MPVKit-GPL */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 13F5183F2EBCE1A100DEF778 /* XCRemoteSwiftPackageReference "MPVKit" */;
+			productName = "MPVKit-GPL";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
