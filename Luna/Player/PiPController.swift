@@ -98,7 +98,7 @@ extension PiPController: AVPictureInPictureControllerDelegate {
     }
     
     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
-        print("Failed to start PiP: \(error)")
+        Logger.shared.log("Failed to start PiP: \(error)", type: "mpv")
         delegate?.pipController(self, didStartPictureInPicture: false)
     }
     

@@ -142,6 +142,14 @@ struct SettingsView: View {
                     Text("Logger")
                 }
             }
+
+            Section {
+                NavigationLink(destination: StorageView()) {
+                    Text("Storage")
+                }
+            } header: {
+                Text("DATA AND STORAGE")
+            }
         }
         #if !os(tvOS)
             .navigationTitle("Settings")

@@ -44,7 +44,7 @@ enum ExternalPlayer: String, CaseIterable, Identifiable {
 
 enum InAppPlayer: String, CaseIterable, Identifiable {
     case normal = "Normal"
-    case mpv = "MPV"
+    case mpv = "mpv"
     
     var id: String { rawValue }
 }

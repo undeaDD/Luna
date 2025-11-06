@@ -44,13 +44,13 @@ struct HomeView: View {
     @StateObject private var contentFilter = TMDBContentFilter.shared
     
     private var heroHeight: CGFloat {
-        #if os(tvOS)
-            UIScreen.main.bounds.height * 0.8
-        #else
-            580
-        #endif
+#if os(tvOS)
+        UIScreen.main.bounds.height * 0.8
+#else
+        580
+#endif
     }
-
+    
     var body: some View {
         if #available(iOS 16.0, *) {
             NavigationStack {
@@ -206,11 +206,11 @@ struct HomeView: View {
                                 .fontWeight(.medium)
                                 .foregroundColor(.white)
                         }
-                            .font(.caption)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, isTvOS ? 16 : 6)
-                            .padding(.vertical, isTvOS ? 10 : 2)
-                            .applyLiquidGlassBackground(cornerRadius: 12)
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, isTvOS ? 16 : 6)
+                        .padding(.vertical, isTvOS ? 10 : 2)
+                        .applyLiquidGlassBackground(cornerRadius: 12)
                     }
                 }
                 
@@ -246,8 +246,8 @@ struct HomeView: View {
 #if os(tvOS)
                                 .onContinuousHover { phase in
                                     switch phase {
-                                        case .active(_): isHoveringWatchNow = true
-                                        case .ended: isHoveringWatchNow = false
+                                    case .active(_): isHoveringWatchNow = true
+                                    case .ended: isHoveringWatchNow = false
                                     }
                                 }
 #endif
@@ -258,7 +258,7 @@ struct HomeView: View {
                                 .applyLiquidGlassBackground(cornerRadius: 12)
                         })
                     }
-
+                    
                     Button(action: {
                         // TODO: Add to watchlist
                     }) {
@@ -277,21 +277,21 @@ struct HomeView: View {
 #if os(tvOS)
                                 .onContinuousHover { phase in
                                     switch phase {
-                                        case .active(_): isHoveringWatchlist = true
-                                        case .ended: isHoveringWatchlist = false
+                                    case .active(_): isHoveringWatchlist = true
+                                    case .ended: isHoveringWatchlist = false
                                     }
                                 }
 #endif
                         }, else: { view in
                             view.frame(width: 140, height: 42)
                                 .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.black.opacity(0.3))
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(.white.opacity(0.3), lineWidth: 1)
-                                    )
-                            )
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.black.opacity(0.3))
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(.white.opacity(0.3), lineWidth: 1)
+                                        )
+                                )
                         })
                         .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                     }
@@ -305,8 +305,6 @@ struct HomeView: View {
     @ViewBuilder
     private var contentSections: some View {
         VStack(spacing: 0) {
-            continueWatchingSection
-            
             ForEach(homeSections.filter { $0.isEnabled }) { section in
                 switch section.id {
                 case "trending":
@@ -369,35 +367,6 @@ struct HomeView: View {
         .background(Color.clear)
     }
     
-    @ViewBuilder
-    private var continueWatchingSection: some View {
-        EmptyView()
-        
-        /*
-         VStack(alignment: .leading, spacing: 16) {
-         HStack {
-         Text("Continue Watching")
-         .font(.title2)
-         .fontWeight(.bold)
-         .foregroundColor(.primary)
-         
-         Spacer()
-         }
-         .padding(.horizontal)
-         
-         ScrollView(.horizontal, showsIndicators: false) {
-         LazyHStack(spacing: 12) {
-         ForEach(0..<3, id: \.self) { _ in
-         ContinueWatchingPlaceholder()
-         }
-         }
-         .padding(.horizontal)
-         }
-         }
-         .padding(.vertical, 24)
-         */
-    }
-    
     private func loadContent() {
         isLoading = true
         errorMessage = nil
@@ -444,15 +413,15 @@ struct MediaSection: View {
     let title: String
     let items: [TMDBSearchResult]
     let isLarge: Bool
-
+    
     var gap: Double { isTvOS ? 50.0 : 20.0 }
-
+    
     init(title: String, items: [TMDBSearchResult], isLarge: Bool = Bool.random()) {
         self.title = title
         self.items = items
         self.isLarge = isLarge
     }
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
@@ -463,7 +432,7 @@ struct MediaSection: View {
                 Spacer()
             }
             .padding(.horizontal, isTvOS ? 40 : 16)
-
+            
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: gap) {
                     ForEach(items) { item in
@@ -493,7 +462,7 @@ struct ScrollClipModifier: ViewModifier {
 struct MediaCard: View {
     let result: TMDBSearchResult
     @State private var isHovering: Bool = false
-
+    
     var body: some View {
         NavigationLink(destination: MediaDetailView(searchResult: result)) {
             VStack(alignment: .leading, spacing: 6) {
@@ -519,37 +488,8 @@ struct MediaCard: View {
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 1)
                     })
-
+                
                 VStack(alignment: .leading, spacing: isTvOS ? 10 : 3) {
-
-                    HStack(alignment: .center, spacing: isTvOS ? 18 : 8) {
-                        Text(result.isMovie ? "Movie" : "TV")
-                            .font(.caption2)
-                            .foregroundColor(.white)
-                            .lineLimit(1)
-                            .fixedSize()
-                            .padding(.horizontal, isTvOS ? 16 : 6)
-                            .padding(.vertical, isTvOS ? 10 : 2)
-                            .applyLiquidGlassBackground(cornerRadius: 12)
-
-                        HStack(alignment: .firstTextBaseline, spacing: 4) {
-                            Image(systemName: "star.fill")
-                                .font(.caption2)
-                                .foregroundColor(.yellow)
-
-                            Text(String(format: "%.1f", result.voteAverage ?? 0.0))
-                                .font(.caption2)
-                                .foregroundColor(.white)
-                                .lineLimit(1)
-                                .fixedSize()
-                        }
-                            .padding(.horizontal, isTvOS ? 16 : 6)
-                            .padding(.vertical, isTvOS ? 10 : 2)
-                            .applyLiquidGlassBackground(cornerRadius: 12)
-
-                        Spacer()
-                    }
-                    
                     Text(result.displayTitle)
                         .tvos({ view in
                             view
@@ -562,6 +502,34 @@ struct MediaCard: View {
                         })
                         .font(.caption)
                         .lineLimit(1)
+                    
+                    HStack(alignment: .center, spacing: isTvOS ? 18 : 8) {
+                        Text(result.isMovie ? "Movie" : "TV")
+                            .font(.caption2)
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                            .fixedSize()
+                            .padding(.horizontal, isTvOS ? 16 : 6)
+                            .padding(.vertical, isTvOS ? 10 : 2)
+                            .applyLiquidGlassBackground(cornerRadius: 12)
+                        
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            Image(systemName: "star.fill")
+                                .font(.caption2)
+                                .foregroundColor(.yellow)
+                            
+                            Text(String(format: "%.1f", result.voteAverage ?? 0.0))
+                                .font(.caption2)
+                                .foregroundColor(.white)
+                                .lineLimit(1)
+                                .fixedSize()
+                        }
+                        .padding(.horizontal, isTvOS ? 16 : 6)
+                        .padding(.vertical, isTvOS ? 10 : 2)
+                        .applyLiquidGlassBackground(cornerRadius: 12)
+                        
+                        Spacer()
+                    }
                 }
                 .frame(width: isTvOS ? 280 : 120, alignment: .leading)
             }
@@ -590,39 +558,6 @@ struct ContinuousHoverModifier: ViewModifier {
                 }
         } else {
             content
-        }
-    }
-}
-
-struct ContinueWatchingPlaceholder: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ZStack(alignment: .center) {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.2))
-                    .frame(width: 200, height: 120)
-                
-                VStack(spacing: 8) {
-                    Image(systemName: "play.rectangle")
-                        .font(.title2)
-                        .foregroundColor(.gray)
-                    Text("Coming Soon")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
-            }
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Continue Watching")
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
-                
-                Text("Feature coming soon...")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-            }
-            .frame(width: 200, alignment: .leading)
         }
     }
 }

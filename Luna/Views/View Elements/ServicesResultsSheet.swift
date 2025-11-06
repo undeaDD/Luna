@@ -1110,9 +1110,9 @@ struct ModulesSearchResultsSheet: View {
             Logger.shared.log("Final headers: \(finalHeaders)", type: "Stream")
             
             let inAppRaw = UserDefaults.standard.string(forKey: "inAppPlayer") ?? "Normal"
-            let inAppPlayer = (inAppRaw == "MPV") ? "MPV" : "Normal"
+            let inAppPlayer = (inAppRaw == "mpv") ? "mpv" : "Normal"
             
-            if inAppPlayer == "MPV" {
+            if inAppPlayer == "mpv" {
                 let preset = PlayerPreset.presets.first
                 let pvc = PlayerViewController(
                     url: streamURL,
