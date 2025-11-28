@@ -16,6 +16,7 @@ struct EpisodeCell: View {
     let onTap: () -> Void
     let onMarkWatched: () -> Void
     let onResetProgress: () -> Void
+    let useSolidBackground: Bool
     
     @State private var isWatched: Bool = false
     @AppStorage("horizontalEpisodeList") private var horizontalEpisodeList: Bool = false
@@ -43,7 +44,7 @@ struct EpisodeCell: View {
                                 .overlay(
                                     Image(systemName: "tv")
                                         .font(.title2)
-                                        .foregroundColor(.white.opacity(0.7))
+                                        .foregroundColor(.primary.opacity(0.7))
                                 )
                         }
                         .resizable()
@@ -69,7 +70,7 @@ struct EpisodeCell: View {
                     HStack {
                         Text("Episode \(episode.episodeNumber)")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(useSolidBackground ? .primary : .white)
                         
                         Spacer()
                         
@@ -81,18 +82,18 @@ struct EpisodeCell: View {
                                         .foregroundColor(.yellow)
                                     Text(String(format: "%.1f", episode.voteAverage))
                                         .font(.caption2)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(useSolidBackground ? .primary : .white)
                                     
                                     
                                     Text(" - ")
                                         .font(.caption2)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.primary)
                                 }
                                 
                                 if let runtime = episode.runtime, runtime > 0 {
                                     Text(episode.runtimeFormatted)
                                         .font(.caption2)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.primary)
                                 }
                             }
                         }
@@ -110,14 +111,14 @@ struct EpisodeCell: View {
                     if !episode.name.isEmpty {
                         Text(episode.name)
                             .font(.subheadline)
-                            .foregroundColor(.white)
+                            .foregroundColor(useSolidBackground ? .primary : .white)
                             .lineLimit(1)
                     }
                     
                     if let overview = episode.overview, !overview.isEmpty {
                         Text(overview)
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(useSolidBackground ? .primary : .white)
                             .lineLimit(3)
                             .multilineTextAlignment(.leading)
                     }
@@ -132,7 +133,6 @@ struct EpisodeCell: View {
         .onAppear {
             loadEpisodeProgress()
         }
-        .preferredColorScheme(.dark)
     }
     
     @MainActor private var verticalLayout: some View {
@@ -146,7 +146,7 @@ struct EpisodeCell: View {
                                 .overlay(
                                     Image(systemName: "tv")
                                         .font(.title2)
-                                        .foregroundColor(.white.opacity(0.7))
+                                        .foregroundColor(.primary.opacity(0.7))
                                 )
                         }
                         .resizable()
@@ -172,7 +172,7 @@ struct EpisodeCell: View {
                     HStack {
                         Text("Episode \(episode.episodeNumber)")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(useSolidBackground ? .primary : .white)
                             .fontWeight(.medium)
                         
                         Spacer()
@@ -185,12 +185,12 @@ struct EpisodeCell: View {
                                         .foregroundColor(.yellow)
                                     Text(String(format: "%.1f", episode.voteAverage))
                                         .font(.caption2)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(useSolidBackground ? .primary : .white)
                                     
                                     
                                     Text(" - ")
                                         .font(.caption2)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(useSolidBackground ? .primary : .white)
                                 }
                                 
                                 if let runtime = episode.runtime, runtime > 0 {
@@ -215,13 +215,13 @@ struct EpisodeCell: View {
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .lineLimit(1)
-                            .foregroundColor(.white)
+                            .foregroundColor(useSolidBackground ? .primary : .white)
                     }
                     
                     if let overview = episode.overview, !overview.isEmpty {
                         Text(overview)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(useSolidBackground ? .primary : .white)
                             .lineLimit(3)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -241,7 +241,6 @@ struct EpisodeCell: View {
         .onAppear {
             loadEpisodeProgress()
         }
-        .preferredColorScheme(.dark)
     }
     
     private var episodeContextMenu: some View {
