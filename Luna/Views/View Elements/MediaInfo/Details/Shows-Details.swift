@@ -14,7 +14,6 @@ struct TVShowSeasonsSection: View {
     @Binding var seasonDetail: TMDBSeasonDetail?
     @Binding var selectedEpisodeForSearch: TMDBEpisode?
     let tmdbService: TMDBService
-    let useSolidBackground: Bool
     
     @State private var isLoadingSeason = false
     @State private var showingSearchResults = false
@@ -40,39 +39,39 @@ struct TVShowSeasonsSection: View {
                     .fontWeight(.bold)
                     .padding(.horizontal)
                     .padding(.top)
-                    .foregroundColor(useSolidBackground ? .primary : .white)
+                    .foregroundColor(.white)
                 
                 VStack(spacing: 12) {
                     if let numberOfSeasons = tvShow.numberOfSeasons, numberOfSeasons > 0 {
-                        DetailRow(title: "Seasons", value: "\(numberOfSeasons)", useSolidBackground: useSolidBackground)
+                        DetailRow(title: "Seasons", value: "\(numberOfSeasons)")
                     }
-
+                    
                     if let numberOfEpisodes = tvShow.numberOfEpisodes, numberOfEpisodes > 0 {
-                        DetailRow(title: "Episodes", value: "\(numberOfEpisodes)", useSolidBackground: useSolidBackground)
+                        DetailRow(title: "Episodes", value: "\(numberOfEpisodes)")
                     }
-
+                    
                     if !tvShow.genres.isEmpty {
-                        DetailRow(title: "Genres", value: tvShow.genres.map { $0.name }.joined(separator: ", "), useSolidBackground: useSolidBackground)
+                        DetailRow(title: "Genres", value: tvShow.genres.map { $0.name }.joined(separator: ", "))
                     }
-
+                    
                     if tvShow.voteAverage > 0 {
-                        DetailRow(title: "Rating", value: String(format: "%.1f/10", tvShow.voteAverage), useSolidBackground: useSolidBackground)
+                        DetailRow(title: "Rating", value: String(format: "%.1f/10", tvShow.voteAverage))
                     }
-
+                    
                     if let ageRating = getAgeRating(from: tvShow.contentRatings) {
-                        DetailRow(title: "Age Rating", value: ageRating, useSolidBackground: useSolidBackground)
+                        DetailRow(title: "Age Rating", value: ageRating)
                     }
-
+                    
                     if let firstAirDate = tvShow.firstAirDate, !firstAirDate.isEmpty {
-                        DetailRow(title: "First aired", value: "\(firstAirDate)", useSolidBackground: useSolidBackground)
+                        DetailRow(title: "First aired", value: "\(firstAirDate)")
                     }
-
+                    
                     if let lastAirDate = tvShow.lastAirDate, !lastAirDate.isEmpty {
-                        DetailRow(title: "Last aired", value: "\(lastAirDate)", useSolidBackground: useSolidBackground)
+                        DetailRow(title: "Last aired", value: "\(lastAirDate)")
                     }
-
+                    
                     if let status = tvShow.status {
-                        DetailRow(title: "Status", value: status, useSolidBackground: useSolidBackground)
+                        DetailRow(title: "Status", value: status)
                     }
                 }
                 .padding(.horizontal)
@@ -88,7 +87,7 @@ struct TVShowSeasonsSection: View {
                                 .fontWeight(.bold)
                             Spacer()
                         }
-                        .foregroundColor(useSolidBackground ? .primary : .white)
+                        .foregroundColor(.white)
                         .padding(.horizontal)
                         .padding(.top)
                         
@@ -100,7 +99,7 @@ struct TVShowSeasonsSection: View {
                                 .fontWeight(.bold)
                             Spacer()
                         }
-                        .foregroundColor(useSolidBackground ? .primary : .white)
+                        .foregroundColor(.white)
                         .padding(.horizontal)
                         .padding(.top)
                     } else {
@@ -144,10 +143,10 @@ struct TVShowSeasonsSection: View {
             Text("Episodes")
                 .font(.title2)
                 .fontWeight(.bold)
-                .foregroundColor(useSolidBackground ? .primary : .white)
-
+                .foregroundColor(.white)
+            
             Spacer()
-
+            
             if let tvShow = tvShow, isGroupedBySeasons && useSeasonMenu {
                 seasonMenu(for: tvShow)
             }
@@ -179,10 +178,10 @@ struct TVShowSeasonsSection: View {
             } label: {
                 HStack(spacing: 4) {
                     Text(selectedSeason?.name ?? "Season 1")
-
+                    
                     Image(systemName: "chevron.down")
                 }
-                .foregroundColor(useSolidBackground ? .primary : .white)
+                .foregroundColor(.white)
             }
         }
     }
@@ -232,7 +231,7 @@ struct TVShowSeasonsSection: View {
                                         .lineLimit(1)
                                         .multilineTextAlignment(.center)
                                         .frame(width: 80)
-                                        .foregroundColor(selectedSeason?.id == season.id ? .accentColor : (useSolidBackground ? .primary : .white))
+                                        .foregroundColor(selectedSeason?.id == season.id ? .accentColor : .white)
                                 }
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -296,8 +295,7 @@ struct TVShowSeasonsSection: View {
                 isSelected: isSelected,
                 onTap: { episodeTapAction(episode: episode) },
                 onMarkWatched: { markAsWatched(episode: episode) },
-                onResetProgress: { resetProgress(episode: episode) },
-                useSolidBackground: useSolidBackground
+                onResetProgress: { resetProgress(episode: episode) }
             )
         } else {
             EmptyView()

@@ -57,7 +57,7 @@ struct MediaDetailView: View {
         ZStack {
             Group {
                 if useSolidBackgroundBehindHero {
-                    Color(UIColor.systemBackground)
+                    Color.background
                 } else {
                     ambientColor
                 }
@@ -204,23 +204,16 @@ struct MediaDetailView: View {
     @ViewBuilder
     private var contentContainer: some View {
         VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 16) {
                 synopsisSection
                 playAndBookmarkSection
-
+                
                 if searchResult.isMovie {
-                    MovieDetailsSection(movie: movieDetail, useSolidBackground: useSolidBackgroundBehindHero)
+                    MovieDetailsSection(movie: movieDetail)
                 } else {
-                    TVShowSeasonsSection(
-                        tvShow: tvShowDetail,
-                        selectedSeason: $selectedSeason,
-                        seasonDetail: $seasonDetail,
-                        selectedEpisodeForSearch: $selectedEpisodeForSearch,
-                        tmdbService: tmdbService,
-                        useSolidBackground: useSolidBackgroundBehindHero
-                    )
+                    episodesSection
                 }
-
+                
                 Spacer(minLength: 50)
             }
             .background(Color.clear)
@@ -263,104 +256,30 @@ struct MediaDetailView: View {
     private var synopsisSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             if !synopsis.isEmpty {
-                if showFullSynopsis && synopsis.count > 180 {
-                    let attributedString = {
-                        let mainColor = useSolidBackgroundBehindHero ? UIColor.label : UIColor.white
-                        var attr = AttributedString(synopsis, attributes: AttributeContainer([.foregroundColor: mainColor]))
-                        attr.append(AttributedString("\nShow less...", attributes: AttributeContainer([.foregroundColor: UIColor(Color.accentColor)])))
-                        return attr
-                    }()
-                    Text(attributedString)
-                        .font(.body)
-                        .lineLimit(nil)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.horizontal)
-                        .padding(.top, 20)
-                        .onTapGesture {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showFullSynopsis.toggle()
-                            }
+                Text(showFullSynopsis ? synopsis : String(synopsis.prefix(180)) + (synopsis.count > 180 ? "..." : ""))
+                    .font(.body)
+                    .foregroundColor(.white)
+                    .lineLimit(showFullSynopsis ? nil : 3)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal)
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showFullSynopsis.toggle()
                         }
-                } else {
-                    if synopsis.count > 180 {
-                        let truncated = String(synopsis.prefix(180))
-                        let mainColor = useSolidBackgroundBehindHero ? UIColor.label : UIColor.white
-                        let attr = {
-                            var a = AttributedString(truncated, attributes: AttributeContainer([.foregroundColor: mainColor]))
-                            a.append(AttributedString("\nShow more...", attributes: AttributeContainer([.foregroundColor: UIColor(Color.accentColor)])))
-                            return a
-                        }()
-                        Text(attr)
-                            .font(.body)
-                            .lineLimit(nil)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .padding(.horizontal)
-                            .padding(.top, 20)
-                            .onTapGesture {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    showFullSynopsis.toggle()
-                                }
-                            }
-                    } else {
-                        Text(synopsis)
-                            .font(.body)
-                            .foregroundColor(useSolidBackgroundBehindHero ? .primary : .white)
-                            .lineLimit(nil)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .padding(.horizontal)
-                            .padding(.top, 20)
                     }
-                }
             } else if let overview = searchResult.isMovie ? movieDetail?.overview : tvShowDetail?.overview,
                       !overview.isEmpty {
-                if showFullSynopsis && overview.count > 200 {
-                    let attributedString = {
-                        let mainColor = useSolidBackgroundBehindHero ? UIColor.label : UIColor.white
-                        var attr = AttributedString(overview, attributes: AttributeContainer([.foregroundColor: mainColor]))
-                        attr.append(AttributedString("\nShow less...", attributes: AttributeContainer([.foregroundColor: UIColor(Color.accentColor)])))
-                        return attr
-                    }()
-                    Text(attributedString)
-                        .font(.body)
-                        .lineLimit(nil)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.horizontal)
-                        .padding(.top, 20)
-                        .onTapGesture {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showFullSynopsis.toggle()
-                            }
+                Text(showFullSynopsis ? overview : String(overview.prefix(200)) + (overview.count > 200 ? "..." : ""))
+                    .font(.body)
+                    .foregroundColor(.white)
+                    .lineLimit(showFullSynopsis ? nil : 3)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal)
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showFullSynopsis.toggle()
                         }
-                } else {
-                    if overview.count > 200 {
-                        let truncated = String(overview.prefix(200))
-                        let mainColor = useSolidBackgroundBehindHero ? UIColor.label : UIColor.white
-                        let attr = {
-                            var a = AttributedString(truncated, attributes: AttributeContainer([.foregroundColor: mainColor]))
-                            a.append(AttributedString("\nShow more...", attributes: AttributeContainer([.foregroundColor: UIColor(Color.accentColor)])))
-                            return a
-                        }()
-                        Text(attr)
-                            .font(.body)
-                            .lineLimit(nil)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .padding(.horizontal)
-                            .padding(.top, 20)
-                            .onTapGesture {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    showFullSynopsis.toggle()
-                                }
-                            }
-                    } else {
-                        Text(overview)
-                            .font(.body)
-                            .foregroundColor(useSolidBackgroundBehindHero ? .primary : .white)
-                            .lineLimit(nil)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .padding(.horizontal)
-                            .padding(.top, 20)
                     }
-                }
             }
         }
     }
@@ -373,77 +292,42 @@ struct MediaDetailView: View {
             }) {
                 HStack {
                     Image(systemName: serviceManager.activeServices.isEmpty ? "exclamationmark.triangle" : "play.fill")
-
+                    
                     Text(serviceManager.activeServices.isEmpty ? "No Services" : playButtonText)
                         .fontWeight(.semibold)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
                 .padding(.horizontal, 25)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.black)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                        )
+                .applyLiquidGlassBackground(
+                    cornerRadius: 12,
+                    fallbackFill: serviceManager.activeServices.isEmpty ? Color.gray.opacity(0.3) : Color.black.opacity(0.2),
+                    fallbackMaterial: serviceManager.activeServices.isEmpty ? .thinMaterial : .ultraThinMaterial,
+                    glassTint: serviceManager.activeServices.isEmpty ? Color.gray.opacity(0.3) : nil
                 )
                 .foregroundColor(serviceManager.activeServices.isEmpty ? .secondary : .white)
                 .cornerRadius(8)
             }
             .disabled(serviceManager.activeServices.isEmpty)
-
+            
             Button(action: {
                 toggleBookmark()
             }) {
                 Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
                     .font(.title2)
                     .frame(width: 42, height: 42)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.black)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                            )
-                    )
+                    .applyLiquidGlassBackground(cornerRadius: 12)
                     .foregroundColor(isBookmarked ? .yellow : .white)
                     .cornerRadius(8)
             }
-
-            Button(action: {
-                // Watchlist action - same as bookmark for now
-                toggleBookmark()
-            }) {
-                Image(systemName: "list.star")
-                    .font(.title2)
-                    .frame(width: 42, height: 42)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.black)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                            )
-                    )
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-            }
-
+            
             Button(action: {
                 showingAddToCollection = true
             }) {
                 Image(systemName: "plus")
                     .font(.title2)
                     .frame(width: 42, height: 42)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.black)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                            )
-                    )
+                    .applyLiquidGlassBackground(cornerRadius: 12)
                     .foregroundColor(.white)
                     .cornerRadius(8)
             }
@@ -459,8 +343,7 @@ struct MediaDetailView: View {
                 selectedSeason: $selectedSeason,
                 seasonDetail: $seasonDetail,
                 selectedEpisodeForSearch: $selectedEpisodeForSearch,
-                tmdbService: tmdbService,
-                useSolidBackground: useSolidBackgroundBehindHero
+                tmdbService: tmdbService
             )
         }
     }

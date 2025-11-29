@@ -42,7 +42,6 @@ struct HomeView: View {
     
     @StateObject private var tmdbService = TMDBService.shared
     @StateObject private var contentFilter = TMDBContentFilter.shared
-    @ObservedObject private var libraryManager = LibraryManager.shared
     
     private var heroHeight: CGFloat {
 #if os(tvOS)
@@ -69,7 +68,7 @@ struct HomeView: View {
         ZStack {
             Group {
                 if useSolidBackgroundBehindHero {
-                    Color(UIColor.systemBackground)
+                    Color.background
                 } else {
                     ambientColor
                 }
@@ -197,12 +196,12 @@ struct HomeView: View {
                         .padding(.horizontal, isTvOS ? 16 : 6)
                         .padding(.vertical, isTvOS ? 10 : 2)
                         .applyLiquidGlassBackground(cornerRadius: 12)
-
+                    
                     if (hero.voteAverage ?? 0.0) > 0 {
                         HStack(alignment: .firstTextBaseline, spacing: 2) {
                             Image(systemName: "star.fill")
                                 .foregroundColor(.yellow)
-
+                            
                             Text(String(format: "%.1f", hero.voteAverage ?? 0.0))
                                 .fontWeight(.medium)
                                 .foregroundColor(.white)
@@ -214,14 +213,14 @@ struct HomeView: View {
                         .applyLiquidGlassBackground(cornerRadius: 12)
                     }
                 }
-
+                
                 Text(hero.displayTitle)
                     .font(.system(size: isTvOS ? 40 : 25))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
-
+                
                 if let overview = hero.overview, !overview.isEmpty {
                     Text(String(overview.prefix(100)) + (overview.count > 100 ? "..." : ""))
                         .foregroundColor(isTvOS ? .secondary : .white.opacity(0.9))
@@ -229,7 +228,7 @@ struct HomeView: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 20)
                 }
-
+                
                 HStack(spacing: 16) {
                     NavigationLink(destination: MediaDetailView(searchResult: hero)) {
                         HStack(spacing: 8) {
@@ -259,14 +258,12 @@ struct HomeView: View {
                                 .applyLiquidGlassBackground(cornerRadius: 12)
                         })
                     }
-
+                    
                     Button(action: {
-                        if let hero = heroContent {
-                            libraryManager.toggleBookmark(for: hero)
-                        }
+                        // TODO: Add to watchlist
                     }) {
                         HStack(spacing: 8) {
-                            Image(systemName: heroContent != nil && libraryManager.isBookmarked(heroContent!) ? "checkmark" : "plus")
+                            Image(systemName: "plus")
                                 .font(.subheadline)
                             Text("Watchlist")
                                 .fontWeight(.semibold)
@@ -287,7 +284,14 @@ struct HomeView: View {
 #endif
                         }, else: { view in
                             view.frame(width: 140, height: 42)
-                                .applyLiquidGlassBackground(cornerRadius: 12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.black.opacity(0.3))
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(.white.opacity(0.3), lineWidth: 1)
+                                        )
+                                )
                         })
                         .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                     }
@@ -295,7 +299,6 @@ struct HomeView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.horizontal)
-            .offset(y: -20)
         }
     }
     
@@ -309,56 +312,49 @@ struct HomeView: View {
                         let filteredTrending = trendingContent.filter { $0.id != heroContent?.id }
                         MediaSection(
                             title: section.title,
-                            items: Array(filteredTrending.prefix(15)),
-                            useSolidBackground: useSolidBackgroundBehindHero
+                            items: Array(filteredTrending.prefix(15))
                         )
                     }
                 case "popularMovies":
                     if !popularMovies.isEmpty {
                         MediaSection(
                             title: section.title,
-                            items: popularMovies.prefix(15).map { $0.asSearchResult },
-                            useSolidBackground: useSolidBackgroundBehindHero
+                            items: popularMovies.prefix(15).map { $0.asSearchResult }
                         )
                     }
                 case "popularTVShows":
                     if !popularTVShows.isEmpty {
                         MediaSection(
                             title: section.title,
-                            items: popularTVShows.prefix(15).map { $0.asSearchResult },
-                            useSolidBackground: useSolidBackgroundBehindHero
+                            items: popularTVShows.prefix(15).map { $0.asSearchResult }
                         )
                     }
                 case "popularAnime":
                     if !popularAnime.isEmpty {
                         MediaSection(
                             title: section.title,
-                            items: popularAnime.prefix(15).map { $0.asSearchResult },
-                            useSolidBackground: useSolidBackgroundBehindHero
+                            items: popularAnime.prefix(15).map { $0.asSearchResult }
                         )
                     }
                 case "topRatedMovies":
                     if !topRatedMovies.isEmpty {
                         MediaSection(
                             title: section.title,
-                            items: topRatedMovies.prefix(15).map { $0.asSearchResult },
-                            useSolidBackground: useSolidBackgroundBehindHero
+                            items: topRatedMovies.prefix(15).map { $0.asSearchResult }
                         )
                     }
                 case "topRatedTVShows":
                     if !topRatedTVShows.isEmpty {
                         MediaSection(
                             title: section.title,
-                            items: topRatedTVShows.prefix(15).map { $0.asSearchResult },
-                            useSolidBackground: useSolidBackgroundBehindHero
+                            items: topRatedTVShows.prefix(15).map { $0.asSearchResult }
                         )
                     }
                 case "topRatedAnime":
                     if !topRatedAnime.isEmpty {
                         MediaSection(
                             title: section.title,
-                            items: topRatedAnime.prefix(15).map { $0.asSearchResult },
-                            useSolidBackground: useSolidBackgroundBehindHero
+                            items: topRatedAnime.prefix(15).map { $0.asSearchResult }
                         )
                     }
                 default:
@@ -417,15 +413,13 @@ struct MediaSection: View {
     let title: String
     let items: [TMDBSearchResult]
     let isLarge: Bool
-    let useSolidBackground: Bool
-
+    
     var gap: Double { isTvOS ? 50.0 : 20.0 }
-
-    init(title: String, items: [TMDBSearchResult], isLarge: Bool = Bool.random(), useSolidBackground: Bool = false) {
+    
+    init(title: String, items: [TMDBSearchResult], isLarge: Bool = Bool.random()) {
         self.title = title
         self.items = items
         self.isLarge = isLarge
-        self.useSolidBackground = useSolidBackground
     }
     
     var body: some View {
@@ -434,7 +428,7 @@ struct MediaSection: View {
                 Text(title)
                     .font(isTvOS ? .headline : .title2)
                     .fontWeight(.bold)
-                    .foregroundColor(useSolidBackground ? .primary : .white)
+                    .foregroundColor(.white)
                 Spacer()
             }
             .padding(.horizontal, isTvOS ? 40 : 16)
@@ -442,7 +436,7 @@ struct MediaSection: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: gap) {
                     ForEach(items) { item in
-                        MediaCard(result: item, useSolidBackground: useSolidBackground)
+                        MediaCard(result: item)
                     }
                 }
                 .padding(.horizontal, isTvOS ? 40 : 16)
@@ -467,7 +461,6 @@ struct ScrollClipModifier: ViewModifier {
 
 struct MediaCard: View {
     let result: TMDBSearchResult
-    let useSolidBackground: Bool
     @State private var isHovering: Bool = false
     
     var body: some View {
@@ -504,7 +497,7 @@ struct MediaCard: View {
                                 .fontWeight(.semibold)
                         }, else: { view in
                             view
-                                .foregroundColor(useSolidBackground ? .primary : .white)
+                                .foregroundColor(.white)
                                 .fontWeight(.medium)
                         })
                         .font(.caption)
@@ -513,7 +506,7 @@ struct MediaCard: View {
                     HStack(alignment: .center, spacing: isTvOS ? 18 : 8) {
                         Text(result.isMovie ? "Movie" : "TV")
                             .font(.caption2)
-                            .foregroundColor(useSolidBackground ? .primary : .white)
+                            .foregroundColor(.white)
                             .lineLimit(1)
                             .fixedSize()
                             .padding(.horizontal, isTvOS ? 16 : 6)
@@ -527,7 +520,7 @@ struct MediaCard: View {
                             
                             Text(String(format: "%.1f", result.voteAverage ?? 0.0))
                                 .font(.caption2)
-                                .foregroundColor(useSolidBackground ? .primary : .white)
+                                .foregroundColor(.white)
                                 .lineLimit(1)
                                 .fixedSize()
                         }
