@@ -11,17 +11,13 @@ class KanzenEngine: ObservableObject
 {
     private let controller: KanzenRunnerController
     init() {
-        Logger.shared.log("Launching Kanzen Engine",type: "General")
         let moduleRunner = KanzenModuleRunner()
         let outputFormatter = KanzenOutputFormatter()
         self.controller = KanzenRunnerController(moduleRunner: moduleRunner, outputFormatter: outputFormatter)
-        Logger.shared.log("Successfully Kanzen Launched Engine",type: "General")
     }
     
     func loadScript(_ script: String) throws {
-        Logger.shared.log("Loading Module Script",type: "General")
         try self.controller.loadScript(_script: script)
-        Logger.shared.log("Successfully  Loaded Module Script",type: "General")
     }
     
     func getContentData(params:Any?, completion: @escaping ([String:Any]?) -> Void)
