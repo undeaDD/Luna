@@ -28,6 +28,7 @@ struct MediaDetailView: View {
     @State private var showingAddToCollection = false
     @State private var selectedEpisodeForSearch: TMDBEpisode?
     @State private var romajiTitle: String?
+    @State private var logoURL: String?
     
     @StateObject private var serviceManager = ServiceManager.shared
     @ObservedObject private var libraryManager = LibraryManager.shared
@@ -35,6 +36,7 @@ struct MediaDetailView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @AppStorage("useSolidBackgroundBehindHero") private var useSolidBackgroundBehindHero = false
+    @AppStorage("tmdbLanguage") private var selectedLanguage = "en-US"
 
     private var headerHeight: CGFloat {
 #if os(tvOS)
@@ -253,18 +255,35 @@ struct MediaDetailView: View {
     
     @ViewBuilder
     private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(searchResult.displayTitle)
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .lineLimit(3)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, alignment: .center)
+        VStack(alignment: .center, spacing: 8) {
+            if let logoURL = logoURL {
+                KFImage(URL(string: logoURL))
+                    .placeholder {
+                        titleText
+                    }
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: 280, maxHeight: 100)
+                    .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 2)
+            } else {
+                titleText
+            }
         }
         .frame(maxWidth: .infinity, alignment: .center)
-        .padding(.bottom, 40)
+        .padding(.bottom, 10)
         .padding(.horizontal)
+    }
+    
+    @ViewBuilder
+    private var titleText: some View {
+        Text(searchResult.displayTitle)
+            .font(.largeTitle)
+            .fontWeight(.bold)
+            .foregroundColor(.white)
+            .lineLimit(3)
+            .multilineTextAlignment(.center)
+            .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 2)
+            .frame(maxWidth: .infinity, alignment: .center)
     }
     
     @ViewBuilder
@@ -399,21 +418,35 @@ struct MediaDetailView: View {
         Task {
             do {
                 if searchResult.isMovie {
-                    let detail = try await tmdbService.getMovieDetails(id: searchResult.id)
-                    let romaji = await tmdbService.getRomajiTitle(for: "movie", id: searchResult.id)
+                    async let detailTask = tmdbService.getMovieDetails(id: searchResult.id)
+                    async let imagesTask = tmdbService.getMovieImages(id: searchResult.id, preferredLanguage: selectedLanguage)
+                    async let romajiTask = tmdbService.getRomajiTitle(for: "movie", id: searchResult.id)
+                    
+                    let (detail, images, romaji) = try await (detailTask, imagesTask, romajiTask)
+                    
                     await MainActor.run {
                         self.movieDetail = detail
                         self.synopsis = detail.overview ?? ""
                         self.romajiTitle = romaji
+                        if let logo = tmdbService.getBestLogo(from: images, preferredLanguage: selectedLanguage) {
+                            self.logoURL = logo.fullURL
+                        }
                         self.isLoading = false
                     }
                 } else {
-                    let detail = try await tmdbService.getTVShowWithSeasons(id: searchResult.id)
-                    let romaji = await tmdbService.getRomajiTitle(for: "tv", id: searchResult.id)
+                    async let detailTask = tmdbService.getTVShowWithSeasons(id: searchResult.id)
+                    async let imagesTask = tmdbService.getTVShowImages(id: searchResult.id, preferredLanguage: selectedLanguage)
+                    async let romajiTask = tmdbService.getRomajiTitle(for: "tv", id: searchResult.id)
+                    
+                    let (detail, images, romaji) = try await (detailTask, imagesTask, romajiTask)
+                    
                     await MainActor.run {
                         self.tvShowDetail = detail
                         self.synopsis = detail.overview ?? ""
                         self.romajiTitle = romaji
+                        if let logo = tmdbService.getBestLogo(from: images, preferredLanguage: selectedLanguage) {
+                            self.logoURL = logo.fullURL
+                        }
                         if let firstSeason = detail.seasons.first(where: { $0.seasonNumber > 0 }) {
                             self.selectedSeason = firstSeason
                         }
