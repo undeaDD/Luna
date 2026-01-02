@@ -34,22 +34,26 @@ case "$PLATFORM" in
 esac
 
 if [ -z "$2" ]; then
-    STORAGE="LOCAL"
-    echo -e "\033[33m[WARN] No storage mode supplied, defaulting to LOCAL\033[0m" >&2
+    STORAGE="local"
+    echo -e "\033[33m[WARN] No storage mode supplied, defaulting to 'local'\033[0m" >&2
 else
     STORAGE="$2"
 fi
 
-case "$STORAGE" in
-    cloudkit|CLOUDKIT)
+STORAGE_LOWER=$(echo "$STORAGE" | tr '[:upper:]' '[:lower:]')
+
+case "$STORAGE_LOWER" in
+    cloudkit)
         USE_STORAGE_OVERRIDE="USE_STORAGE=CLOUDKIT"
         ;;
-    local|LOCAL)
+    local)
         USE_STORAGE_OVERRIDE="USE_STORAGE=LOCAL"
         ;;
     *)
         echo "Error: Invalid storage mode '$STORAGE'"
         echo "Usage: $0 [ios|tvos] [local|cloudkit]"
+        echo "  local    - Build for local storage mode (default)"
+        echo "  cloudkit - Build for cloudkit storage mode"
         exit 1
         ;;
 esac

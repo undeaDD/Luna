@@ -14,7 +14,7 @@ CODE_SIGN_ENTITLEMENTS = Luna/Luna.entitlements
 
 // Do you have a valid Cloudkit entitlement?
 // -----------------------------------------
-// Yes    -> then use CLOUDKIT and dont forget to set the ICLOUD_CONTAINER_ID !!!
+// Yes    -> then use CLOUDKIT and don't forget to set the ICLOUD_CONTAINER_ID !!!
 // No     -> use LOCAL storage
 // Unsure -> use LOCAL
 // -----------------------------------------

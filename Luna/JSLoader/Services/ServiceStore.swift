@@ -232,7 +232,6 @@ public final class ServiceStore {
         }
     }
 
-    // For batch updates (like reordering)
     public func updateMultipleServices(updates: [(id: UUID, update: (ServiceEntity) -> Void)]) {
         guard let container = container else {
             Logger.shared.log("Container not initialized: updateMultipleServices", type: "CloudKit")

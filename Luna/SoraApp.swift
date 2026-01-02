@@ -26,6 +26,7 @@ struct SoraApp: App {
                     .environmentObject(moduleManager)
                     .environmentObject(favouriteManager)
                     .accentColor(settings.accentColor)
+                    .storageErrorOverlay()
             } else {
                 ContentView()
                     .storageErrorOverlay()

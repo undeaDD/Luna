@@ -1,6 +1,8 @@
 //
-//  StorageErrorOverlay.swift
+//  StorageErrorToast.swift
 //  Luna
+//
+//  Created by Dominic on 01.01.26.
 //
 
 import SwiftUI
@@ -35,7 +37,7 @@ struct StorageErrorToast: View {
                 Spacer()
 
                 Button("Restart App") {
-                    exit(0)
+                    fatalError("StorageErrorToast requested app termination due to an unrecoverable storage error. Please restart the app.")
                 }
                 .foregroundColor(.red)
             }
