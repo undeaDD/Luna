@@ -18,6 +18,8 @@ CODE_SIGN_ENTITLEMENTS = Luna/Luna.entitlements
 // No     -> use LOCAL storage
 // Unsure -> use LOCAL
 // -----------------------------------------
+// Execute "Product" -> "Clean Build Folder" if you change this
+// -----------------------------------------
 // USE_STORAGE = CLOUDKIT | LOCAL | <leave empty>
 USE_STORAGE = CLOUDKIT
 SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) $(USE_STORAGE)

@@ -326,11 +326,15 @@ extension ServiceStore.StorageStatus {
     var description: String {
         switch self {
         case .ready:
-            return "synced"
+            #if CLOUDKIT
+                return "Synced and ready"
+            #else
+                return "Local Storage only"
+            #endif
         case .unavailable:
-            return "local only"
+            return "Unavailable"
         case .unknown:
-            return "unknown"
+            return "Unknown"
         }
     }
 
