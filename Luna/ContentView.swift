@@ -9,7 +9,10 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var accentColorManager = AccentColorManager.shared
-    
+
+    @State private var showStorageError = false
+    @State private var storageErrorMessage = ""
+
     var body: some View {
 #if compiler(>=6.0)
         if #available(iOS 26.0, tvOS 26.0, *) {

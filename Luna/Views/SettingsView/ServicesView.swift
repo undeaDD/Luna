@@ -23,6 +23,8 @@ struct ServicesView: View {
                 } else {
                     servicesList
                 }
+
+                storageStatusView
             }
             .navigationTitle("Services")
 #if !os(tvOS)
@@ -98,7 +100,33 @@ struct ServicesView: View {
             }
         }
     }
-    
+
+    @ViewBuilder
+    private var storageStatusView: some View {
+        let status = ServiceManager.shared.getStatus()
+
+        HStack(spacing: 12) {
+            Image(systemName: status.symbol)
+                .foregroundStyle(status.tint)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("iCloud Status:")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Text(status.description)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+            }
+
+            Spacer()
+        }
+        .padding()
+        #if !os(tvOS)
+            .background(Color(.secondarySystemBackground))
+        #endif
+    }
+
     private func deleteServices(offsets: IndexSet) {
         for index in offsets {
             let service = serviceManager.services[index]

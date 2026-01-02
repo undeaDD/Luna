@@ -101,8 +101,6 @@ struct PlayerSettingsView: View {
                             .multilineTextAlignment(.leading)
                     }
                     
-                    Spacer()
-                    
                     Stepper(value: $store.holdSpeed, in: 0.1...3, step: 0.1) {}
                 }
 #endif

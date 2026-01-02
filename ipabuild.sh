@@ -26,12 +26,36 @@ case "$PLATFORM" in
         ;;
     *)
         echo "Error: Invalid platform '$PLATFORM'"
-        echo "Usage: $0 [ios|tvos]"
+        echo "Usage: $0 [ios|tvos] [local|cloudkit]"
         echo "  ios  - Build for iOS (default)"
         echo "  tvos - Build for tvOS"
         exit 1
         ;;
 esac
+
+if [ -z "$2" ]; then
+    STORAGE="LOCAL"
+    echo -e "\033[33m[WARN] No storage mode supplied, defaulting to LOCAL\033[0m" >&2
+else
+    STORAGE="$2"
+fi
+
+case "$STORAGE" in
+    cloudkit|CLOUDKIT)
+        USE_STORAGE_OVERRIDE="USE_STORAGE=CLOUDKIT"
+        ;;
+    local|LOCAL)
+        USE_STORAGE_OVERRIDE="USE_STORAGE=LOCAL"
+        ;;
+    *)
+        echo "Error: Invalid storage mode '$STORAGE'"
+        echo "Usage: $0 [ios|tvos] [local|cloudkit]"
+        exit 1
+        ;;
+esac
+
+echo "Building for platform: $PLATFORM"
+echo "Storage mode: $STORAGE"
 
 if [ ! -d "build" ]; then
     mkdir build
@@ -49,6 +73,7 @@ xcodebuild -project "$WORKING_LOCATION/$APPLICATION_NAME.xcodeproj" \
     -derivedDataPath "$WORKING_LOCATION/build/DerivedData$PLATFORM" \
     -destination "$XCODE_DESTINATION" \
     -sdk "$SDK" \
+    $USE_STORAGE_OVERRIDE \
     clean build \
     CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO"
 
