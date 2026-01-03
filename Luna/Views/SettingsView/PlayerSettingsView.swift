@@ -100,7 +100,9 @@ struct PlayerSettingsView: View {
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.leading)
                         }
-                        
+
+                        Spacer()
+
                         Stepper(value: $store.holdSpeed, in: 0.1...3, step: 0.1) {}
                     }
                     
