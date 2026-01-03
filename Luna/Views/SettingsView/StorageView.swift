@@ -35,7 +35,9 @@ struct StorageView: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(true)
-                .padding(.vertical)
+                #if os(tvOS)
+                    .padding(.vertical)
+                #endif
 
                 Button(role: .destructive) {
                     showConfirmClear = true
@@ -53,7 +55,9 @@ struct StorageView: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(isClearing || (isLoading && cacheSizeBytes == 0))
-                .padding(.vertical)
+                #if os(tvOS)
+                    .padding(.vertical)
+                #endif
             } header: {
                 Text("APP CACHE")
                     .fontWeight(.bold)
