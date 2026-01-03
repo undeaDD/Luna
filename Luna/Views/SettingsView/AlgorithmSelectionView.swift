@@ -31,9 +31,12 @@ struct AlgorithmSelectionView: View {
                     #endif
                 }
             } header: {
-                Text("SIMILARITY ALGORITHMS")
+                Text("ALGORITHMS")
+                    .fontWeight(.bold)
             } footer: {
                 Text("The similarity algorithm determines how search results are matched and ranked. Jaro-Winkler is recommended for media titles as it performs better with names and short strings, but can fail sometimes.")
+                    .foregroundColor(.secondary)
+                    .padding(.bottom)
             }
         }
         #if os(tvOS)

@@ -113,7 +113,7 @@ struct SettingsView: View {
                     Text("Content Filters")
                 }
             } header: {
-                Text("TMDB Settings")
+                Text("TMDB SETTINGS")
                     .fontWeight(.bold)
             } footer: {
                 Text("Configure language preferences and content filtering options for TMDB data.")

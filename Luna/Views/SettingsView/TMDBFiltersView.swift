@@ -59,9 +59,12 @@ struct TMDBFiltersView: View {
                     }
                 #endif
             } header: {
-                Text("Content Filters")
+                Text("CONTENT FILTERS")
+                    .fontWeight(.bold)
             } footer: {
                 Text("Filters apply to all TMDB content including search results and home contents.")
+                    .foregroundColor(.secondary)
+                    .padding(.bottom)
             }
             
             Section {
@@ -93,7 +96,8 @@ struct TMDBFiltersView: View {
                     }
                 #endif
             } header: {
-                Text("Information")
+                Text("INFORMATION")
+                    .fontWeight(.bold)
             }
         }
         #if os(tvOS)

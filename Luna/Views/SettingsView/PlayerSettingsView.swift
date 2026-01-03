@@ -94,7 +94,7 @@ struct PlayerSettingsView: View {
                             Text(String(format: "Hold Speed: %.1fx", store.holdSpeed))
                                 .font(.subheadline)
                                 .fontWeight(.medium)
-                            
+
                             Text("Value of long-press speed playback in the player.")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
@@ -105,69 +105,96 @@ struct PlayerSettingsView: View {
 
                         Stepper(value: $store.holdSpeed, in: 0.1...3, step: 0.1) {}
                     }
-                    
+
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Force Landscape")
                                 .font(.subheadline)
                                 .fontWeight(.medium)
-                            
+
                             Text("Force landscape orientation in the video player.")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.leading)
                         }
-                        
+
                         Spacer()
-                        
+
                         Toggle("", isOn: $store.landscapeOnly)
                             .tint(accentColorManager.currentAccentColor)
                     }
                 }
-                .disabled(store.externalPlayer != .none)
-            #endif
+                    .disabled(store.externalPlayer != .none)
 
-            Section(header: Text("Media Player")) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Media Player")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                        
-                        Text("The app must be installed and accept the provided scheme.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.leading)
-                    }
-                    
-                    Picker("", selection: $store.externalPlayer) {
-                        ForEach(ExternalPlayer.allCases) { player in
-                            Text(player.rawValue).tag(player)
+                Section(header: Text("Media Player")) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Media Player")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+
+                            Text("The app must be installed and accept the provided scheme.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.leading)
                         }
-                    }
-                    .pickerStyle(.menu)
-                }
-                
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("In-App Player")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                        
-                        Text("Select the internal player software.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.leading)
-                    }
-                    
-                    Picker("", selection: $store.inAppPlayer) {
-                        ForEach(InAppPlayer.allCases) { p in
-                            Text(p.rawValue).tag(p)
+
+                        Picker("", selection: $store.externalPlayer) {
+                            ForEach(ExternalPlayer.allCases) { player in
+                                Text(player.rawValue).tag(player)
+                            }
                         }
+                        .pickerStyle(.menu)
                     }
-                    .pickerStyle(.menu)
+
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("In-App Player")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+
+                            Text("Select the internal player software.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.leading)
+                        }
+
+                        Picker("", selection: $store.inAppPlayer) {
+                            ForEach(InAppPlayer.allCases) { p in
+                                Text(p.rawValue).tag(p)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                    }
                 }
-            }
+            #else
+                Section {
+                    ForEach(InAppPlayer.allCases) { p in
+                        Button {
+                            store.inAppPlayer = p
+                        } label: {
+                            HStack {
+                                Text(p.rawValue)
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                if store.inAppPlayer == p {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.accentColor)
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.vertical)
+                    }
+                } header: {
+                    Text("MEDIA PLAYER")
+                        .fontWeight(.bold)
+                } footer: {
+                    Text("Select the internal player software.")
+                        .foregroundColor(.secondary)
+                        .padding(.bottom)
+                }
+            #endif
         }
         #if os(tvOS)
             .listStyle(.grouped)

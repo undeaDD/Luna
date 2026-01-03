@@ -26,8 +26,13 @@ struct ServicesView: View {
 
                 storageStatusView
             }
-            .navigationTitle("Services")
-#if !os(tvOS)
+            #if os(tvOS)
+                .listStyle(.grouped)
+                .padding(.horizontal, 50)
+                .scrollClipDisabled()
+            #else
+                .navigationTitle("Services")
+            #endif
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if editMode?.wrappedValue != .active {
@@ -35,23 +40,37 @@ struct ServicesView: View {
                             showDownloadAlert = true
                         } label: {
                             Image(systemName: "plus.app")
+                                .tint(.primary)
                         }
                     }
                 }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        withAnimation {
-                            editMode?.wrappedValue =
-                            (editMode?.wrappedValue == .active) ? .inactive : .active
+
+                #if !os(tvOS)
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            withAnimation {
+                                editMode?.wrappedValue =
+                                (editMode?.wrappedValue == .active) ? .inactive : .active
+                            }
+                        } label: {
+                            Image(systemName:
+                                    editMode?.wrappedValue == .active ? "checkmark" : "pencil")
                         }
-                    } label: {
-                        Image(systemName:
-                                editMode?.wrappedValue == .active ? "checkmark" : "pencil")
                     }
-                }
+                #else
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            Task {
+                                await serviceManager.updateServices()
+                            }
+                        } label: {
+                            Image(systemName: "arrow.clockwise")
+                                .tint(.primary)
+                        }
+                        .disabled(serviceManager.isDownloading)
+                    }
+                #endif
             }
-#endif
             .refreshable {
                 await serviceManager.updateServices()
             }
@@ -91,12 +110,21 @@ struct ServicesView: View {
     @ViewBuilder
     private var servicesList: some View {
         List {
-            ForEach(serviceManager.services, id: \.id) { service in
-                ServiceRow(service: service, serviceManager: serviceManager)
-            }
-            .onDelete(perform: deleteServices)
-            .onMove { indices, newOffset in
-                serviceManager.moveServices(fromOffsets: indices, toOffset: newOffset)
+            Section {
+                ForEach(serviceManager.services, id: \.id) { service in
+                    ServiceRow(service: service, serviceManager: serviceManager)
+                }
+                #if !os(tvOS)
+                    .onDelete(perform: deleteServices)
+                    .onMove { indices, newOffset in
+                        serviceManager.moveServices(fromOffsets: indices, toOffset: newOffset)
+                    }
+                #endif
+            } header: {
+                #if os(tvOS)
+                    Text("SERVICES")
+                        .fontWeight(.bold)
+                #endif
             }
         }
     }

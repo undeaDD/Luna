@@ -34,7 +34,8 @@ struct LanguageSelectionView: View {
                 }
             } header: {
                 #if os(tvOS)
-                    Text("Language")
+                    Text("LANGUAGE")
+                        .fontWeight(.bold)
                 #endif
             }
         }
