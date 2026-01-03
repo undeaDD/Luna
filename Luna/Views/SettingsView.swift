@@ -51,7 +51,6 @@ struct SettingsView: View {
 
                     NavigationStack {
                         settingsContent
-                            .padding(.horizontal, 50)
                     }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
@@ -115,8 +114,11 @@ struct SettingsView: View {
                 }
             } header: {
                 Text("TMDB Settings")
+                    .fontWeight(.bold)
             } footer: {
                 Text("Configure language preferences and content filtering options for TMDB data.")
+                    .foregroundColor(.secondary)
+                    .padding(.bottom)
             }
             
             Section {
@@ -134,8 +136,11 @@ struct SettingsView: View {
                 }
             } header: {
                 Text("SEARCH SETTINGS")
+                    .fontWeight(.bold)
             } footer: {
                 Text("Choose the algorithm used to match and rank search results.")
+                    .foregroundColor(.secondary)
+                    .padding(.bottom)
             }
             
             Section {
@@ -150,18 +155,20 @@ struct SettingsView: View {
                 NavigationLink(destination: ServicesView()) {
                     Text("Services")
                 }
-            }
 
-            Section {
                 NavigationLink(destination: StorageView()) {
                     Text("Storage")
                 }
-                
+
                 NavigationLink(destination: LoggerView()) {
                     Text("Logger")
                 }
             } header: {
-                Text("MICS")
+                Text("MISCELLANEOUS")
+                    .fontWeight(.bold)
+            } footer: {
+                Text("")
+                    .padding(.bottom)
             }
 
             #if !os(tvOS)
@@ -172,7 +179,8 @@ struct SettingsView: View {
                     }
             }
             header:{
-                Text("Others")
+                Text("OTHERS")
+                    .fontWeight(.bold)
             }
             #endif
         }
@@ -180,6 +188,7 @@ struct SettingsView: View {
             .navigationTitle("Settings")
         #else
             .listStyle(.grouped)
+            .padding(.horizontal, 50)
             .scrollClipDisabled()
         #endif
     }

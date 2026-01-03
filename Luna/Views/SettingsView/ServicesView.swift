@@ -107,12 +107,12 @@ struct ServicesView: View {
 
         HStack(spacing: 12) {
             Image(systemName: status.symbol)
-                .foregroundStyle(status.tint)
+                .foregroundColor(status.tint)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("iCloud Status:")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
 
                 Text(status.description)
                     .font(.subheadline)
@@ -189,28 +189,28 @@ struct ServiceRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(service.metadata.sourceName)
                     .font(.headline)
-                    .foregroundStyle(.primary)
-                
+                    .foregroundColor(.primary)
+
                 HStack(spacing: 8) {
                     Text(service.metadata.author.name)
                         .font(.caption)
-                        .foregroundStyle(.gray)
-                    
+                        .foregroundColor(.gray)
+
                     Text("•")
                         .font(.caption)
-                        .foregroundStyle(.gray)
-                    
+                        .foregroundColor(.gray)
+
                     Text(service.metadata.language)
                         .font(.caption)
-                        .foregroundStyle(.gray)
-                    
+                        .foregroundColor(.gray)
+
                     Text("•")
                         .font(.caption)
-                        .foregroundStyle(.gray)
-                    
+                        .foregroundColor(.gray)
+
                     Text("v\(service.metadata.version)")
                         .font(.caption)
-                        .foregroundStyle(.gray)
+                        .foregroundColor(.gray)
                 }
             }
             
@@ -222,7 +222,7 @@ struct ServiceRow: View {
                         showingSettings = true
                     }) {
                         Image(systemName: "pencil")
-                            .foregroundStyle(Color.secondary)
+                            .foregroundColor(.secondary)
                             .frame(width: 20, height: 20)
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -230,7 +230,7 @@ struct ServiceRow: View {
                 
                 if isServiceActive {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(Color.accentColor)
+                        .foregroundColor(.accentColor)
                         .frame(width: 20, height: 20)
                 }
             }
