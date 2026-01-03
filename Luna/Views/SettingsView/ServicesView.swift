@@ -102,11 +102,12 @@ struct ServicesView: View {
             
             Text("No Services")
                 .font(.title2)
+                .foregroundColor(.secondary)
                 .fontWeight(.semibold)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    
+
     @ViewBuilder
     private var servicesList: some View {
         List {
@@ -134,18 +135,25 @@ struct ServicesView: View {
         let status = ServiceManager.shared.getStatus()
 
         HStack(spacing: 12) {
-            Image(systemName: status.symbol)
-                .foregroundColor(status.tint)
+            HStack(spacing: 12) {
+                Image(systemName: status.symbol)
+                    .foregroundColor(status.tint)
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text("iCloud Status:")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("iCloud Status:")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
 
-                Text(status.description)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+                    Text(status.description)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                }
             }
+            #if os(tvOS)
+                .padding(.horizontal, 20)
+                .padding(.vertical)
+                .applyLiquidGlassBackground(cornerRadius: 40)
+            #endif
 
             Spacer()
         }
@@ -199,78 +207,122 @@ struct ServiceRow: View {
     }
     
     var body: some View {
-        HStack {
-            KFImage(URL(string: service.metadata.iconUrl))
-                .placeholder {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.gray.opacity(0.2))
-                        .overlay(
-                            Image(systemName: "app.dashed")
-                                .foregroundColor(.secondary)
-                        )
+        #if os(tvOS)
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    serviceManager.setServiceState(service, isActive: !isServiceActive)
                 }
-                .resizable()
-                .frame(width: 40, height: 40)
-                .clipShape(Circle())
-                .padding(.trailing, 10)
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(service.metadata.sourceName)
-                    .font(.headline)
-                    .foregroundColor(.primary)
+            } label: {
+                HStack {
+                    KFImage(URL(string: service.metadata.iconUrl))
+                        .placeholder {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.gray.opacity(0.2))
+                                .overlay(
+                                    Image(systemName: "app.dashed")
+                                        .foregroundColor(.secondary)
+                                )
+                        }
+                        .resizable()
+                        .frame(width: 70, height: 70)
+                        .clipShape(Circle())
 
-                HStack(spacing: 8) {
-                    Text(service.metadata.author.name)
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(service.metadata.sourceName)
+                            .font(.headline)
+                            .foregroundColor(.primary)
 
-                    Text("•")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                        Text("\(service.metadata.author.name) •  \(service.metadata.language) • v\(service.metadata.version)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
 
-                    Text(service.metadata.language)
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                    Spacer()
 
-                    Text("•")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                    HStack(spacing: 5) {
+                        if hasSettings {
+                            Button(action: {
+                                showingSettings = true
+                            }) {
+                                Image(systemName: "pencil")
+                                    .foregroundColor(.secondary)
+                                    .frame(width: 20, height: 20)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
 
-                    Text("v\(service.metadata.version)")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                        if isServiceActive {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.accentColor)
+                                .frame(width: 20, height: 20)
+                        }
+                    }
+                }
+                .sheet(isPresented: $showingSettings) {
+                    ServiceSettingsView(service: service, serviceManager: serviceManager)
+
                 }
             }
-            
-            Spacer()
-            
-            HStack(spacing: 12) {
-                if hasSettings {
-                    Button(action: {
-                        showingSettings = true
-                    }) {
-                        Image(systemName: "pencil")
-                            .foregroundColor(.secondary)
+            .buttonStyle(.plain)
+            .padding(.vertical)
+        #else
+            HStack {
+                KFImage(URL(string: service.metadata.iconUrl))
+                    .placeholder {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.gray.opacity(0.2))
+                            .overlay(
+                                Image(systemName: "app.dashed")
+                                    .foregroundColor(.secondary)
+                            )
+                    }
+                    .resizable()
+                    .frame(width: 40, height: 40)
+                    .clipShape(Circle())
+                    .padding(.trailing, 10)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(service.metadata.sourceName)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+
+                    Text("\(service.metadata.author.name) •  \(service.metadata.language) • v\(service.metadata.version)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+
+                HStack(spacing: 12) {
+                    /* Temporarily disabled until i have more time or someone else implements this.
+                    if hasSettings {
+                        Button(action: {
+                            showingSettings = true
+                        }) {
+                            Image(systemName: "pencil")
+                                .foregroundColor(.secondary)
+                                .frame(width: 20, height: 20)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                     */
+
+                    if isServiceActive {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.accentColor)
                             .frame(width: 20, height: 20)
                     }
-                    .buttonStyle(PlainButtonStyle())
-                }
-                
-                if isServiceActive {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.accentColor)
-                        .frame(width: 20, height: 20)
                 }
             }
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                serviceManager.setServiceState(service, isActive: !isServiceActive)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    serviceManager.setServiceState(service, isActive: !isServiceActive)
+                }
             }
-        }
-        .sheet(isPresented: $showingSettings) {
-            ServiceSettingsView(service: service, serviceManager: serviceManager)
-        }
+            .sheet(isPresented: $showingSettings) {
+                ServiceSettingsView(service: service, serviceManager: serviceManager)
+            }
+        #endif
     }
 }
