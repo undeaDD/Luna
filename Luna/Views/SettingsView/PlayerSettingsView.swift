@@ -87,44 +87,44 @@ struct PlayerSettingsView: View {
     
     var body: some View {
         List {
-            Section(header: Text("Default Player"), footer: Text("This settings work exclusively with the Default media player.")) {
-#if !os(tvOS)
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(String(format: "Hold Speed: %.1fx", store.holdSpeed))
-                            .font(.subheadline)
-                            .fontWeight(.medium)
+            #if !os(tvOS)
+                Section(header: Text("Default Player"), footer: Text("This settings work exclusively with the Default media player.")) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(String(format: "Hold Speed: %.1fx", store.holdSpeed))
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                            
+                            Text("Value of long-press speed playback in the player.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.leading)
+                        }
                         
-                        Text("Value of long-press speed playback in the player.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.leading)
+                        Stepper(value: $store.holdSpeed, in: 0.1...3, step: 0.1) {}
                     }
                     
-                    Stepper(value: $store.holdSpeed, in: 0.1...3, step: 0.1) {}
-                }
-#endif
-                
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Force Landscape")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Force Landscape")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                            
+                            Text("Force landscape orientation in the video player.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.leading)
+                        }
                         
-                        Text("Force landscape orientation in the video player.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.leading)
+                        Spacer()
+                        
+                        Toggle("", isOn: $store.landscapeOnly)
+                            .tint(accentColorManager.currentAccentColor)
                     }
-                    
-                    Spacer()
-                    
-                    Toggle("", isOn: $store.landscapeOnly)
-                        .tint(accentColorManager.currentAccentColor)
                 }
-            }
-            .disabled(store.externalPlayer != .none)
-            
+                .disabled(store.externalPlayer != .none)
+            #endif
+
             Section(header: Text("Media Player")) {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
@@ -167,6 +167,12 @@ struct PlayerSettingsView: View {
                 }
             }
         }
-        .navigationTitle("Media Player")
+        #if os(tvOS)
+            .listStyle(.grouped)
+            .padding(.horizontal, 50)
+            .scrollClipDisabled()
+        #else
+            .navigationTitle("Media Player")
+        #endif
     }
 }

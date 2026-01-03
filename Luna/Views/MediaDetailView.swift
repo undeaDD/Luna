@@ -86,6 +86,7 @@ struct MediaDetailView: View {
 #endif
         }
         .navigationBarHidden(true)
+        .tvOSBackButton()
 #if !os(tvOS)
         .gesture(
             DragGesture()
@@ -95,10 +96,6 @@ struct MediaDetailView: View {
                     }
                 }
         )
-#else
-        .onExitCommand {
-            presentationMode.wrappedValue.dismiss()
-        }
 #endif
         .onAppear {
             loadMediaDetails()
